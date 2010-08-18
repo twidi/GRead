@@ -224,11 +224,14 @@ class WindowController(object):
         if not self.launched and maemo5_present:
             self.win.showMaximized()
         self.launched = True
+        self.manage_orientation()
+                
+    def manage_orientation(self):
         if maemo5_present and self.gread.settings['other']['auto_rotation']:
             geo = QApplication.desktop().screenGeometry()
             if geo.height() > geo.width():
                 # bad hack to force new window to start in portrait mode if needed
-                self.win.setAttribute(Qt.WA_Maemo5AutoOrientation, False)
+                #self.win.setAttribute(Qt.WA_Maemo5AutoOrientation, False)
                 self.win.setAttribute(Qt.WA_Maemo5PortraitOrientation, True)
                 self.win.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
                 self.win.setAttribute(Qt.WA_Maemo5PortraitOrientation, False)
@@ -269,6 +272,7 @@ class WindowController(object):
         
     def set_focused(self):
         self.ui_controller.set_current(self)
+        self.manage_orientation()
 
 class FeedListController(WindowController):
     def __init__(self, ui_controller):
