@@ -1,0 +1,24 @@
+GRead, a Google Application, by S.Angel / Twidi <s.angel@twidi.com>
+
+GRead, in Python and QT, is created for Maemo but also works on my linux desktop.
+
+It uses libgreader (see my fork : http://github.com/twidi/libgreader, forked from http://github.com/askedrelic/libgreader)
+
+The main goal is to have a Google Reader application as good as the "Newsrob" one on Android i used before having my Nokia n900.
+
+The first step is to create an application with the basics, as we have in the "grr" application for Maemo (https://garage.maemo.org/projects/grr/)
+
+This firs step is currently done minus keybord shortcuts, but with many improvements:
+
+- more settings (for interface)
+- works too on 2G/3G (for me grr works only on wifi)
+- auto-rotation
+- thread for network operations
+- manage auto-reconnect, detect lack of connectivity (all operations will be done when the network is available)
+- allow to show original feed content in the application (using QTWebkit) or in the browser
+- see more special feeds (shared and starred, but also "all", "friends", "notes"...)
+- scroll long titles
+
+There is some little bugs like unread count not always sync in feeds list when some item are read (without doing a resync)
+
+To launch it, simply execute the gread.py file in the src directory
