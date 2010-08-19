@@ -16,6 +16,7 @@ from ui.Ui_settings import Ui_Settings
 
 from utils.qwebviewselectionsuppressor import QWebViewSelectionSuppressor
 from operation import Operation
+import time
 
 MAEMO5_PRESENT = False
 MAEMO5_ZOOMKEYS = False
@@ -29,11 +30,6 @@ try:
         pass
 except:
     pass
-
-
-MAX_TITLE_LENGTH = 100
-if MAEMO5_PRESENT:
-    MAX_TITLE_LENGTH = 26
 
 class FeedListDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
@@ -208,9 +204,14 @@ class WindowController(object):
         self.operation_manager = self.gread.operation_manager
         
         self.launched = False
-        self.portrait_mode = False
         
         self.win = QMainWindow(parent, Qt.Window)
+
+        if MAEMO5_PRESENT:
+            self.win.setAttribute(Qt.WA_Maemo5StackedWindow, True)
+            if self.gread.settings['other']['auto_rotation']:
+                self.win.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
+
         self.win.controller = self
         self.ui = ui()
         self.ui.setupUi(self.win)
@@ -219,42 +220,37 @@ class WindowController(object):
         self.win.installEventFilter(WindowEventFilter(self.win))
 
         if MAEMO5_PRESENT:
-            self.win.setAttribute(Qt.WA_Maemo5StackedWindow, True)
-            if self.gread.settings['other']['auto_rotation']:
-                self.win.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
-                self.manage_orientation()
+            self.manage_orientation()
         
     def show(self, app_just_launched=False):
-        if not self.launched and MAEMO5_PRESENT:
-            self.win.resize(800, 480)
+        if MAEMO5_PRESENT and self.gread.settings['other']['auto_rotation'] and self.ui_controller.portrait_mode:
+            # bad hack to force new window to start in portrait mode if needed. removed by manage_orientation, called by set_focused
+            self.win.setAttribute(Qt.WA_Maemo5PortraitOrientation, True)
+            
         self.win.show()
-        if not self.launched and MAEMO5_PRESENT:
-            self.win.showMaximized()
         self.launched = True
-        self.manage_orientation()
         self.update_title()
                 
     def manage_orientation(self):
+        # bad hack to force new window to start in portrait mode if needed
         if MAEMO5_PRESENT and self.gread.settings['other']['auto_rotation']:
-            self.portrait_mode = self.ui_controller.is_portrait_mode()
-            if self.portrait_mode:
-                # bad hack to force new window to start in portrait mode if needed
-                #self.win.setAttribute(Qt.WA_Maemo5AutoOrientation, False)
+            size = self.win.size()
+            if self.ui_controller.portrait_mode and size.height() < size.width():
                 self.win.setAttribute(Qt.WA_Maemo5PortraitOrientation, True)
+            if self.win.testAttribute(Qt.WA_Maemo5PortraitOrientation):
+                time.sleep(2)
                 self.win.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
                 self.win.setAttribute(Qt.WA_Maemo5PortraitOrientation, False)
 
     def settings_updated(self):
         if MAEMO5_PRESENT:
             self.win.setAttribute(Qt.WA_Maemo5AutoOrientation, self.settings['other']['auto_rotation'])
-            if not self.settings['other']['auto_rotation']:
-                self.portrait_mode = False
 
     def get_title(self):
         return QApplication.applicationName()
         
     def update_title(self):
-        if self.ui_controller.current == self:
+        if MAEMO5_PRESENT and self.ui_controller.current == self:
             self.ui_controller.title_timer.stop()
         self.title = self.get_title()
         if not self.title:
@@ -268,14 +264,14 @@ class WindowController(object):
         self.win.setWindowTitle(self.title)
         
         self.title_start = 0
-        self.title_step  = 1
-        if self.ui_controller.current == self and len(self.title) > self.get_max_title_length():
+        self.title_step  = 2
+        if MAEMO5_PRESENT and self.ui_controller.current == self and len(self.title) > self.get_max_title_length():
             self.ui_controller.title_timer.start(200)
             
     def get_max_title_length(self):
-        if MAEMO5_PRESENT and self.portrait_mode:
-            return MAX_TITLE_LENGTH / 2
-        return MAX_TITLE_LENGTH
+        if self.ui_controller.portrait_mode:
+            return 11
+        return 25
             
     def update_display_title(self):
         max = self.get_max_title_length()
@@ -1026,9 +1022,13 @@ class UiController(object):
         self.gread = gread
         self.settings = gread.settings
         self.operation_manager = gread.operation_manager
+        
+        self.portrait_mode = False
+        self.set_portrait_mode()
 
-        self.title_timer = QTimer()
-        QObject.connect(self.title_timer, SIGNAL("timeout()"), self.timeout_title_timer)
+        if MAEMO5_PRESENT:
+            self.title_timer = QTimer()
+            QObject.connect(self.title_timer, SIGNAL("timeout()"), self.timeout_title_timer)
 
         self.controllers = []
         self.feedlist_controller = FeedListController(self)
@@ -1041,15 +1041,16 @@ class UiController(object):
         QApplication.desktop().resized.connect(self.trigger_desktop_resized)
         
 
-    def is_portrait_mode(self):
+    def set_portrait_mode(self):
         if MAEMO5_PRESENT and self.gread.settings['other']['auto_rotation']:
             geo = QApplication.desktop().screenGeometry()
-            return geo.height() > geo.width()
+            self.portrait_mode = geo.height() > geo.width()
+            return self.portrait_mode
         return False
 
     def trigger_desktop_resized(self):
         if self.current and MAEMO5_PRESENT and self.gread.settings['other']['auto_rotation']:
-            self.current.portrait_mode = self.is_portrait_mode()
+            self.set_portrait_mode()
             try:
                 self.current.update_title()
             except:
@@ -1122,6 +1123,8 @@ class UiController(object):
             box.exec_()
             
     def settings_updated(self):
+        if not self.settings['other']['auto_rotation']:
+            self.portrait_mode = False
         for controller in self.controllers:
             controller.settings_updated()
         
