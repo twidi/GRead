@@ -908,6 +908,8 @@ class ItemViewController(WindowController):
         self.action_return_to_item.setVisible(False)
             
         # display content
+        if MAEMO5_PRESENT:
+            self.ui_controller.display_message(item.title)
         self.ui.webView.setHtml(item.content)
         return True
 
