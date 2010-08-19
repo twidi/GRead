@@ -80,7 +80,7 @@ class ListModel(QAbstractListModel):
     def rowCount(self, parent=QModelIndex()):
         return len(self.listdata)
         
-    def index_of(self, item, start=0):
+    def row_of(self, item, start=0):
         row = None
         try:
             row = self.listdata.index(item)
@@ -91,9 +91,36 @@ class ListModel(QAbstractListModel):
                     row = i
                     break
                 i += 1
+        return row
+        
+    def index_of(self, item, start=0):
+        row = self.row_of(item, start)
         if row is not None:
             return self.index(row)
         return None
+        
+    def get_previous(self, item=None):
+        if item is None:
+            return None
+        row = self.row_of(item)
+        if row is None or row <= 0:
+            return None
+        try:
+            return self.listdata[row-1]
+        except:
+            return None
+        
+    def get_next(self, item=None):
+        if item is None:
+            row = 0
+        else:
+            row = self.row_of(item)
+            if row is None or row >= len(self.listdata)-1:
+                return None
+        try:
+            return self.listdata[row + 1]
+        except:
+            return None
 
     #def removeRows(self, row, count, parent=QModelIndex()):
     #    self.beginRemoveRows(parent, row, row + count - 1)
@@ -633,6 +660,11 @@ class ItemListController(WindowController):
         self.ui.menuBar.addAction(self.action_fetch_more)
         self.action_fetch_more.triggered.connect(self.trigger_fetch_more)
 
+        self.action_unsubscribe = QAction("Unsubscribe", self.win)
+        self.action_unsubscribe.setObjectName('actionUnsubscribe')
+        self.ui.menuBar.addAction(self.action_unsubscribe)
+        self.action_unsubscribe.triggered.connect(self.trigger_unsubscribe)
+
         self.action_mark_all_read = QAction("Mark all as read", self.win)
         self.action_mark_all_read.setObjectName('actionMarkAllRead')
         self.ui.menuBar.addAction(self.action_mark_all_read)
@@ -673,6 +705,16 @@ class ItemListController(WindowController):
                 item = index.model().listdata[index.row()]
         if item is not None:
             self.selected_item = item
+        
+    def set_selected(self, item=None):
+        if item is None:
+            item = self.selected_item
+        else:
+            self.selected_item = item
+        if item:
+            index = self.ui.listItemList.model().index_of(item)
+            if index:
+                self.ui.listItemList.setCurrentIndex(index)
         
     def trigger_refresh(self):
         self.get_selected()
@@ -748,12 +790,8 @@ class ItemListController(WindowController):
         self.stop_loading()
 
         # restore selection
-        if self.selected_item:
-            index = self.ui.listItemList.model().index_of(self.selected_item)
-            if index:
-                self.ui.listItemList.setCurrentIndex(index)
+        self.set_selected()
 
-        
     def update_listview(self, content=[]):
         old_model = self.ui.listItemList.model()
         model = ItemListModel(data=content, controller=self)
@@ -764,6 +802,22 @@ class ItemListController(WindowController):
         item = index.model().listdata[index.row()]
         self.get_selected(item)
         self.ui_controller.display_item(item)
+        
+    def activate_next_item(self):
+        item = self.ui.listItemList.model().get_next(self.selected_item)
+        if item:
+            self.set_selected(item)
+            self.ui_controller.display_item(item)
+        else:
+            self.ui_controller.display_message("No more message, please fetch more !")
+
+    def activate_previous_item(self):
+        item = self.ui.listItemList.model().get_previous(self.selected_item)
+        if item:
+            self.set_selected(item)
+            self.ui_controller.display_item(item)
+        else:
+            self.ui_controller.display_message("No more message, you're at the top of the list")
         
     def settings_updated(self):
         super(ItemListController, self).settings_updated()
@@ -810,6 +864,9 @@ class ItemListController(WindowController):
         self.action_mark_all_read.setDisabled(True)
         for item in self.current_feed.getItems():
             self.update_item(item)
+            
+    def trigger_unsubscribe(self):
+        self.ui_controller.display_message('Not yet implemented, sorry...')
 
 class ItemViewEventFilter(QObject):
     def __init__(self, parent=None):
@@ -823,6 +880,12 @@ class ItemViewEventFilter(QObject):
                 return True
             elif key == Qt.Key_F8:
                 self.emit(SIGNAL("zoom"), False)
+                return True
+            elif key in (Qt.Key_J, Qt.Key_N):
+                self.emit(SIGNAL("next"))
+                return True
+            elif key in (Qt.Key_K, Qt.Key_P):
+                self.emit(SIGNAL("previous"))
                 return True
         return QObject.eventFilter(self, obj, event)
 
@@ -850,6 +913,8 @@ class ItemViewController(WindowController):
         self.eventFilter = ItemViewEventFilter(self.win)
         self.win.installEventFilter(self.eventFilter)
         QObject.connect(self.eventFilter, SIGNAL("zoom"), self.zoom)
+        QObject.connect(self.eventFilter, SIGNAL("next"), self.show_next)
+        QObject.connect(self.eventFilter, SIGNAL("previous"), self.show_previous)
         
         # menu bar : starred
         self.action_starred = QAction("Starred", self.win)
@@ -1015,6 +1080,12 @@ class ItemViewController(WindowController):
         
     def trigger_web_view_loaded(self, ok):
         self.stop_loading()
+        
+    def show_next(self):
+        item = self.ui_controller.display_next_item()
+        
+    def show_previous(self):
+        item = self.ui_controller.display_previous_item()
             
 class UiController(object):
     def __init__(self, gread):
@@ -1151,6 +1222,12 @@ class UiController(object):
         self.switch_win('itemview')
         if not self.itemview_controller.set_current_item(item):
             self.switch_win('itemlist', hide_current=True)
+            
+    def display_next_item(self):
+        self.itemlist_controller.activate_next_item()
+            
+    def display_previous_item(self):
+        self.itemlist_controller.activate_previous_item()
 
     def item_read(self, item, is_read):
         self.gread.count_unread()
