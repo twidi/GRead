@@ -10,12 +10,11 @@ TODO:
 - add google search feeds with links like https://www.google.com/reader/api/0/feed-finder?q=twidi&output=json
 - preload feeds after subscribing list (preload the n last items, n updatable in settings)
 """
-
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from ui import UiController
 from operation import Operation, OperationManager
-from libgreader import GoogleReader, ClientAuth, Category, Feed, BaseFeed
+from utils.libgreader import GoogleReader, ClientAuth, Category, Feed, BaseFeed
 import sys, re
 sys.setdefaultencoding("utf-8")
 
