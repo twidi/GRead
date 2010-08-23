@@ -44,7 +44,11 @@
      </widget>
     </item>
     <item>
-     <widget class="QListView" name="listFeedList"/>
+     <widget class="QListView" name="listFeedList">
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

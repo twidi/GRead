@@ -217,6 +217,12 @@ class WindowEventFilter(QObject):
         if event.type() == QEvent.ActivationChange:
             if self.parent().isActiveWindow():
                 self.parent().controller.set_focused()
+        elif event.type() in (QEvent.KeyPress, QEvent.ShortcutOverride) \
+            and event.key() in (Qt.Key_Backspace, Qt.Key_Escape):
+            if self.parent().parent():
+                self.parent().hide()
+                return True
+
         return QObject.eventFilter(self, obj, event)
 
 class WindowController(object):
@@ -644,6 +650,24 @@ class FeedListController(WindowController):
         self.update_title()
 
 
+class ItemListEventFilter(QObject):
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent)
+
+    def eventFilter(self, obj, event):
+        if event.type()  == QEvent.KeyPress:
+            key = event.key()
+            if key == Qt.Key_A and event.modifiers() & Qt.ShiftModifier:
+                self.emit(SIGNAL("mark_all_read"))
+                return True
+            elif key == Qt.Key_R:
+                self.emit(SIGNAL("refresh"))
+                return True
+            elif key == Qt.Key_F:
+                self.emit(SIGNAL("fetch_more"))
+                return True
+        return QObject.eventFilter(self, obj, event)
+
 class ItemListController(WindowController):
     def __init__(self, ui_controller):
         super(ItemListController, self).__init__(ui_controller, Ui_winItemList, ui_controller.feedlist_controller.win)
@@ -701,6 +725,14 @@ class ItemListController(WindowController):
         self.ui.listItemList.setModel(ilm)
         self.ui.listItemList.setItemDelegate(ild)
         self.ui.listItemList.activated.connect(self.activate_item)
+
+        # events
+        self.eventFilter = ItemListEventFilter(self.win)
+        #self.win.installEventFilter(self.eventFilter)
+        self.ui.listItemList.installEventFilter(self.eventFilter)
+        QObject.connect(self.eventFilter, SIGNAL("mark_all_read"), self.trigger_mark_all_read)
+        QObject.connect(self.eventFilter, SIGNAL("refresh"), self.trigger_refresh)
+        QObject.connect(self.eventFilter, SIGNAL("fetch_more"), self.trigger_fetch_more)
 
         # operation signals
         QObject.connect(self.operation_manager, SIGNAL("get_feed_content_done"), self.feed_content_retrieved, Qt.QueuedConnection)
@@ -771,7 +803,7 @@ class ItemListController(WindowController):
         operation = Operation(
             action  = (self.gread.get_feed_content, {'feed': self.current_feed, 'updated_only': self.show_updated_only(),}), 
             name    = 'Get content for %s' % (self.current_feed.id, ), 
-            signal_done  = ('get_feed_content_done',   [self.current_feed.id]), 
+            signal_done  = ('get_feed_content_done',  [self.current_feed.id]), 
             signal_error = ('get_feed_content_error', [self.current_feed.id]),
         )
         operation.manage(self.operation_manager)
@@ -785,7 +817,7 @@ class ItemListController(WindowController):
         operation = Operation(
             action  = (self.gread.get_more_feed_content, {'feed': self.current_feed, 'updated_only': self.show_updated_only(),}), 
             name    = 'Get more content for %s' % (self.current_feed.id, ), 
-            signal_done  = ('get_more_feed_content_done',   [self.current_feed.id]), 
+            signal_done  = ('get_more_feed_content_done',  [self.current_feed.id]), 
             signal_error = ('get_more_feed_content_error', [self.current_feed.id]),
             max_same = 1, 
         )
@@ -878,7 +910,7 @@ class ItemListController(WindowController):
         operation = Operation(
             action  = (self.gread.feed_mark_read, {'feed': self.current_feed}), 
             name    = "Mark feed %s as read" % self.current_feed.id, 
-            signal_done  = ('feed_mark_read_done',   [self.current_feed.id]), 
+            signal_done  = ('feed_mark_read_done',  [self.current_feed.id]), 
             signal_error = ('feed_mark_read_error', [self.current_feed.id]),
         )
         operation.manage(self.operation_manager)
@@ -910,6 +942,21 @@ class ItemViewEventFilter(QObject):
             elif key in (Qt.Key_K, Qt.Key_P):
                 self.emit(SIGNAL("previous"))
                 return True
+            elif key == Qt.Key_M:
+                self.emit(SIGNAL("toggle_read"))
+                return True
+            elif key == Qt.Key_V:
+                if event.modifiers() & Qt.ShiftModifier:
+                    self.emit(SIGNAL("view_original_gread"))
+                else:
+                    self.emit(SIGNAL("view_original_browser"))
+                return True
+            elif key == Qt.Key_S:
+                if event.modifiers() & Qt.ShiftModifier:
+                    self.emit(SIGNAL("toggle_shared"))
+                else:
+                    self.emit(SIGNAL("toggle_starred"))
+                return True
         return QObject.eventFilter(self, obj, event)
 
 class ItemViewController(WindowController):
@@ -932,13 +979,6 @@ class ItemViewController(WindowController):
         self.ui.webView.page().linkClicked.connect(self.link_clicked)
         self.ui.webView.loadFinished.connect(self.trigger_web_view_loaded)
         
-        # events
-        self.eventFilter = ItemViewEventFilter(self.win)
-        self.win.installEventFilter(self.eventFilter)
-        QObject.connect(self.eventFilter, SIGNAL("zoom"), self.zoom)
-        QObject.connect(self.eventFilter, SIGNAL("next"), self.show_next)
-        QObject.connect(self.eventFilter, SIGNAL("previous"), self.show_previous)
-        
         # menu bar : starred
         self.action_starred = QAction("Starred", self.win)
         self.action_starred.setObjectName('actionStarred')
@@ -958,19 +998,31 @@ class ItemViewController(WindowController):
         self.action_mark_read.setCheckable(True)
         self.action_mark_read.triggered.connect(self.trigger_mark_read)
         # menu bar : see original
-        self.action_see_original_browser = QAction("See original in Browser", self.win)
-        self.action_see_original_browser.setObjectName('actionSeeOriginalBrowser')
-        self.ui.menuBar.addAction(self.action_see_original_browser)
-        self.action_see_original_browser.triggered.connect(self.trigger_see_original_browser)
-        self.action_see_original_gread = QAction("See original in GRead", self.win)
-        self.action_see_original_gread.setObjectName('actionSeeOriginalGRead')
-        self.ui.menuBar.addAction(self.action_see_original_gread)
-        self.action_see_original_gread.triggered.connect(self.trigger_see_original_gread)
+        self.action_view_original_browser = QAction("View original in Browser", self.win)
+        self.action_view_original_browser.setObjectName('actionViewOriginalBrowser')
+        self.ui.menuBar.addAction(self.action_view_original_browser)
+        self.action_view_original_browser.triggered.connect(self.trigger_view_original_browser)
+        self.action_view_original_gread = QAction("View original in GRead", self.win)
+        self.action_view_original_gread.setObjectName('actionViewOriginalGRead')
+        self.ui.menuBar.addAction(self.action_view_original_gread)
+        self.action_view_original_gread.triggered.connect(self.trigger_view_original_gread)
         # menu bar : return to item
         self.action_return_to_item = QAction("Return to entry", self.win)
         self.action_return_to_item.setObjectName('actionReturnToItem')
         self.ui.menuBar.addAction(self.action_return_to_item)
         self.action_return_to_item.triggered.connect(self.trigger_return_to_item)
+        
+        # events
+        self.eventFilter = ItemViewEventFilter(self.win)
+        self.win.installEventFilter(self.eventFilter)
+        QObject.connect(self.eventFilter, SIGNAL("zoom"), self.zoom)
+        QObject.connect(self.eventFilter, SIGNAL("next"), self.show_next)
+        QObject.connect(self.eventFilter, SIGNAL("previous"), self.show_previous)
+        QObject.connect(self.eventFilter, SIGNAL("toggle_read"), self.toggle_read)
+        QObject.connect(self.eventFilter, SIGNAL("toggle_shared"), self.toggle_shared)
+        QObject.connect(self.eventFilter, SIGNAL("toggle_starred"), self.toggle_starred)
+        QObject.connect(self.eventFilter, SIGNAL("view_original_gread"), self.trigger_view_original_gread)
+        QObject.connect(self.eventFilter, SIGNAL("view_original_browser"), self.trigger_view_original_browser)
 
         self.current_item = None
 
@@ -988,10 +1040,10 @@ class ItemViewController(WindowController):
         self.action_shared.setChecked(item.isShared())
         self.action_starred.setChecked(item.isStarred())
             
-        self.action_see_original_gread.setDisabled(item.url is None)
-        self.action_see_original_gread.setVisible(True)
-        self.action_see_original_browser.setDisabled(item.url is None)
-        self.action_see_original_browser.setVisible(True)
+        self.action_view_original_gread.setDisabled(item.url is None)
+        self.action_view_original_gread.setVisible(True)
+        self.action_view_original_browser.setDisabled(item.url is None)
+        self.action_view_original_browser.setVisible(True)
         self.action_return_to_item.setDisabled(True)
         self.action_return_to_item.setVisible(False)
             
@@ -1022,7 +1074,7 @@ class ItemViewController(WindowController):
             operation = Operation(
                 action  = (action, {'item': self.current_item}), 
                 name    = 'Mark item %s as %s' % (self.current_item.id, action_str), 
-                signal_done  = ('item_mark_read_done',   [self.current_item.id]), 
+                signal_done  = ('item_mark_read_done',  [self.current_item.id]), 
                 signal_error = ('item_mark_read_error', [self.current_item.id]),
             )
             operation.manage(self.operation_manager)
@@ -1038,7 +1090,7 @@ class ItemViewController(WindowController):
             operation = Operation(
                 action  = (action, {'item': self.current_item}), 
                 name    = 'Mark item %s as %s' % (self.current_item.id, action_str), 
-                signal_done  = ('item_shared_done',   [self.current_item.id]), 
+                signal_done  = ('item_shared_done',  [self.current_item.id]), 
                 signal_error = ('item_shared_error', [self.current_item.id]),
             )
             operation.manage(self.operation_manager)
@@ -1054,20 +1106,20 @@ class ItemViewController(WindowController):
             operation = Operation(
                 action  = (action, {'item': self.current_item}), 
                 name    = 'Mark item %s as %s' % (self.current_item.id, action_str), 
-                signal_done  = ('item_starred_done',   [self.current_item.id]), 
+                signal_done  = ('item_starred_done',  [self.current_item.id]), 
                 signal_error = ('item_starred_error', [self.current_item.id]),
             )
             operation.manage(self.operation_manager)
         
-    def trigger_see_original_gread(self):
+    def trigger_view_original_gread(self):
         self.open_url(QUrl(self.current_item.url), force_in_gread=True, zoom_gread=1.0)
 
-    def trigger_see_original_browser(self):
+    def trigger_view_original_browser(self):
         self.open_url(QUrl(self.current_item.url))
             
     def trigger_return_to_item(self):
-        self.action_see_original_gread.setDisabled(False)
-        self.action_see_original_gread.setVisible(True)
+        self.action_view_original_gread.setDisabled(False)
+        self.action_view_original_gread.setVisible(True)
         self.action_return_to_item.setDisabled(True)
         self.action_return_to_item.setVisible(False)
         self.ui.webView.setHtml(self.current_item.content)
@@ -1076,8 +1128,8 @@ class ItemViewController(WindowController):
         if force_in_gread or not QDesktopServices.openUrl(url):
             self.ui.webView.setHtml("")
             self.start_loading()
-            self.action_see_original_gread.setDisabled(True)
-            self.action_see_original_gread.setVisible(False)
+            self.action_view_original_gread.setDisabled(True)
+            self.action_view_original_gread.setVisible(False)
             self.action_return_to_item.setDisabled(False)
             self.action_return_to_item.setVisible(True)
             if zoom_gread is not None:
@@ -1109,7 +1161,35 @@ class ItemViewController(WindowController):
         
     def show_previous(self):
         item = self.ui_controller.display_previous_item()
-            
+        
+    def toggle_read(self):
+        was_read = self.current_item.isRead()
+        message = 'Entry now marked as read'
+        if was_read:
+            message = 'Entry now marked as unread'
+        self.trigger_mark_read(not was_read)
+        self.action_mark_read.setChecked(not was_read)
+        self.ui_controller.display_message(message)
+        
+    def toggle_shared(self):
+        was_shared = self.current_item.isShared()
+        message = 'Shared flag is now ON'
+        if was_shared:
+            message = 'Shared flag is now OFF'
+        self.trigger_shared(not was_shared)
+        self.action_shared.setChecked(not was_shared)
+        self.ui_controller.display_message(message)
+
+    def toggle_starred(self):
+        was_starred = self.current_item.isStarred()
+        message = 'Starred flag is now ON'
+        if was_starred:
+            message = 'Starred flag is now OFF'
+        self.trigger_starred(not was_starred)
+        self.action_starred.setChecked(not was_starred)
+        self.ui_controller.display_message(message)
+
+          
 class UiController(object):
     def __init__(self, gread):
         """

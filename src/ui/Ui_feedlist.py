@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/ui/feedlist.ui'
 #
-# Created: Mon Aug 23 23:19:48 2010
+# Created: Tue Aug 24 00:29:54 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -30,6 +30,7 @@ class Ui_winFeedList(object):
         self.messageBox.setObjectName("messageBox")
         self.verticalLayout.addWidget(self.messageBox)
         self.listFeedList = QtGui.QListView(self.centralWidget)
+        self.listFeedList.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.listFeedList.setObjectName("listFeedList")
         self.verticalLayout.addWidget(self.listFeedList)
         winFeedList.setCentralWidget(self.centralWidget)

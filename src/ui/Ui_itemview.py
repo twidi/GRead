@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/ui/itemview.ui'
 #
-# Created: Mon Aug 23 23:19:50 2010
+# Created: Tue Aug 24 00:29:56 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -16,6 +16,7 @@ class Ui_winItemView(object):
         self.centralWidget = QtGui.QWidget(winItemView)
         self.centralWidget.setObjectName("centralWidget")
         self.verticalLayout = QtGui.QVBoxLayout(self.centralWidget)
+        self.verticalLayout.setSpacing(0)
         self.verticalLayout.setMargin(0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.messageBox = QtGui.QLabel(self.centralWidget)

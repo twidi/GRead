@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/ui/itemlist.ui'
 #
-# Created: Mon Aug 23 23:19:49 2010
+# Created: Tue Aug 24 00:29:55 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -16,6 +16,7 @@ class Ui_winItemList(object):
         self.centralWidget = QtGui.QWidget(winItemList)
         self.centralWidget.setObjectName("centralWidget")
         self.verticalLayout = QtGui.QVBoxLayout(self.centralWidget)
+        self.verticalLayout.setSpacing(0)
         self.verticalLayout.setMargin(0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.messageBox = QtGui.QLabel(self.centralWidget)
@@ -29,6 +30,7 @@ class Ui_winItemList(object):
         self.messageBox.setObjectName("messageBox")
         self.verticalLayout.addWidget(self.messageBox)
         self.listItemList = QtGui.QListView(self.centralWidget)
+        self.listItemList.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.listItemList.setObjectName("listItemList")
         self.verticalLayout.addWidget(self.listItemList)
         winItemList.setCentralWidget(self.centralWidget)
