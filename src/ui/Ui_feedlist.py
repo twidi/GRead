@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/twidi/Projets/gread/ui/feedlist.ui'
+# Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/ui/feedlist.ui'
 #
-# Created: Thu Aug 12 09:12:55 2010
+# Created: Mon Aug 23 23:19:48 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -16,8 +16,19 @@ class Ui_winFeedList(object):
         self.centralWidget = QtGui.QWidget(winFeedList)
         self.centralWidget.setObjectName("centralWidget")
         self.verticalLayout = QtGui.QVBoxLayout(self.centralWidget)
+        self.verticalLayout.setSpacing(0)
         self.verticalLayout.setMargin(0)
         self.verticalLayout.setObjectName("verticalLayout")
+        self.messageBox = QtGui.QLabel(self.centralWidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.messageBox.sizePolicy().hasHeightForWidth())
+        self.messageBox.setSizePolicy(sizePolicy)
+        self.messageBox.setMaximumSize(QtCore.QSize(16777215, 0))
+        self.messageBox.setAlignment(QtCore.Qt.AlignBottom|QtCore.Qt.AlignHCenter)
+        self.messageBox.setObjectName("messageBox")
+        self.verticalLayout.addWidget(self.messageBox)
         self.listFeedList = QtGui.QListView(self.centralWidget)
         self.listFeedList.setObjectName("listFeedList")
         self.verticalLayout.addWidget(self.listFeedList)
@@ -32,6 +43,7 @@ class Ui_winFeedList(object):
 
     def retranslateUi(self, winFeedList):
         winFeedList.setWindowTitle(QtGui.QApplication.translate("winFeedList", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
+        self.messageBox.setText(QtGui.QApplication.translate("winFeedList", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
 
 
 if __name__ == "__main__":

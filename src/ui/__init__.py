@@ -248,6 +248,29 @@ class WindowController(object):
 
         if MAEMO5_PRESENT:
             self.manage_orientation()
+
+        try:
+            self.message_box_timer = QTimer()
+            QObject.connect(self.message_box_timer, SIGNAL("timeout()"), self.timeout_message_box_timer)
+        except:
+            pass
+        
+    def display_message_box(self, text):
+        try:
+            self.message_box_timer.stop()
+            self.ui.messageBox.setText(text)
+            self.ui.messageBox.setMaximumHeight(200)
+            self.message_box_timer.start(250)
+        except:
+            self.ui_controller.display_message(text)
+        
+    def timeout_message_box_timer(self):
+        self.message_box_timer.setInterval(int(self.message_box_timer.interval()/1.2))
+        height = self.ui.messageBox.height()
+        if height == 0:
+            self.message_box_timer.stop()
+        else:
+            self.ui.messageBox.setMaximumHeight(height-1)
         
     def show(self, app_just_launched=False):
         if MAEMO5_PRESENT and self.gread.settings['other']['auto_rotation'] and self.ui_controller.portrait_mode:
@@ -974,7 +997,7 @@ class ItemViewController(WindowController):
             
         # display content
         if MAEMO5_PRESENT:
-            self.ui_controller.display_message(item.title)
+            self.display_message_box(item.title)
         self.ui.webView.setHtml(item.content)
         return True
 
