@@ -8,25 +8,28 @@ Controller for ui
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtWebKit import *
-
-from ui.qwebviewselectionsuppressor import QWebViewSelectionSuppressor
-
-try:
-    from PyQt4.QtMaemo5 import QMaemo5InformationBox
-    maemo5_present = True
-except:
-    maemo5_present = False
-
+    
 from ui.Ui_feedlist import Ui_winFeedList
 from ui.Ui_itemlist import Ui_winItemList
 from ui.Ui_itemview import Ui_winItemView
 from ui.Ui_settings import Ui_Settings
 
+from utils.qwebviewselectionsuppressor import QWebViewSelectionSuppressor
 from operation import Operation
+import time
 
-MAX_TITLE_LENGTH = 100
-if maemo5_present:
-    MAX_TITLE_LENGTH = 26
+MAEMO5_PRESENT = False
+MAEMO5_ZOOMKEYS = False
+try:
+    from PyQt4.QtMaemo5 import QMaemo5InformationBox
+    MAEMO5_PRESENT = True
+    try:
+        from utils.zoomkeys import grab as grab_zoom_keys
+        MAEMO5_ZOOMKEYS = True
+    except:
+        pass
+except:
+    pass
 
 class FeedListDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
@@ -77,7 +80,7 @@ class ListModel(QAbstractListModel):
     def rowCount(self, parent=QModelIndex()):
         return len(self.listdata)
         
-    def index_of(self, item, start=0):
+    def row_of(self, item, start=0):
         row = None
         try:
             row = self.listdata.index(item)
@@ -88,9 +91,36 @@ class ListModel(QAbstractListModel):
                     row = i
                     break
                 i += 1
+        return row
+        
+    def index_of(self, item, start=0):
+        row = self.row_of(item, start)
         if row is not None:
             return self.index(row)
         return None
+        
+    def get_previous(self, item=None):
+        if item is None:
+            return None
+        row = self.row_of(item)
+        if row is None or row <= 0:
+            return None
+        try:
+            return self.listdata[row-1]
+        except:
+            return None
+        
+    def get_next(self, item=None):
+        if item is None:
+            row = 0
+        else:
+            row = self.row_of(item)
+            if row is None or row >= len(self.listdata)-1:
+                return None
+        try:
+            return self.listdata[row + 1]
+        except:
+            return None
 
     #def removeRows(self, row, count, parent=QModelIndex()):
     #    self.beginRemoveRows(parent, row, row + count - 1)
@@ -187,9 +217,13 @@ class WindowEventFilter(QObject):
         if event.type() == QEvent.ActivationChange:
             if self.parent().isActiveWindow():
                 self.parent().controller.set_focused()
-        return QObject.eventFilter(self, obj, event)
+        elif event.type() in (QEvent.KeyPress, QEvent.ShortcutOverride) \
+            and event.key() in (Qt.Key_Backspace, Qt.Key_Escape):
+            if self.parent().parent():
+                self.parent().hide()
+                return True
 
-        
+        return QObject.eventFilter(self, obj, event)
 
 class WindowController(object):
     def __init__(self, ui_controller, ui, parent=None):
@@ -205,6 +239,12 @@ class WindowController(object):
         self.launched = False
         
         self.win = QMainWindow(parent, Qt.Window)
+
+        if MAEMO5_PRESENT:
+            self.win.setAttribute(Qt.WA_Maemo5StackedWindow, True)
+            if self.gread.settings['other']['auto_rotation']:
+                self.win.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
+
         self.win.controller = self
         self.ui = ui()
         self.ui.setupUi(self.win)
@@ -212,63 +252,114 @@ class WindowController(object):
         
         self.win.installEventFilter(WindowEventFilter(self.win))
 
-        if maemo5_present:
-            self.win.setAttribute(Qt.WA_Maemo5StackedWindow, True)
-            if self.gread.settings['other']['auto_rotation']:
-                self.win.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
+        if MAEMO5_PRESENT:
+            self.manage_orientation()
+
+        try:
+            self.message_box_timer = QTimer()
+            self.message_box_timer_running = False
+            QObject.connect(self.message_box_timer, SIGNAL("timeout()"), self.timeout_message_box_timer)
+        except:
+            pass
+        
+    def display_message_box(self, text):
+        try:
+            self.message_box_timer.stop()
+            self.ui.messageBox.setText(text)
+            height = self.ui.messageBox.sizeHint().height()
+            self.ui.messageBox.setMaximumHeight(height)
+            self.ui.messageBox.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+            self.message_box_timer.start(250 + 100 * int(len(text)/50))
+        except:
+            self.ui_controller.display_message(text)
+        
+    def timeout_message_box_timer(self):
+        if self.message_box_timer_running:
+            return
+        self.message_box_timer_running = True
+        self.message_box_timer.setInterval(int(self.message_box_timer.interval()/1.2))
+        height = self.ui.messageBox.height()
+        if height == 0:
+            self.message_box_timer.stop()
+        else:
+            self.ui.messageBox.setMaximumHeight(height-1)
+        self.message_box_timer_running = False
         
     def show(self, app_just_launched=False):
-        if not self.launched and maemo5_present:
-            self.win.resize(800, 480)
+        if MAEMO5_PRESENT and self.gread.settings['other']['auto_rotation'] and self.ui_controller.portrait_mode:
+            # bad hack to force new window to start in portrait mode if needed. removed by manage_orientation, called by set_focused
+            self.win.setAttribute(Qt.WA_Maemo5PortraitOrientation, True)
+            
         self.win.show()
-        if not self.launched and maemo5_present:
-            self.win.showMaximized()
         self.launched = True
-        if maemo5_present and self.gread.settings['other']['auto_rotation']:
-            geo = QApplication.desktop().screenGeometry()
-            if geo.height() > geo.width():
-                # bad hack to force new window to start in portrait mode if needed
-                self.win.setAttribute(Qt.WA_Maemo5AutoOrientation, False)
+        self.update_title()
+                
+    def manage_orientation(self):
+        # bad hack to force new window to start in portrait mode if needed
+        if MAEMO5_PRESENT and self.gread.settings['other']['auto_rotation']:
+            size = self.win.size()
+            if self.ui_controller.portrait_mode and size.height() < size.width():
                 self.win.setAttribute(Qt.WA_Maemo5PortraitOrientation, True)
+            if self.win.testAttribute(Qt.WA_Maemo5PortraitOrientation):
+                time.sleep(2)
                 self.win.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
                 self.win.setAttribute(Qt.WA_Maemo5PortraitOrientation, False)
 
     def settings_updated(self):
-        if maemo5_present:
+        if MAEMO5_PRESENT:
             self.win.setAttribute(Qt.WA_Maemo5AutoOrientation, self.settings['other']['auto_rotation'])
 
     def get_title(self):
         return QApplication.applicationName()
         
     def update_title(self):
-        if self.ui_controller.current:
+        if MAEMO5_PRESENT and self.ui_controller.current == self:
             self.ui_controller.title_timer.stop()
         self.title = self.get_title()
         if not self.title:
             self.title = QApplication.applicationName()
         operations_part = self.ui_controller.get_title_operations_part()
         if operations_part:
-            if maemo5_present:
+            if MAEMO5_PRESENT:
                 self.title = "(%s) %s" % (operations_part, self.title)
             else:
                 self.title = "%s - %s" % (self.title, operations_part)
         self.win.setWindowTitle(self.title)
         
         self.title_start = 0
-        self.title_step  = 1
-        if self.ui_controller.current == self and len(self.title) > MAX_TITLE_LENGTH:
+        self.title_step  = 2
+        if MAEMO5_PRESENT and self.ui_controller.current == self and len(self.title) > self.get_max_title_length():
             self.ui_controller.title_timer.start(200)
             
+    def get_max_title_length(self):
+        if self.ui_controller.portrait_mode:
+            return 11
+        return 25
+            
     def update_display_title(self):
-        self.title_start += self.title_step
-        if self.title_start < 0 or len(self.title) - self.title_start < MAX_TITLE_LENGTH:
-            self.title_step = self.title_step * -1
+        max = self.get_max_title_length()
+        if len(self.title) <= max:
+            display_title = self.title
+            self.ui_controller.title_timer.stop()
+        else:
             self.title_start += self.title_step
-        display_title = self.title[self.title_start:]
+            if self.title_start < 0 or len(self.title) - self.title_start < max:
+                self.title_step = self.title_step * -1
+                self.title_start += self.title_step
+            display_title = self.title[self.title_start:]
         self.win.setWindowTitle(display_title)
         
     def set_focused(self):
         self.ui_controller.set_current(self)
+        self.manage_orientation()
+
+    def start_loading(self):
+        if MAEMO5_PRESENT:
+            self.win.setAttribute(Qt.WA_Maemo5ShowProgressIndicator, True)
+            
+    def stop_loading(self):
+        if MAEMO5_PRESENT:
+            self.win.setAttribute(Qt.WA_Maemo5ShowProgressIndicator, False)
 
 class FeedListController(WindowController):
     def __init__(self, ui_controller):
@@ -352,7 +443,7 @@ class FeedListController(WindowController):
         except:
             ui.selectSettingsItemsShowMode.setCurrentIndex(0)
 
-        if maemo5_present:
+        if MAEMO5_PRESENT:
             ui.checkSettingsAutoRotation.setChecked(self.settings['other']['auto_rotation'])
         else:
             ui.checkSettingsAutoRotation.hide()
@@ -399,7 +490,7 @@ class FeedListController(WindowController):
         except:
             pass
 
-        if maemo5_present:
+        if MAEMO5_PRESENT:
             self.settings['other']['auto_rotation'] = ui.checkSettingsAutoRotation.isChecked()
 
         self.gread.save_settings()
@@ -494,6 +585,7 @@ class FeedListController(WindowController):
         """
         Action when the "sync" button is triggered
         """
+        self.start_loading()
         self.get_selected()
         self.ui.menuBar.setDisabled(True)
 
@@ -519,6 +611,7 @@ class FeedListController(WindowController):
             self.action_show_all.setDisabled(False)
             self.action_show_updated.setDisabled(False)
         self.ui.menuBar.setDisabled(False)
+        self.stop_loading()
             
     def settings_updated(self):
         super(FeedListController, self).settings_updated()
@@ -564,6 +657,24 @@ class FeedListController(WindowController):
         self.update_title()
 
 
+class ItemListEventFilter(QObject):
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent)
+
+    def eventFilter(self, obj, event):
+        if event.type()  == QEvent.KeyPress:
+            key = event.key()
+            if key == Qt.Key_A and event.modifiers() & Qt.ShiftModifier:
+                self.emit(SIGNAL("mark_all_read"))
+                return True
+            elif key == Qt.Key_R:
+                self.emit(SIGNAL("refresh"))
+                return True
+            elif key == Qt.Key_F:
+                self.emit(SIGNAL("fetch_more"))
+                return True
+        return QObject.eventFilter(self, obj, event)
+
 class ItemListController(WindowController):
     def __init__(self, ui_controller):
         super(ItemListController, self).__init__(ui_controller, Ui_winItemList, ui_controller.feedlist_controller.win)
@@ -603,6 +714,11 @@ class ItemListController(WindowController):
         self.ui.menuBar.addAction(self.action_fetch_more)
         self.action_fetch_more.triggered.connect(self.trigger_fetch_more)
 
+        self.action_unsubscribe = QAction("Unsubscribe", self.win)
+        self.action_unsubscribe.setObjectName('actionUnsubscribe')
+        self.ui.menuBar.addAction(self.action_unsubscribe)
+        self.action_unsubscribe.triggered.connect(self.trigger_unsubscribe)
+
         self.action_mark_all_read = QAction("Mark all as read", self.win)
         self.action_mark_all_read.setObjectName('actionMarkAllRead')
         self.ui.menuBar.addAction(self.action_mark_all_read)
@@ -616,6 +732,14 @@ class ItemListController(WindowController):
         self.ui.listItemList.setModel(ilm)
         self.ui.listItemList.setItemDelegate(ild)
         self.ui.listItemList.activated.connect(self.activate_item)
+
+        # events
+        self.eventFilter = ItemListEventFilter(self.win)
+        #self.win.installEventFilter(self.eventFilter)
+        self.ui.listItemList.installEventFilter(self.eventFilter)
+        QObject.connect(self.eventFilter, SIGNAL("mark_all_read"), self.trigger_mark_all_read)
+        QObject.connect(self.eventFilter, SIGNAL("refresh"), self.trigger_refresh)
+        QObject.connect(self.eventFilter, SIGNAL("fetch_more"), self.trigger_fetch_more)
 
         # operation signals
         QObject.connect(self.operation_manager, SIGNAL("get_feed_content_done"), self.feed_content_retrieved, Qt.QueuedConnection)
@@ -644,6 +768,16 @@ class ItemListController(WindowController):
         if item is not None:
             self.selected_item = item
         
+    def set_selected(self, item=None):
+        if item is None:
+            item = self.selected_item
+        else:
+            self.selected_item = item
+        if item:
+            index = self.ui.listItemList.model().index_of(item)
+            if index:
+                self.ui.listItemList.setCurrentIndex(index)
+        
     def trigger_refresh(self):
         self.get_selected()
         self.update_item_list()
@@ -668,29 +802,29 @@ class ItemListController(WindowController):
         """
         Empty and then refill the items' feed with current options
         """
+        self.start_loading()
         self.update_listview(content=[])
-        
         self.ui.menuBar.setDisabled(True)
-        
         self.current_feed.clearItems()
 
         operation = Operation(
             action  = (self.gread.get_feed_content, {'feed': self.current_feed, 'updated_only': self.show_updated_only(),}), 
             name    = 'Get content for %s' % (self.current_feed.id, ), 
-            signal_done  = ('get_feed_content_done',   [self.current_feed.id]), 
+            signal_done  = ('get_feed_content_done',  [self.current_feed.id]), 
             signal_error = ('get_feed_content_error', [self.current_feed.id]),
         )
         operation.manage(self.operation_manager)
             
     def trigger_fetch_more(self):
         
+        self.start_loading()
         self.get_selected()
         self.ui.menuBar.setDisabled(True)
 
         operation = Operation(
             action  = (self.gread.get_more_feed_content, {'feed': self.current_feed, 'updated_only': self.show_updated_only(),}), 
             name    = 'Get more content for %s' % (self.current_feed.id, ), 
-            signal_done  = ('get_more_feed_content_done',   [self.current_feed.id]), 
+            signal_done  = ('get_more_feed_content_done',  [self.current_feed.id]), 
             signal_error = ('get_more_feed_content_error', [self.current_feed.id]),
             max_same = 1, 
         )
@@ -715,15 +849,11 @@ class ItemListController(WindowController):
             
         self.action_fetch_more.setDisabled(self.current_feed.continuation is None)
 
-        self.ui_controller.stop_loading()
+        self.stop_loading()
 
         # restore selection
-        if self.selected_item:
-            index = self.ui.listItemList.model().index_of(self.selected_item)
-            if index:
-                self.ui.listItemList.setCurrentIndex(index)
+        self.set_selected()
 
-        
     def update_listview(self, content=[]):
         old_model = self.ui.listItemList.model()
         model = ItemListModel(data=content, controller=self)
@@ -734,6 +864,22 @@ class ItemListController(WindowController):
         item = index.model().listdata[index.row()]
         self.get_selected(item)
         self.ui_controller.display_item(item)
+        
+    def activate_next_item(self):
+        item = self.ui.listItemList.model().get_next(self.selected_item)
+        if item:
+            self.set_selected(item)
+            self.ui_controller.display_item(item)
+        else:
+            self.ui_controller.display_message("No more message, please fetch more !")
+
+    def activate_previous_item(self):
+        item = self.ui.listItemList.model().get_previous(self.selected_item)
+        if item:
+            self.set_selected(item)
+            self.ui_controller.display_item(item)
+        else:
+            self.ui_controller.display_message("No more message, you're at the top of the list")
         
     def settings_updated(self):
         super(ItemListController, self).settings_updated()
@@ -771,7 +917,7 @@ class ItemListController(WindowController):
         operation = Operation(
             action  = (self.gread.feed_mark_read, {'feed': self.current_feed}), 
             name    = "Mark feed %s as read" % self.current_feed.id, 
-            signal_done  = ('feed_mark_read_done',   [self.current_feed.id]), 
+            signal_done  = ('feed_mark_read_done',  [self.current_feed.id]), 
             signal_error = ('feed_mark_read_error', [self.current_feed.id]),
         )
         operation.manage(self.operation_manager)
@@ -780,23 +926,65 @@ class ItemListController(WindowController):
         self.action_mark_all_read.setDisabled(True)
         for item in self.current_feed.getItems():
             self.update_item(item)
+            
+    def trigger_unsubscribe(self):
+        self.ui_controller.display_message('Not yet implemented, sorry...')
 
+class ItemViewEventFilter(QObject):
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.KeyPress:
+            key = event.key()
+            if key == Qt.Key_F7:
+                self.emit(SIGNAL("zoom"), True)
+                return True
+            elif key == Qt.Key_F8:
+                self.emit(SIGNAL("zoom"), False)
+                return True
+            elif key in (Qt.Key_J, Qt.Key_N):
+                self.emit(SIGNAL("next"))
+                return True
+            elif key in (Qt.Key_K, Qt.Key_P):
+                self.emit(SIGNAL("previous"))
+                return True
+            elif key == Qt.Key_M:
+                self.emit(SIGNAL("toggle_read"))
+                return True
+            elif key == Qt.Key_V:
+                if event.modifiers() & Qt.ShiftModifier:
+                    self.emit(SIGNAL("view_original_gread"))
+                else:
+                    self.emit(SIGNAL("view_original_browser"))
+                return True
+            elif key == Qt.Key_S:
+                if event.modifiers() & Qt.ShiftModifier:
+                    self.emit(SIGNAL("toggle_shared"))
+                else:
+                    self.emit(SIGNAL("toggle_starred"))
+                return True
+        return QObject.eventFilter(self, obj, event)
 
 class ItemViewController(WindowController):
     def __init__(self, ui_controller):
         super(ItemViewController, self).__init__(ui_controller, Ui_winItemView, ui_controller.itemlist_controller.win)
         
         # web view
-        if maemo5_present:
+        if MAEMO5_PRESENT:
             self.suppressor = QWebViewSelectionSuppressor(self.ui.webView)
             self.suppressor.enable()
             scroller = self.ui.webView.property("kineticScroller").toPyObject()
             if scroller:
                 scroller.setEnabled(True)
+            if MAEMO5_ZOOMKEYS:
+                try:
+                    grab_zoom_keys(self.win.winId(), True)
+                except Exception, e:
+                    pass
         self.ui.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self.ui.webView.page().linkClicked.connect(self.link_clicked)
-        # volume keys => zoom keys
-#        if maemo5_present:
+        self.ui.webView.loadFinished.connect(self.trigger_web_view_loaded)
         
         # menu bar : starred
         self.action_starred = QAction("Starred", self.win)
@@ -817,23 +1005,37 @@ class ItemViewController(WindowController):
         self.action_mark_read.setCheckable(True)
         self.action_mark_read.triggered.connect(self.trigger_mark_read)
         # menu bar : see original
-        self.action_see_original_browser = QAction("See original in Browser", self.win)
-        self.action_see_original_browser.setObjectName('actionSeeOriginalBrowser')
-        self.ui.menuBar.addAction(self.action_see_original_browser)
-        self.action_see_original_browser.triggered.connect(self.trigger_see_original_browser)
-        self.action_see_original_gread = QAction("See original in GRead", self.win)
-        self.action_see_original_gread.setObjectName('actionSeeOriginalGRead')
-        self.ui.menuBar.addAction(self.action_see_original_gread)
-        self.action_see_original_gread.triggered.connect(self.trigger_see_original_gread)
+        self.action_view_original_browser = QAction("View original in Browser", self.win)
+        self.action_view_original_browser.setObjectName('actionViewOriginalBrowser')
+        self.ui.menuBar.addAction(self.action_view_original_browser)
+        self.action_view_original_browser.triggered.connect(self.trigger_view_original_browser)
+        self.action_view_original_gread = QAction("View original in GRead", self.win)
+        self.action_view_original_gread.setObjectName('actionViewOriginalGRead')
+        self.ui.menuBar.addAction(self.action_view_original_gread)
+        self.action_view_original_gread.triggered.connect(self.trigger_view_original_gread)
         # menu bar : return to item
         self.action_return_to_item = QAction("Return to entry", self.win)
         self.action_return_to_item.setObjectName('actionReturnToItem')
         self.ui.menuBar.addAction(self.action_return_to_item)
         self.action_return_to_item.triggered.connect(self.trigger_return_to_item)
+        
+        # events
+        self.eventFilter = ItemViewEventFilter(self.win)
+        self.win.installEventFilter(self.eventFilter)
+        QObject.connect(self.eventFilter, SIGNAL("zoom"), self.zoom)
+        QObject.connect(self.eventFilter, SIGNAL("next"), self.show_next)
+        QObject.connect(self.eventFilter, SIGNAL("previous"), self.show_previous)
+        QObject.connect(self.eventFilter, SIGNAL("toggle_read"), self.toggle_read)
+        QObject.connect(self.eventFilter, SIGNAL("toggle_shared"), self.toggle_shared)
+        QObject.connect(self.eventFilter, SIGNAL("toggle_starred"), self.toggle_starred)
+        QObject.connect(self.eventFilter, SIGNAL("view_original_gread"), self.trigger_view_original_gread)
+        QObject.connect(self.eventFilter, SIGNAL("view_original_browser"), self.trigger_view_original_browser)
 
         self.current_item = None
 
     def set_current_item(self, item):
+        self.start_loading()
+
         self.current_item = item
         self.update_title()
         if not item.isRead():
@@ -845,14 +1047,16 @@ class ItemViewController(WindowController):
         self.action_shared.setChecked(item.isShared())
         self.action_starred.setChecked(item.isStarred())
             
-        self.action_see_original_gread.setDisabled(item.url is None)
-        self.action_see_original_gread.setVisible(True)
-        self.action_see_original_browser.setDisabled(item.url is None)
-        self.action_see_original_browser.setVisible(True)
+        self.action_view_original_gread.setDisabled(item.url is None)
+        self.action_view_original_gread.setVisible(True)
+        self.action_view_original_browser.setDisabled(item.url is None)
+        self.action_view_original_browser.setVisible(True)
         self.action_return_to_item.setDisabled(True)
         self.action_return_to_item.setVisible(False)
             
         # display content
+        if MAEMO5_PRESENT:
+            self.display_message_box(item.title)
         self.ui.webView.setHtml(item.content)
         return True
 
@@ -877,7 +1081,7 @@ class ItemViewController(WindowController):
             operation = Operation(
                 action  = (action, {'item': self.current_item}), 
                 name    = 'Mark item %s as %s' % (self.current_item.id, action_str), 
-                signal_done  = ('item_mark_read_done',   [self.current_item.id]), 
+                signal_done  = ('item_mark_read_done',  [self.current_item.id]), 
                 signal_error = ('item_mark_read_error', [self.current_item.id]),
             )
             operation.manage(self.operation_manager)
@@ -893,7 +1097,7 @@ class ItemViewController(WindowController):
             operation = Operation(
                 action  = (action, {'item': self.current_item}), 
                 name    = 'Mark item %s as %s' % (self.current_item.id, action_str), 
-                signal_done  = ('item_shared_done',   [self.current_item.id]), 
+                signal_done  = ('item_shared_done',  [self.current_item.id]), 
                 signal_error = ('item_shared_error', [self.current_item.id]),
             )
             operation.manage(self.operation_manager)
@@ -909,30 +1113,34 @@ class ItemViewController(WindowController):
             operation = Operation(
                 action  = (action, {'item': self.current_item}), 
                 name    = 'Mark item %s as %s' % (self.current_item.id, action_str), 
-                signal_done  = ('item_starred_done',   [self.current_item.id]), 
+                signal_done  = ('item_starred_done',  [self.current_item.id]), 
                 signal_error = ('item_starred_error', [self.current_item.id]),
             )
             operation.manage(self.operation_manager)
         
-    def trigger_see_original_gread(self):
-        self.open_url(QUrl(self.current_item.url), force_in_gread=True)
+    def trigger_view_original_gread(self):
+        self.open_url(QUrl(self.current_item.url), force_in_gread=True, zoom_gread=1.0)
 
-    def trigger_see_original_browser(self):
+    def trigger_view_original_browser(self):
         self.open_url(QUrl(self.current_item.url))
             
     def trigger_return_to_item(self):
-        self.action_see_original_gread.setDisabled(False)
-        self.action_see_original_gread.setVisible(True)
+        self.action_view_original_gread.setDisabled(False)
+        self.action_view_original_gread.setVisible(True)
         self.action_return_to_item.setDisabled(True)
         self.action_return_to_item.setVisible(False)
         self.ui.webView.setHtml(self.current_item.content)
 
-    def open_url(self, url, force_in_gread=False):
+    def open_url(self, url, force_in_gread=False, zoom_gread=None):
         if force_in_gread or not QDesktopServices.openUrl(url):
-            self.action_see_original_gread.setDisabled(True)
-            self.action_see_original_gread.setVisible(False)
+            self.ui.webView.setHtml("")
+            self.start_loading()
+            self.action_view_original_gread.setDisabled(True)
+            self.action_view_original_gread.setVisible(False)
             self.action_return_to_item.setDisabled(False)
             self.action_return_to_item.setVisible(True)
+            if zoom_gread is not None:
+                self.ui.webView.setZoomFactor(zoom_gread)
             self.ui.webView.load(url)
             return False
         return True
@@ -946,6 +1154,49 @@ class ItemViewController(WindowController):
             title = self.current_item.title
         return title
 
+    def zoom(self, zoom_in=True):
+        factor = 1.1
+        if not zoom_in:
+            factor = 1/1.1
+        self.ui.webView.setZoomFactor(self.ui.webView.zoomFactor()*factor)
+        
+    def trigger_web_view_loaded(self, ok):
+        self.stop_loading()
+        
+    def show_next(self):
+        item = self.ui_controller.display_next_item()
+        
+    def show_previous(self):
+        item = self.ui_controller.display_previous_item()
+        
+    def toggle_read(self):
+        was_read = self.current_item.isRead()
+        message = 'Entry now marked as read'
+        if was_read:
+            message = 'Entry now marked as unread'
+        self.trigger_mark_read(not was_read)
+        self.action_mark_read.setChecked(not was_read)
+        self.ui_controller.display_message(message)
+        
+    def toggle_shared(self):
+        was_shared = self.current_item.isShared()
+        message = 'Shared flag is now ON'
+        if was_shared:
+            message = 'Shared flag is now OFF'
+        self.trigger_shared(not was_shared)
+        self.action_shared.setChecked(not was_shared)
+        self.ui_controller.display_message(message)
+
+    def toggle_starred(self):
+        was_starred = self.current_item.isStarred()
+        message = 'Starred flag is now ON'
+        if was_starred:
+            message = 'Starred flag is now OFF'
+        self.trigger_starred(not was_starred)
+        self.action_starred.setChecked(not was_starred)
+        self.ui_controller.display_message(message)
+
+          
 class UiController(object):
     def __init__(self, gread):
         """
@@ -954,9 +1205,13 @@ class UiController(object):
         self.gread = gread
         self.settings = gread.settings
         self.operation_manager = gread.operation_manager
+        
+        self.portrait_mode = False
+        self.set_portrait_mode()
 
-        self.title_timer = QTimer()
-        QObject.connect(self.title_timer, SIGNAL("timeout()"), self.timeout_title_timer)
+        if MAEMO5_PRESENT:
+            self.title_timer = QTimer()
+            QObject.connect(self.title_timer, SIGNAL("timeout()"), self.timeout_title_timer)
 
         self.controllers = []
         self.feedlist_controller = FeedListController(self)
@@ -966,7 +1221,23 @@ class UiController(object):
         
         QObject.connect(self.operation_manager, SIGNAL("operation_added"), self.update_titles, Qt.QueuedConnection)
         QObject.connect(self.operation_manager, SIGNAL("operation_stop_running"), self.update_titles, Qt.QueuedConnection)
+        QApplication.desktop().resized.connect(self.trigger_desktop_resized)
         
+
+    def set_portrait_mode(self):
+        if MAEMO5_PRESENT and self.gread.settings['other']['auto_rotation']:
+            geo = QApplication.desktop().screenGeometry()
+            self.portrait_mode = geo.height() > geo.width()
+            return self.portrait_mode
+        return False
+
+    def trigger_desktop_resized(self):
+        if self.current and MAEMO5_PRESENT and self.gread.settings['other']['auto_rotation']:
+            self.set_portrait_mode()
+            try:
+                self.current.update_title()
+            except:
+                pass
         
     def add_controller(self, controller):
         self.controllers.append(controller)
@@ -977,7 +1248,7 @@ class UiController(object):
     def get_title_operations_part(self):
         nb = self.operation_manager.get_nb_operations()
         if nb:
-            if maemo5_present:
+            if MAEMO5_PRESENT:
                 return "%d" % nb
             else:
                 return "%d operations" % nb
@@ -1020,7 +1291,7 @@ class UiController(object):
         Display a message for a level ([information|warning|critical]), and handle the
         Maemo5 special case
         """
-        if maemo5_present:
+        if MAEMO5_PRESENT:
             QMaemo5InformationBox.information(self.current.win, '<p>%s</p>' % message, QMaemo5InformationBox.DefaultTimeout)
         else:
             box = QMessageBox(self.current.win)
@@ -1035,6 +1306,8 @@ class UiController(object):
             box.exec_()
             
     def settings_updated(self):
+        if not self.settings['other']['auto_rotation']:
+            self.portrait_mode = False
         for controller in self.controllers:
             controller.settings_updated()
         
@@ -1047,12 +1320,10 @@ class UiController(object):
         self.feedlist_controller.trigger_settings()
         
     def start_loading(self):
-        if maemo5_present:
-            self.current.win.setAttribute(Qt.WA_Maemo5ShowProgressIndicator, True)
+        self.current.start_loading()
             
     def stop_loading(self):
-        if maemo5_present:
-            self.current.win.setAttribute(Qt.WA_Maemo5ShowProgressIndicator, False)
+        self.current.stop_loading()
             
     def sync_done(self, sync_ok):
         self.feedlist_controller.sync_done(sync_ok)
@@ -1061,6 +1332,12 @@ class UiController(object):
         self.switch_win('itemview')
         if not self.itemview_controller.set_current_item(item):
             self.switch_win('itemlist', hide_current=True)
+            
+    def display_next_item(self):
+        self.itemlist_controller.activate_next_item()
+            
+    def display_previous_item(self):
+        self.itemlist_controller.activate_previous_item()
 
     def item_read(self, item, is_read):
         self.gread.count_unread()

@@ -1,0 +1,22 @@
+zoomkeys : a python lib to grab Maemo5 volume keys to a QT Window
+
+Wrote by S. Angel/Twidi <s.angel@twidi.com>
+
+With help of :
+http://doc.qt.nokia.com/qt-maemo-4.6/maemo5-zoom.html
+http://talk.maemo.org/showpost.php?p=550058&postcount=2
+
+Needed to build : libqt4-dev python-dev python2.5-qt4-dev
+Build (on Armel): python setup.py build
+Install : python setup.py install
+
+Usage : 
+
+import zoomkeys
+
+# grap buttons
+zoomkeys.grab(mywindow.winId(), True)
+
+# release them
+zoomkeys.grab(mywindow.winId(), False)
+

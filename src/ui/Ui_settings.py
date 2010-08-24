@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/twidi/Projets/gread/ui/settings.ui'
+# Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/ui/settings.ui'
 #
-# Created: Thu Aug 12 09:15:40 2010
+# Created: Tue Aug 24 02:53:33 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
