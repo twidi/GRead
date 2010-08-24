@@ -257,6 +257,7 @@ class WindowController(object):
 
         try:
             self.message_box_timer = QTimer()
+            self.message_box_timer_running = False
             QObject.connect(self.message_box_timer, SIGNAL("timeout()"), self.timeout_message_box_timer)
         except:
             pass
@@ -265,18 +266,24 @@ class WindowController(object):
         try:
             self.message_box_timer.stop()
             self.ui.messageBox.setText(text)
-            self.ui.messageBox.setMaximumHeight(200)
-            self.message_box_timer.start(250)
+            height = self.ui.messageBox.sizeHint().height()
+            self.ui.messageBox.setMaximumHeight(height)
+            self.ui.messageBox.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+            self.message_box_timer.start(250 + 100 * int(len(text)/50))
         except:
             self.ui_controller.display_message(text)
         
     def timeout_message_box_timer(self):
+        if self.message_box_timer_running:
+            return
+        self.message_box_timer_running = True
         self.message_box_timer.setInterval(int(self.message_box_timer.interval()/1.2))
         height = self.ui.messageBox.height()
         if height == 0:
             self.message_box_timer.stop()
         else:
             self.ui.messageBox.setMaximumHeight(height-1)
+        self.message_box_timer_running = False
         
     def show(self, app_just_launched=False):
         if MAEMO5_PRESENT and self.gread.settings['other']['auto_rotation'] and self.ui_controller.portrait_mode:

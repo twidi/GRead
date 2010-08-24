@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/ui/settings.ui'
 #
-# Created: Tue Aug 24 00:29:53 2010
+# Created: Tue Aug 24 02:53:33 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!

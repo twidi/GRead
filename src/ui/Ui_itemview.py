@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/ui/itemview.ui'
 #
-# Created: Tue Aug 24 00:29:56 2010
+# Created: Tue Aug 24 02:53:37 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -27,6 +27,7 @@ class Ui_winItemView(object):
         self.messageBox.setSizePolicy(sizePolicy)
         self.messageBox.setMaximumSize(QtCore.QSize(16777215, 0))
         self.messageBox.setAlignment(QtCore.Qt.AlignBottom|QtCore.Qt.AlignHCenter)
+        self.messageBox.setWordWrap(True)
         self.messageBox.setObjectName("messageBox")
         self.verticalLayout.addWidget(self.messageBox)
         self.webView = QtWebKit.QWebView(self.centralWidget)
