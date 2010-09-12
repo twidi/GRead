@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>517</width>
-    <height>536</height>
+    <height>628</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -32,9 +32,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-180</y>
-        <width>498</width>
-        <height>712</height>
+        <y>0</y>
+        <width>513</width>
+        <height>624</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -132,9 +132,9 @@
              </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="checkSettingsHomeShowUpdated">
+             <widget class="QCheckBox" name="checkSettingsHomeShowUnread">
               <property name="text">
-               <string>Show updated only</string>
+               <string>Show unread only</string>
               </property>
              </widget>
             </item>
@@ -191,48 +191,8 @@
                </property>
               </widget>
              </item>
-             <item row="2" column="0" colspan="3">
-              <widget class="QCheckBox" name="checkSettingsShowKeptUnread">
-               <property name="text">
-                <string>Kept Unread</string>
-               </property>
-              </widget>
-             </item>
             </layout>
            </widget>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <widget class="QLabel" name="labelSettingsHomeAllEntries">
-              <property name="text">
-               <string>Entry &quot;all&quot; for each label</string>
-              </property>
-              <property name="buddy">
-               <cstring>selectSettingsHomeAllEntries</cstring>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="selectSettingsHomeAllEntries">
-              <item>
-               <property name="text">
-                <string>Hide</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Top</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Bottom</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-           </layout>
           </item>
          </layout>
         </widget>
@@ -267,7 +227,7 @@
               </item>
               <item>
                <property name="text">
-                <string>Default updated, save each</string>
+                <string>Default unread, save each</string>
                </property>
               </item>
               <item>
@@ -277,7 +237,7 @@
               </item>
               <item>
                <property name="text">
-                <string>Default updated, no save</string>
+                <string>Default unread, no save</string>
                </property>
               </item>
              </widget>
@@ -316,15 +276,13 @@
   <tabstop>inputSettingsAccount</tabstop>
   <tabstop>inputSettingsPassword</tabstop>
   <tabstop>selectSettingsHomeDefault</tabstop>
-  <tabstop>checkSettingsHomeShowUpdated</tabstop>
+  <tabstop>checkSettingsHomeShowUnread</tabstop>
   <tabstop>checkSettingsShowStarred</tabstop>
   <tabstop>checkSettingsShowShared</tabstop>
   <tabstop>checkSettingsShowNotes</tabstop>
   <tabstop>checkSettingsShowAll</tabstop>
   <tabstop>checkSettingsShowRead</tabstop>
   <tabstop>checkSettingsShowFriends</tabstop>
-  <tabstop>checkSettingsShowKeptUnread</tabstop>
-  <tabstop>selectSettingsHomeAllEntries</tabstop>
   <tabstop>selectSettingsItemsShowMode</tabstop>
   <tabstop>checkSettingsAutoRotation</tabstop>
   <tabstop>scrollArea</tabstop>

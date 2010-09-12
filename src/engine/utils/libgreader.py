@@ -40,10 +40,13 @@ class ItemsContainer(object):
     A base class used for all classes aimed to have items (Categories and Feeds)
     """
     def __init__(self):
-        self.items  = []
-        self.lastLoadOk = False
-        self.unread = 0
-        self.continuation = None
+        self.items          = []
+        self.itemsById      = {}
+        self.lastLoadOk     = False
+        self.lastLoadLength = 0
+        self.lastUpdated    = None
+        self.unread         = 0
+        self.continuation   = None
         
     def _getContent(self, excludeRead=False, continuation=None):
         """
@@ -56,17 +59,20 @@ class ItemsContainer(object):
         """
         Load items and call itemsLoadedDone to transform data in objects
         """
-        self.loadtLoadOk = False
+        self.clearItems()
+        self.loadtLoadOk    = False
+        self.lastLoadLength = 0
         self._itemsLoadedDone(self._getContent(excludeRead, None))
         
-    def loadMoreItems(self, excludeRead=False):
+    def loadMoreItems(self, excludeRead=False, continuation=None):
         """
         Load more items using the continuation parameters of previously loaded items.
         """
-        self.lastLoadOk = False
+        self.lastLoadOk     = False
+        self.lastLoadLength = 0
         if not self.continuation:
             return
-        self._itemsLoadedDone(self._getContent(excludeRead, self.continuation))
+        self._itemsLoadedDone(self._getContent(excludeRead, continuation or self.continuation))
         
     def _itemsLoadedDone(self, data):
         """
@@ -75,6 +81,8 @@ class ItemsContainer(object):
         if data is None:
             return
         self.continuation = data.get('continuation', None)
+        self.lastUpdated  = data.get('updated', None)
+        self.lastLoadLength = len(data.get('items', []))
         self.googleReader.itemsToObjects(self, data.get('items', []))
         self.lastLoadOk = True
 
@@ -93,6 +101,12 @@ class ItemsContainer(object):
     def getItems(self):
         return self.items
         
+    def countItems(self, excludeRead=False):
+        if excludeRead:
+            sum([1 for item in self.items if item.isUnread()])
+        else:
+            return len(self.items)
+        
     def markItemRead(self, item, read):
         if read and item.isUnread():
             self.unread -= 1
@@ -108,7 +122,7 @@ class ItemsContainer(object):
         return result.upper() == 'OK'
         
     def countUnread(self):
-        self.unread = sum([1 for item in self.items if item.isUnread()])
+        self.unread = self.countItems(excludeRead=True)
 
 class Category(ItemsContainer):
     """
@@ -272,7 +286,7 @@ class Item(object):
         
         self.data   = item # save original data for accessing other fields
         self.id     = item['id']
-        self.title  = item['title']
+        self.title  = item.get('title', '(no title)')
         self.author = item.get('author', None)
         self.content = item.get('content', item.get('summary', {})).get('content', '')
                 
@@ -410,6 +424,7 @@ class GoogleReader(object):
         self.feedsById = {}
         self.categoriesById = {}
         self.specialFeeds = {}
+        self.orphanFeeds = []
 
     def toJSON(self):
         """
@@ -465,8 +480,19 @@ class GoogleReader(object):
                         category = Category(self, hCategory['label'], cId)
                         self._addCategory(category)
                     categories.append(self.categoriesById[cId])
+                    
             feed = Feed(self, sub['title'], sub['id'], sub.get('htmlUrl', None), unreadById.get(sub['id'], 0), categories)
+            if not categories:
+                self.orphanFeeds.append(feed)
             self._addFeed(feed)
+
+        specialUnreads = [id for id in unreadById if id.find('/state/com.google/') != -1]
+        for type in self.specialFeeds:
+            feed = self.specialFeeds[type]
+            for id in specialUnreads:
+                if id.endswith('/%s' % type):
+                    feed.unread = unreadById.get(id, 0)
+                    break
 
         return True
         
@@ -569,6 +595,7 @@ class GoogleReader(object):
         self.feeds = []
         self.categoriesById = {}
         self.categories = []
+        self.orphanFeeds = []
 
 class AuthenticationMethod(object):
     """
