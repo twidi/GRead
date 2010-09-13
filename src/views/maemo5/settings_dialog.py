@@ -41,9 +41,9 @@ def show_settings(controller):
         ui.selectSettingsItemsShowMode.setCurrentIndex(0)
 
     if MAEMO5_PRESENT:
-        ui.checkSettingsAutoRotation.setChecked(settings.get('other', 'auto_rotation'))
+        ui.checkSettingsPortraitMode.setChecked(settings.get('other', 'portrait_mode'))
     else:
-        ui.checkSettingsAutoRotation.hide()
+        ui.checkSettingsPortraitMode.hide()
         ui.groupOther.hide() # Remove when somehing else will be in other
 
     # display window
@@ -85,7 +85,7 @@ def show_settings(controller):
         pass
 
     if MAEMO5_PRESENT:
-        settings.set('other', 'auto_rotation', ui.checkSettingsAutoRotation.isChecked())
+        settings.set('other', 'portrait_mode', ui.checkSettingsPortraitMode.isChecked())
         
     settings.save()
 

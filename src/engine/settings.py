@@ -63,8 +63,8 @@ helpers = {
         'feeds.show_' + GoogleReader.KEPTUNREAD_LIST, 
 
         'feeds.unread_only',
-        
-        'other.auto_rotation', 
+
+        'other.portrait_mode',
     ), 
 }
 
@@ -78,7 +78,7 @@ _default = {
         'token': '', 
     },
     'feeds': {
-        'default':     'feeds', # feeds or labels
+        'default':     'labels', # feeds or labels
         'unread_only': True,    # display all, or only unread feeds
         'unread_number': '100',   # number of unread items to fetch while synchronizing
         # special lists : 
@@ -94,7 +94,7 @@ _default = {
         'show_mode': 'unread-save', # all-save, unread-save, all-nosave, unread-nosave
     }, 
     'other': {
-        'auto_rotation': False, 
+        'portrait_mode': False,
     }
 }
 

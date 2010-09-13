@@ -124,9 +124,9 @@ class Ui_Settings(object):
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.groupOther)
         self.verticalLayout_3.setContentsMargins(-1, 19, -1, -1)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.checkSettingsAutoRotation = QtGui.QCheckBox(self.groupOther)
-        self.checkSettingsAutoRotation.setObjectName("checkSettingsAutoRotation")
-        self.verticalLayout_3.addWidget(self.checkSettingsAutoRotation)
+        self.checkSettingsPortraitMode = QtGui.QCheckBox(self.groupOther)
+        self.checkSettingsPortraitMode.setObjectName("checkSettingsPortraitMode")
+        self.verticalLayout_3.addWidget(self.checkSettingsPortraitMode)
         self.verticalLayout_4.addWidget(self.groupOther)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.verticalLayout.addWidget(self.scrollArea)
@@ -147,8 +147,8 @@ class Ui_Settings(object):
         Settings.setTabOrder(self.checkSettingsShowAll, self.checkSettingsShowRead)
         Settings.setTabOrder(self.checkSettingsShowRead, self.checkSettingsShowFriends)
         Settings.setTabOrder(self.checkSettingsShowFriends, self.selectSettingsItemsShowMode)
-        Settings.setTabOrder(self.selectSettingsItemsShowMode, self.checkSettingsAutoRotation)
-        Settings.setTabOrder(self.checkSettingsAutoRotation, self.scrollArea)
+        Settings.setTabOrder(self.selectSettingsItemsShowMode, self.checkSettingsPortraitMode)
+        Settings.setTabOrder(self.checkSettingsPortraitMode, self.scrollArea)
 
     def retranslateUi(self, Settings):
         Settings.setWindowTitle(QtGui.QApplication.translate("Settings", "Settings", None, QtGui.QApplication.UnicodeUTF8))
@@ -174,7 +174,7 @@ class Ui_Settings(object):
         self.selectSettingsItemsShowMode.setItemText(2, QtGui.QApplication.translate("Settings", "Default all, no save", None, QtGui.QApplication.UnicodeUTF8))
         self.selectSettingsItemsShowMode.setItemText(3, QtGui.QApplication.translate("Settings", "Default unread, no save", None, QtGui.QApplication.UnicodeUTF8))
         self.groupOther.setTitle(QtGui.QApplication.translate("Settings", "Other", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkSettingsAutoRotation.setText(QtGui.QApplication.translate("Settings", "Auto rotation", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkSettingsPortraitMode.setText(QtGui.QApplication.translate("Settings", "Portrait mode by default", None, QtGui.QApplication.UnicodeUTF8))
 
 
 if __name__ == "__main__":

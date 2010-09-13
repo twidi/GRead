@@ -71,6 +71,10 @@ class FeedListView(View):
 
         self.selected_category = None
         self.selected_feed     = None
+
+        # menu bar
+
+        self.add_orientation_menu()
         
         # simple menu boutons
         self.action_settings = QAction("Settings", self.win)

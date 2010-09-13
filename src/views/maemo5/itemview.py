@@ -9,14 +9,14 @@ from PyQt4.QtWebKit import *
     
 from views.maemo5.utils.qwebviewselectionsuppressor import QWebViewSelectionSuppressor
 from views.maemo5.ui.Ui_itemview import Ui_winItemView
-from views.maemo5 import MAEMO5_PRESENT, View
+from views.maemo5 import MAEMO5_PRESENT, MAEMO5_ZOOMKEYS, View
 
 if MAEMO5_PRESENT:
     try:
         from views.maemo5.utils.zoomkeys import grab as grab_zoom_keys
         MAEMO5_ZOOMKEYS = True
-    except:
-        pass
+    except Exception, e:
+        sys.stderr.write("ZOOMKEYS ERROR : %s" % e)
 
 from engine import settings
 from engine.models import *
@@ -78,6 +78,10 @@ class ItemViewView(View):
         self.ui.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self.ui.webView.page().linkClicked.connect(self.link_clicked)
         self.ui.webView.loadFinished.connect(self.trigger_web_view_loaded)
+
+        # menu bar
+
+        self.add_orientation_menu()
 
         # menu bar : starred
         self.action_starred = QAction("Starred", self.win)

@@ -257,9 +257,9 @@
            <number>19</number>
           </property>
           <item>
-           <widget class="QCheckBox" name="checkSettingsAutoRotation">
+           <widget class="QCheckBox" name="checkSettingsPortraitMode">
             <property name="text">
-             <string>Auto rotation</string>
+             <string>Portrait mode by default</string>
             </property>
            </widget>
           </item>
@@ -284,7 +284,7 @@
   <tabstop>checkSettingsShowRead</tabstop>
   <tabstop>checkSettingsShowFriends</tabstop>
   <tabstop>selectSettingsItemsShowMode</tabstop>
-  <tabstop>checkSettingsAutoRotation</tabstop>
+  <tabstop>checkSettingsPortraitMode</tabstop>
   <tabstop>scrollArea</tabstop>
  </tabstops>
  <resources/>

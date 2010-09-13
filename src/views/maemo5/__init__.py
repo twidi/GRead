@@ -8,10 +8,10 @@ import time
 from engine import settings
 
 MAEMO5_PRESENT = False
+MAEMO5_ZOOMKEYS = False
 try:
     from PyQt4.QtMaemo5 import QMaemo5InformationBox
     MAEMO5_PRESENT = True
-    MAEMO5_ZOOMKEYS = False
 except:
     pass
 
@@ -101,8 +101,6 @@ class View(object):
 
         if MAEMO5_PRESENT:
             self.win.setAttribute(Qt.WA_Maemo5StackedWindow, True)
-            if settings.get('other', 'auto_rotation'):
-                self.win.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
 
         self.win.view = self
         self.ui = ui()
@@ -145,28 +143,54 @@ class View(object):
         self.message_box_timer_running = False
         
     def show(self, app_just_launched=False):
-        if MAEMO5_PRESENT and settings.get('other', 'auto_rotation') and self.controller.portrait_mode:
-            # bad hack to force new window to start in portrait mode if needed. removed by manage_orientation, called by set_focused
-            self.win.setAttribute(Qt.WA_Maemo5PortraitOrientation, True)
-            
+        self.manage_orientation()
         self.win.show()
         self.launched = True
         self.update_title()
                 
     def manage_orientation(self):
-        # bad hack to force new window to start in portrait mode if needed
-        if MAEMO5_PRESENT and settings.get('other', 'auto_rotation'):
-            size = self.win.size()
-            if self.controller.portrait_mode and size.height() < size.width():
-                self.win.setAttribute(Qt.WA_Maemo5PortraitOrientation, True)
-            if self.win.testAttribute(Qt.WA_Maemo5PortraitOrientation):
-                time.sleep(2)
-                self.win.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
-                self.win.setAttribute(Qt.WA_Maemo5PortraitOrientation, False)
+        if MAEMO5_PRESENT:
+            if self.controller.portrait_mode:
+                if not self.win.testAttribute(Qt.WA_Maemo5PortraitOrientation):
+                    self.win.setAttribute(Qt.WA_Maemo5PortraitOrientation, True)
+            else:
+                if not self.win.testAttribute(Qt.WA_Maemo5LandscapeOrientation):
+                    self.win.setAttribute(Qt.WA_Maemo5LandscapeOrientation, True)
+
+            # check the correct button
+            if self.controller.is_current_view(self):
+                if self.controller.portrait_mode:
+                    try:
+                        self.action_orientation_portrait.setChecked(True)
+                    except:
+                        raise
+                        pass
+                else:
+                    try:
+                        self.action_orientation_landscape.setChecked(True)
+                    except:
+                        raise
+                        pass
+
+    def add_orientation_menu(self):
+        if MAEMO5_PRESENT:
+            self.group_orientation = QActionGroup(self.win)
+            self.action_orientation_landscape = QAction("Landscape", self.group_orientation)
+            self.action_orientation_landscape.setCheckable(True)
+            self.action_orientation_portrait = QAction("Portrait", self.group_orientation)
+            self.action_orientation_portrait.setCheckable(True)
+            self.ui.menuBar.addActions(self.group_orientation.actions())
+            self.action_orientation_landscape.toggled.connect(self.toggle_orientation)
+            self.action_orientation_portrait.toggled.connect(self.toggle_orientation)
+
+    def toggle_orientation(self, checked):
+        portrait_mode = False
+        if self.action_orientation_portrait.isChecked():
+            portrait_mode = True
+        self.controller.set_portrait_mode(portrait_mode)
 
     def settings_updated(self):
-        if MAEMO5_PRESENT:
-            self.win.setAttribute(Qt.WA_Maemo5AutoOrientation, settings.get('other', 'auto_rotation'))
+        pass
 
     def get_title(self):
         return QApplication.applicationName()

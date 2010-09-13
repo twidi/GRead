@@ -28,18 +28,18 @@ class Controller(QObject):
         # the current Google Reader account
         self.account = Account()
 
-        # manage portrait mode
+        # views
+        self.views = []
+        self.current_view = None
+
+        # manage orientation
         self.portrait_mode = False
-        self.set_portrait_mode()
+        self.set_portrait_mode(settings.get('other', 'portrait_mode'))
 
         # manage scrolling titles
         if MAEMO5_PRESENT:
             self.title_timer = QTimer()
             QObject.connect(self.title_timer, SIGNAL("timeout()"), self.timeout_title_timer)
-
-        # views
-        self.views = []
-        self.current_view = None
 
         # connect signals
         QObject.connect(self, SIGNALS["settings_updated"], self.settings_updated)
@@ -51,8 +51,6 @@ class Controller(QObject):
         QObject.connect(self.account.operations_manager, SIGNALS["get_more_feed_content_started"], self.feed_content_fetching_started, Qt.QueuedConnection)
         QObject.connect(self.account.operations_manager, SIGNALS["get_feed_content_done"], self.feed_content_fetched, Qt.QueuedConnection)
         QObject.connect(self.account.operations_manager, SIGNALS["get_more_feed_content_done"], self.feed_content_fetched, Qt.QueuedConnection)
-        if MAEMO5_PRESENT:
-            QApplication.desktop().resized.connect(self.trigger_desktop_resized)
         
     def run(self):
         """
@@ -76,8 +74,7 @@ class Controller(QObject):
         same method for all views, and if the auth_unverified_changed
         parameter is true, ask for a resync
         """
-        if not settings.get('other', 'auto_rotation'):
-            self.portrait_mode = False
+        self.set_portrait_mode(settings.get('other', 'portrait_mode'))
         for view in self.views:
             try:
                 view.settings_updated()
@@ -86,26 +83,22 @@ class Controller(QObject):
         if auth_unverified_changed:
             self.account.fetch_feeds(fetch_unread_content=True)
 
-    def set_portrait_mode(self):
+    def manage_orientation(self):
         """
-        Set the application t portrait mode
+        Manage the application orientation mode
         """
-        if MAEMO5_PRESENT and settings.get('other', 'auto_rotation'):
-            geo = QApplication.desktop().screenGeometry()
-            self.portrait_mode = geo.height() > geo.width()
-            return self.portrait_mode
-        return False
+        if MAEMO5_PRESENT:
+            for view in self.views:
+                try:
+                    view.manage_orientation()
+                except:
+                    pass
 
-    def trigger_desktop_resized(self):
-        """
-        Called when the desktop is resized. Under Maemo, the orientation has changed !
-        """
-        if self.current_view and MAEMO5_PRESENT and settings.get('other', 'auto_rotation'):
-            self.set_portrait_mode()
-            try:
-                self.current_view.update_title()
-            except:
-                pass
+    def set_portrait_mode(self, portrait_mode):
+        if portrait_mode == self.portrait_mode:
+            return
+        self.portrait_mode = portrait_mode
+        self.manage_orientation()
         
     def add_view(self, view):
         """
@@ -161,6 +154,9 @@ class Controller(QObject):
             self.current_view = view
             self.hide_children(self.current_view)
             self.current_view.show()
+
+    def is_current_view(self, view):
+        return view == self.current_view
         
     def switch_view(self, name):
         """

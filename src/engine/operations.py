@@ -24,6 +24,15 @@ from engine import network
 
 class NotAuthenticatedError(Exception):pass
 
+
+DEBUG = True
+if DEBUG :
+    def log(string):
+        sys.stderr.write(string)
+else:
+    def log(string):
+        pass
+
 class Operation(object):
     """
     An operation managed by an OperationsManager and run by an OperationsThread
@@ -185,7 +194,7 @@ class Operation(object):
         Add the error in the errors list and print it on stderr
         """
         self.errors.append(error)
-        sys.stderr.write(self.str_error(error) + "\n")
+        log(self.str_error(error) + "\n")
                 
     def __str__(self):
         """
@@ -809,7 +818,7 @@ class _OperationsSpool(QObject):
         """
         Forward the "operation_started" from the spool to the operations manager
         """
-        sys.stderr.write("[op-start] %s\n" % Operation.get_by_id(operation_id))
+        log("[op-start] %s\n" % Operation.get_by_id(operation_id))
         operation = Operation.get_by_id(operation_id)
         self.parent().emit(SIGNALS['%s_started' % operation.name],  operation_id)
         self.parent().emit(SIGNALS['operation_started'], operation_id)
@@ -827,7 +836,7 @@ class _OperationsSpool(QObject):
         else:
             self.errors.append(operation)
         # alert that an operation has finished
-        sys.stderr.write("[op-end] %s\n" % operation)
+        log("[op-end] %s\n" % operation)
         self.parent().emit(SIGNALS['operation_ended'], operation_id)        
         # then alert for this specific operation
         status = 'done'

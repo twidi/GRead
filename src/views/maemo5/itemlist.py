@@ -127,6 +127,8 @@ class ItemListView(View):
 
         # menu bar
 
+        self.add_orientation_menu()
+
         # menu boutons : group for show all/updated
         self.group_show = QActionGroup(self.win)
         self.action_show_all = QAction("Show all", self.group_show)
@@ -139,7 +141,7 @@ class ItemListView(View):
             self.action_show_all.setChecked(True)
         self.ui.menuBar.addActions(self.group_show.actions())
         self.action_show_unread_only.toggled.connect(self.toggle_unread_only)
-        
+
         # other menu boutons
         self.action_refresh = QAction("Refresh", self.win)
         self.action_refresh.setObjectName('actionRefresh')
@@ -150,11 +152,6 @@ class ItemListView(View):
         self.action_fetch_more.setObjectName('actionFetchMore')
         self.ui.menuBar.addAction(self.action_fetch_more)
         self.action_fetch_more.triggered.connect(self.trigger_fetch_more)
-
-        self.action_unsubscribe = QAction("Unsubscribe", self.win)
-        self.action_unsubscribe.setObjectName('actionUnsubscribe')
-        self.ui.menuBar.addAction(self.action_unsubscribe)
-        self.action_unsubscribe.triggered.connect(self.trigger_unsubscribe)
 
         self.action_mark_all_read = QAction("Mark all as read", self.win)
         self.action_mark_all_read.setObjectName('actionMarkAllRead')
@@ -420,13 +417,6 @@ class ItemListView(View):
         self.action_mark_all_read.setDisabled(True)
         for item in self.current_feed.get_items():
             self.update_item(item)
-            
-    def trigger_unsubscribe(self):
-        """
-        Called when the "unsubscribe" button is activated
-        TODO: ask confirmation and then unsubscribe (not managed yet in models)
-        """
-        self.display_message('Not yet implemented, sorry...')
         
     def item_read(self, item):
         """
