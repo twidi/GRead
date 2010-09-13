@@ -3,6 +3,8 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
+import time
+
 from engine import settings
 
 MAEMO5_PRESENT = False
