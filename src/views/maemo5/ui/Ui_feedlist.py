@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/ui/feedlist.ui'
+# Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/maemo5/ui/feedlist.ui'
 #
-# Created: Tue Aug 24 02:53:34 2010
+# Created: Mon Sep 13 22:30:36 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -31,7 +31,11 @@ class Ui_winFeedList(object):
         self.messageBox.setObjectName("messageBox")
         self.verticalLayout.addWidget(self.messageBox)
         self.listFeedList = QtGui.QListView(self.centralWidget)
+        self.listFeedList.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.listFeedList.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.listFeedList.setProperty("showDropIndicator", False)
+        self.listFeedList.setUniformItemSizes(True)
+        self.listFeedList.setWordWrap(True)
         self.listFeedList.setObjectName("listFeedList")
         self.verticalLayout.addWidget(self.listFeedList)
         winFeedList.setCentralWidget(self.centralWidget)

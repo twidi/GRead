@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/maemo5/ui/settings.ui'
 #
-# Created: Sun Sep 12 17:56:14 2010
+# Created: Mon Sep 13 22:30:39 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!

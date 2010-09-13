@@ -13,6 +13,21 @@ from engine import settings
 from engine.models import *
 
 class FeedListDelegate(QStyledItemDelegate):
+    
+    def sizeHint(self, option, index):
+        size = super(FeedListDelegate, self).sizeHint(option, index)
+        if MAEMO5_PRESENT:
+            return size
+        try:
+            metrics = QFontMetrics(option.font)
+            min_height = metrics.height() +10
+            if size.height() < min_height:
+                size.setHeight(min_height)
+        except:
+            pass
+        return size
+        
+
     def paint(self, painter, option, index):
         """
         Paint the list item with the default options, then add the unread counter
@@ -20,37 +35,60 @@ class FeedListDelegate(QStyledItemDelegate):
         painter.save()
 
         try:
-            is_category = False
-            
+            # item to work with
+            is_category = False            
             model = index.model()
             item = model.listdata[index.row()]
 
-            styleOption = QStyleOptionViewItemV4(option)
+            text_style_option = QStyleOptionViewItemV4(option)
+            text_font = text_style_option.font
             if isinstance(item, Feed):
                 # it's a feed
-                styleOption.text = item.title
-                styleOption.rect.adjust(15, 0, 0, 0)
+                text = item.title
+                # add a blank to the left to mimic a treeview
+                text_style_option.rect.adjust(15, 0, 0, 0)
                 if item.__class__ != Feed:
-                    styleOption.font.setStyle(QFont.StyleItalic)
+                    text_font.setStyle(QFont.StyleItalic)
                 if item.unread and not model.view.unread_only:
-                    styleOption.font.setWeight(QFont.Bold)
+                    text_font.setWeight(QFont.Bold)
             else:
                 # it's a category
                 is_category = True
-                styleOption.text = item.title
+                text = item.title
                 if item.unread and not model.view.unread_only:
-                    styleOption.font.setWeight(QFont.Bold)
+                    text_font.setWeight(QFont.Bold)
                 if isinstance(item, SpecialCategory):
-                    styleOption.font.setStyle(QFont.StyleItalic)
+                    text_font.setStyle(QFont.StyleItalic)
 
-            self.parent().style().drawControl(QStyle.CE_ItemViewItem, styleOption, painter)
-                        
+            # draw background and borders
+            self.parent().style().drawControl(QStyle.CE_ItemViewItem, text_style_option, painter)
+
+            # prepare the text_rect. Will be reduced for displaying unread count
+            text_rect  = text_style_option.rect
+
+            # display unread count
             if item.unread:
                 if is_category:
                     str_unread = "%d/%d" % (item.unread, item.count_feeds(unread_only=True))
                 else:
                     str_unread = "%d" % item.unread
-                painter.drawText(option.rect, Qt.AlignRight | Qt.AlignVCenter, str_unread)
+                palette = text_style_option.palette
+                painter.setPen(palette.color(palette.Background))
+                unread_rect = painter.boundingRect(option.rect, Qt.AlignRight | Qt.AlignVCenter, str_unread)
+                unread_rect.adjust(-8, -3, -2, +3)
+                painter.setBrush(QBrush(palette.color(palette.Foreground)))
+                painter.setRenderHint(QPainter.Antialiasing);
+                painter.drawRoundedRect(unread_rect, 4, 4);
+                painter.drawText(unread_rect, Qt.AlignCenter | Qt.AlignVCenter, str_unread)
+                text_rect.adjust(0, 0, -(unread_rect.width()+4), 0)
+
+            # display category/feed title
+            painter.restore()
+            painter.save()
+            text_option = QTextOption(Qt.AlignLeft | Qt.AlignVCenter)
+            text_option.setWrapMode(QTextOption.WordWrap)
+            painter.setFont(text_font)
+            painter.drawText(QRectF(text_rect), text, text_option)
 
         finally:
             painter.restore()

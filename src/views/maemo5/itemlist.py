@@ -21,12 +21,14 @@ class ItemListDelegate(QStyledItemDelegate):
     
     def sizeHint(self, option, index):
         size = super(ItemListDelegate, self).sizeHint(option, index)
+        if MAEMO5_PRESENT:
+            return size
         try:
             model = index.model()
             item = model.listdata[index.row()]
             if self.current_special_feed(model.view):
                 metrics = QFontMetrics(option.font)
-                min_height = int(metrics.height() * 1.8) * 1.1
+                min_height = int(metrics.height() * 2.3)
                 if size.height() < min_height:
                     size.setHeight(min_height)
         except:
@@ -39,51 +41,72 @@ class ItemListDelegate(QStyledItemDelegate):
         """
         painter.save()
 
-        try:            
+        try:
+
+            # item to work with
             model = index.model()
             item = model.listdata[index.row()]
-
-            styleOption = QStyleOptionViewItemV4(option)
-            styleOption.text = item.title
-            if item.unread:
-                styleOption.font.setWeight(QFont.Bold)
-
             special_feed = self.current_special_feed(model.view)
 
-            if special_feed:
-                styleOption.displayAlignment = Qt.AlignTop | Qt.AlignLeft
+            # draw background and borders
+            text_style_option = QStyleOptionViewItemV4(option)
+            self.parent().style().drawControl(QStyle.CE_ItemViewItem, text_style_option, painter)
 
-            self.parent().style().drawControl(QStyle.CE_ItemViewItem, styleOption, painter)
+            # draw text
+            text_font   =  text_style_option.font
+            if item.unread:
+                text_font.setWeight(QFont.Bold)
+            text = item.title
 
             if special_feed:
-                text = ''
+                flags = Qt.AlignTop | Qt.AlignLeft
+            else:
+                flags = Qt.AlignVCenter | Qt.AlignLeft
+
+            painter.setFont(text_font)
+            text_option = QTextOption(flags)
+            text_option.setWrapMode(QTextOption.WordWrap)
+            painter.drawText(QRectF(text_style_option.rect), text, text_option)
+
+            # draw subtitle
+            if special_feed:
+                subtitle = ''
                 if special_feed == item.account.special_category.special_feeds['broadcast-friends']:
                     friend = item.g_item.data['via'][0]['title'].rstrip("'s shared items")
                     try:
-                        text = "by %s (%s)" % (friend, item.normal_feeds[0].title)
+                        subtitle = "%s (%s)" % (friend, item.normal_feeds[0].title)
                     except:
-                        text = "by %s" % friend
+                        subtitle = "%s" % friend
                 elif special_feed == item.account.special_category.special_feeds['created']:
                     # TODO: use something better than g_item here !!!
-                    text = item.g_item.data['origin']['title']
+                    subtitle = item.g_item.data['origin']['title']
                 else:
                     try:
-                        text = item.normal_feeds[0].title
+                        subtitle = item.normal_feeds[0].title
                     except:
                         # TODO: use something better than g_item here !!!
-                        text = item.g_item.data['origin']['title']
+                        subtitle = item.g_item.data['origin']['title']
 
-                if text:
-                    styleOption2 = QStyleOptionViewItemV4(option)
-                    font = styleOption2.font
-                    font.setPointSizeF(font.pointSizeF() * 0.8)
-                    font.setStyle(QFont.StyleItalic)
-                    font.setWeight(QFont.Normal)
-                    painter.setFont(font)
+                if subtitle:
+                    subtitle_style_option = QStyleOptionViewItemV4(option)
+                    subtitle_font = subtitle_style_option.font
+                    subtitle_font.setPointSizeF(subtitle_font.pointSizeF() * 0.8)
+                    subtitle_font.setWeight(QFont.Normal)
+                    painter.setFont(subtitle_font)
 
-                    rect = styleOption2.rect
-                    painter.drawText(rect, Qt.AlignBottom | Qt.AlignLeft, text)
-                    rect.adjust(3, 0, 0, -int(rect.size().height()*0.1))
+                    palette = subtitle_style_option.palette
+                    painter.setPen(palette.color(palette.Background))
+                    subtitle_rect = painter.boundingRect(subtitle_style_option.rect, Qt.AlignBottom | Qt.AlignRight, subtitle)
+                    subtitle_rect.adjust(-8, -8, -2, -2)
+                    flags = Qt.AlignVCenter | Qt.AlignCenter
+                    if subtitle_rect.x() < 2:
+                        # too long !
+                        subtitle_rect.setX(2)
+                        flags = Qt.AlignVCenter | Qt.AlignLeft
+                    painter.setBrush(QBrush(palette.color(palette.Foreground)))
+                    painter.setRenderHint(QPainter.Antialiasing);
+                    painter.drawRoundedRect(subtitle_rect, 4, 4);
+                    painter.drawText(subtitle_rect, Qt.AlignVCenter | Qt.AlignCenter, subtitle)
 
         finally:
             painter.restore()

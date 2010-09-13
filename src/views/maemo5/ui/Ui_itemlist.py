@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/ui/itemlist.ui'
+# Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/maemo5/ui/itemlist.ui'
 #
-# Created: Tue Aug 24 02:53:36 2010
+# Created: Mon Sep 13 22:30:37 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -31,7 +31,11 @@ class Ui_winItemList(object):
         self.messageBox.setObjectName("messageBox")
         self.verticalLayout.addWidget(self.messageBox)
         self.listItemList = QtGui.QListView(self.centralWidget)
+        self.listItemList.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.listItemList.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.listItemList.setProperty("showDropIndicator", False)
+        self.listItemList.setUniformItemSizes(True)
+        self.listItemList.setWordWrap(True)
         self.listItemList.setObjectName("listItemList")
         self.verticalLayout.addWidget(self.listItemList)
         winItemList.setCentralWidget(self.centralWidget)
