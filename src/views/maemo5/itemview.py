@@ -6,6 +6,8 @@ Feed list view
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtWebKit import *
+
+import sys
     
 from views.maemo5.utils.qwebviewselectionsuppressor import QWebViewSelectionSuppressor
 from views.maemo5.ui.Ui_itemview import Ui_winItemView
