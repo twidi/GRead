@@ -126,7 +126,7 @@ class View(object):
             height = self.ui.messageBox.sizeHint().height()
             self.ui.messageBox.setMaximumHeight(height)
             self.ui.messageBox.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-            self.message_box_timer.start(250 + 100 * int(len(text)/50))
+            self.message_box_timer.start(500 + 100 * int(len(text)/50))
         except:
             self.display_message(text)
         

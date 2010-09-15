@@ -331,6 +331,7 @@ class FeedListView(View):
         sync, else display settings
         """
         super(FeedListView, self).show(app_just_launched)
+        self.ui.listFeedList.setFocus(Qt.OtherFocusReason)
         if app_just_launched:
             if settings.get('google', 'verified'):
                 self.trigger_sync()

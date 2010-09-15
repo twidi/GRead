@@ -28,11 +28,12 @@ class ItemListDelegate(QStyledItemDelegate):
         try:
             model = index.model()
             item = model.listdata[index.row()]
+            metrics = QFontMetrics(option.font)
+            min_height = metrics.height() + 8
             if self.current_special_feed(model.view):
-                metrics = QFontMetrics(option.font)
-                min_height = int(metrics.height() * 2.3)
-                if size.height() < min_height:
-                    size.setHeight(min_height)
+                min_height = int(metrics.height() * 2.3) + 8
+            if size.height() < min_height:
+                size.setHeight(min_height)
         except:
             pass
         return size
@@ -282,8 +283,11 @@ class ItemListView(View):
         """
         self.update_listview(content=[])
         self.current_feed = feed
+        if MAEMO5_PRESENT:
+            self.display_message_box("%s [%s unread]" % (feed.title, feed.unread))
         self.manage_menu_bar()
         self.update_title()
+        self.ui.listItemList.setFocus(Qt.OtherFocusReason)
         self.update_item_list()
         return True
         

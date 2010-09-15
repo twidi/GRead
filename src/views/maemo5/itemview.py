@@ -171,8 +171,20 @@ class ItemViewView(View):
             
         # display content
         if MAEMO5_PRESENT:
-            self.display_message_box(item.title)
+            str = "%s - " % item.title
+            statuses = []
+            if item.unread:
+                statuses.append('unread')
+            else:
+                statuses.append('read')
+            if item.shared:
+                statuses.append('shared')
+            if item.starred:
+                statuses.append('starred')
+            self.display_message_box("%s [%s]" % (item.title, ', '.join(statuses)))
         self.ui.webView.setHtml(item.content)
+
+        self.ui.webView.setFocus(Qt.OtherFocusReason)
         return True
 
     def trigger_mark_read(self, checked):
