@@ -263,6 +263,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="checkSettingsScrollTitles">
+            <property name="text">
+             <string>Scroll long feed names</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>

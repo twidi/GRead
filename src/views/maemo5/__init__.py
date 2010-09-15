@@ -221,7 +221,7 @@ class View(object):
             
     def update_display_title(self):
         max = self.get_max_title_length()
-        if len(self.title) <= max:
+        if not settings.get('other', 'scroll_titles') or len(self.title) <= max:
             display_title = self.title
             self.controller.title_timer.stop()
         else:

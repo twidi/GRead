@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/maemo5/ui/settings.ui'
+# Form implementation generated from reading ui file 'settings.ui'
 #
-# Created: Mon Sep 13 22:30:39 2010
+# Created: Tue Sep 14 23:05:51 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -127,6 +127,9 @@ class Ui_Settings(object):
         self.checkSettingsPortraitMode = QtGui.QCheckBox(self.groupOther)
         self.checkSettingsPortraitMode.setObjectName("checkSettingsPortraitMode")
         self.verticalLayout_3.addWidget(self.checkSettingsPortraitMode)
+        self.checkSettingsScrollTitles = QtGui.QCheckBox(self.groupOther)
+        self.checkSettingsScrollTitles.setObjectName("checkSettingsScrollTitles")
+        self.verticalLayout_3.addWidget(self.checkSettingsScrollTitles)
         self.verticalLayout_4.addWidget(self.groupOther)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.verticalLayout.addWidget(self.scrollArea)
@@ -175,6 +178,8 @@ class Ui_Settings(object):
         self.selectSettingsItemsShowMode.setItemText(3, QtGui.QApplication.translate("Settings", "Default unread, no save", None, QtGui.QApplication.UnicodeUTF8))
         self.groupOther.setTitle(QtGui.QApplication.translate("Settings", "Other", None, QtGui.QApplication.UnicodeUTF8))
         self.checkSettingsPortraitMode.setText(QtGui.QApplication.translate("Settings", "Portrait mode by default", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkSettingsScrollTitles.setText(QtGui.QApplication.translate("Settings", "Scroll long feed names", None, QtGui.QApplication.UnicodeUTF8))
+
 
 
 if __name__ == "__main__":

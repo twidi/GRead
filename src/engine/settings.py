@@ -65,6 +65,7 @@ helpers = {
         'feeds.unread_only',
 
         'other.portrait_mode',
+        'other.scroll_titles',
     ), 
 }
 
@@ -95,6 +96,7 @@ _default = {
     }, 
     'other': {
         'portrait_mode': False,
+        'scroll_titles': True,
     }
 }
 

@@ -46,6 +46,8 @@ def show_settings(controller):
         ui.checkSettingsPortraitMode.hide()
         ui.groupOther.hide() # Remove when somehing else will be in other
 
+    ui.checkSettingsScrollTitles.setChecked(settings.get('other', 'scroll_titles'))
+
     # display window
     Settings.exec_()
     
@@ -86,6 +88,8 @@ def show_settings(controller):
 
     if MAEMO5_PRESENT:
         settings.set('other', 'portrait_mode', ui.checkSettingsPortraitMode.isChecked())
+
+    settings.set('other', 'scroll_titles', ui.checkSettingsScrollTitles.isChecked())
         
     settings.save()
 
