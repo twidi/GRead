@@ -103,7 +103,6 @@ class FeedListDelegate(QStyledItemDelegate):
                     bar_option.rect.setLeft(1)
                 else:
                     bar_option.rect.setLeft(16)
-                print item.id,  is_category, bar_option.rect
                 bar_option.rect.setWidth(1)
                 bar_option.rect.adjust(0, 1, 0, -1)
                 painter.setPen(palette.color(palette.Highlight))
