@@ -44,7 +44,6 @@ def show_settings(controller):
         ui.checkSettingsPortraitMode.setChecked(settings.get('other', 'portrait_mode'))
     else:
         ui.checkSettingsPortraitMode.hide()
-        ui.groupOther.hide() # Remove when somehing else will be in other
 
     ui.checkSettingsScrollTitles.setChecked(settings.get('other', 'scroll_titles'))
 
