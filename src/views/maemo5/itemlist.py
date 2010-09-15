@@ -22,6 +22,8 @@ class ItemListDelegate(QStyledItemDelegate):
     def sizeHint(self, option, index):
         size = super(ItemListDelegate, self).sizeHint(option, index)
         if MAEMO5_PRESENT:
+            if size.height() != 70:
+                size.setHeight(70)
             return size
         try:
             model = index.model()
@@ -66,6 +68,7 @@ class ItemListDelegate(QStyledItemDelegate):
             painter.setFont(text_font)
             text_option = QTextOption(flags)
             text_option.setWrapMode(QTextOption.WordWrap)
+            text_style_option.rect.adjust(8, 4, -4, -4)
             painter.drawText(QRectF(text_style_option.rect), text, text_option)
 
             # draw subtitle
@@ -95,18 +98,31 @@ class ItemListDelegate(QStyledItemDelegate):
                     painter.setFont(subtitle_font)
 
                     palette = subtitle_style_option.palette
-                    painter.setPen(palette.color(palette.Background))
                     subtitle_rect = painter.boundingRect(subtitle_style_option.rect, Qt.AlignBottom | Qt.AlignRight, subtitle)
                     subtitle_rect.adjust(-8, -8, -2, -2)
                     flags = Qt.AlignVCenter | Qt.AlignCenter
-                    if subtitle_rect.x() < 2:
+                    if subtitle_rect.width() > option.rect.width() / 3:
                         # too long !
-                        subtitle_rect.setX(2)
-                        flags = Qt.AlignVCenter | Qt.AlignLeft
-                    painter.setBrush(QBrush(palette.color(palette.Foreground)))
+                        subtitle_rect.setX(int(2 * option.rect.width() / 3))
+                    painter.setBrush(QBrush(palette.color(palette.Highlight)))
+                    painter.setPen(palette.color(palette.Highlight))
                     painter.setRenderHint(QPainter.Antialiasing);
                     painter.drawRoundedRect(subtitle_rect, 4, 4);
-                    painter.drawText(subtitle_rect, Qt.AlignVCenter | Qt.AlignCenter, subtitle)
+                    subtitle_rect.adjust(4, 0, 0, 0)
+                    painter.setPen(palette.color(palette.HighlightedText))
+                    painter.drawText(subtitle_rect, Qt.AlignVCenter | Qt.AlignLeft, subtitle)
+            
+            # draw a bar for unread items
+            if item.unread:
+                bar_option = QStyleOptionViewItemV4(option)
+                bar_option.rect.setLeft(1)
+                bar_option.rect.setWidth(1)
+                bar_option.rect.adjust(0, 1, 0, -1)
+                palette = bar_option.palette
+                painter.setPen(palette.color(palette.Highlight))
+                painter.setBrush(QBrush(palette.color(palette.Highlight)))
+                painter.setRenderHint(QPainter.Antialiasing);
+                painter.drawRoundedRect(bar_option.rect, 4, 4);
 
         finally:
             painter.restore()

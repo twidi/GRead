@@ -19,6 +19,8 @@ class FeedListDelegate(QStyledItemDelegate):
     def sizeHint(self, option, index):
         size = super(FeedListDelegate, self).sizeHint(option, index)
         if MAEMO5_PRESENT:
+            if size.height() != 70:
+                size.setHeight(70)
             return size
         try:
             metrics = QFontMetrics(option.font)
@@ -75,12 +77,13 @@ class FeedListDelegate(QStyledItemDelegate):
                 else:
                     str_unread = "%d" % item.unread
                 palette = text_style_option.palette
-                painter.setPen(palette.color(palette.Background))
                 unread_rect = painter.boundingRect(option.rect, Qt.AlignRight | Qt.AlignVCenter, str_unread)
                 unread_rect.adjust(-8, -3, -2, +3)
-                painter.setBrush(QBrush(palette.color(palette.Foreground)))
+                painter.setBrush(QBrush(palette.color(palette.Highlight)))
+                painter.setPen(palette.color(palette.Highlight))
                 painter.setRenderHint(QPainter.Antialiasing);
                 painter.drawRoundedRect(unread_rect, 4, 4);
+                painter.setPen(palette.color(palette.HighlightedText))
                 painter.drawText(unread_rect, Qt.AlignCenter | Qt.AlignVCenter, str_unread)
                 text_rect.adjust(0, 0, -(unread_rect.width()+4), 0)
 
@@ -90,7 +93,23 @@ class FeedListDelegate(QStyledItemDelegate):
             text_option = QTextOption(Qt.AlignLeft | Qt.AlignVCenter)
             text_option.setWrapMode(QTextOption.WordWrap)
             painter.setFont(text_font)
+            text_rect.adjust(8, 4, 0, -4)
             painter.drawText(QRectF(text_rect), text, text_option)
+            
+            # draw a bar for unread category/feeds
+            if item.unread:# and not model.view.unread_only:
+                bar_option = QStyleOptionViewItemV4(option)
+                if is_category:
+                    bar_option.rect.setLeft(1)
+                else:
+                    bar_option.rect.setLeft(16)
+                print item.id,  is_category, bar_option.rect
+                bar_option.rect.setWidth(1)
+                bar_option.rect.adjust(0, 1, 0, -1)
+                painter.setPen(palette.color(palette.Highlight))
+                painter.setBrush(QBrush(palette.color(palette.Highlight)))
+                painter.setRenderHint(QPainter.Antialiasing);
+                painter.drawRoundedRect(bar_option.rect, 4, 4);
 
         finally:
             painter.restore()
