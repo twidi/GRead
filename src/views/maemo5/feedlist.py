@@ -6,6 +6,8 @@ Feed list view
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
     
+import time
+    
 from views.maemo5.ui.Ui_feedlist import Ui_winFeedList
 from views.maemo5 import MAEMO5_PRESENT, ListModel, View
 
@@ -146,7 +148,7 @@ class FeedListView(View):
         self.ui.listFeedList.setModel(flm)
         self.ui.listFeedList.setItemDelegate(fld)
         self.ui.listFeedList.activated.connect(self.activate_entry)
-            
+        
     def update_feed_list(self):
         """
         Empty and then refill the feed list with current options

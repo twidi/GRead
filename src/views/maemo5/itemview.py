@@ -12,6 +12,7 @@ import sys
 from views.maemo5.utils.qwebviewselectionsuppressor import QWebViewSelectionSuppressor
 from views.maemo5.ui.Ui_itemview import Ui_winItemView
 from views.maemo5 import MAEMO5_PRESENT, MAEMO5_ZOOMKEYS, View
+from views.maemo5.utils.toolbar import ToolbarManager, Toolbar
 
 if MAEMO5_PRESENT:
     try:
@@ -117,6 +118,11 @@ class ItemViewView(View):
         self.action_return_to_item.setObjectName('actionReturnToItem')
         self.ui.menuBar.addAction(self.action_return_to_item)
         self.action_return_to_item.triggered.connect(self.trigger_return_to_item)
+
+        # toolbars
+        self.leftToolbar = Toolbar('<', 'Previous item', self.show_previous, 0, 0.7, parent=self.win)
+        self.rightToolbar = Toolbar('>', 'Next item', self.show_next, 1, 0.7, parent=self.win)
+        self.toolbar_manager = ToolbarManager([self.leftToolbar, self.rightToolbar], event_target=self.ui.webView.page(), parent=self.win)
         
         # events
         self.eventFilter = ItemViewEventFilter(self.win)
@@ -138,6 +144,10 @@ class ItemViewView(View):
         Display the specified item it the view
         """
         self.start_loading()
+
+        self.leftToolbar.enable()
+        self.rightToolbar.enable()
+        self.toolbar_manager.display()
 
         self.current_item = item
         self.update_title()

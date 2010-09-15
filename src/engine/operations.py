@@ -25,7 +25,7 @@ from engine import network
 class NotAuthenticatedError(Exception):pass
 
 
-DEBUG = True
+DEBUG = False
 if DEBUG :
     def log(string):
         sys.stderr.write(string)
