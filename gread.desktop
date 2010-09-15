@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=0.1
+Type=Application
+Name=GRead
+Comment=Connect to Google Reader
+Exec=/opt/GRead/src/gread.py
+Icon=general_rss
