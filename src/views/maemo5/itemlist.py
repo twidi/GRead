@@ -83,13 +83,13 @@ class ItemListDelegate(QStyledItemDelegate):
                         subtitle = "%s" % friend
                 elif special_feed == item.account.special_category.special_feeds['created']:
                     # TODO: use something better than g_item here !!!
-                    subtitle = item.g_item.data['origin']['title']
+                    subtitle = item.g_item.data.get('origin', {}).get('title', '')
                 else:
                     try:
                         subtitle = item.normal_feeds[0].title
                     except:
                         # TODO: use something better than g_item here !!!
-                        subtitle = item.g_item.data['origin']['title']
+                        subtitle = item.g_item.data.get('origin', {}).get('title', '')
 
                 if subtitle:
                     subtitle_style_option = QStyleOptionViewItemV4(option)
