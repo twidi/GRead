@@ -289,6 +289,7 @@ class Item(object):
         self.title  = item.get('title', '(no title)')
         self.author = item.get('author', None)
         self.content = item.get('content', item.get('summary', {})).get('content', '')
+        self.origin  = { 'title': '', 'url': ''}
                 
         # check original url
         self.url    = None
@@ -314,6 +315,10 @@ class Item(object):
         # keep feed, can be used when item si fetched from a special feed then it's the original one
         try:
             f = item['origin']
+            self.origin = {
+                'title': f.get('title', ''), 
+                'url': f.get('htmlUrl', ''), 
+            }
             self.feed = self.googleReader.getFeed(f['streamId'])
             if not self.feed:
                 raise
