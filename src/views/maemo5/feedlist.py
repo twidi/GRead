@@ -332,6 +332,10 @@ class FeedListView(View):
         """
         super(FeedListView, self).show(app_just_launched)
         self.ui.listFeedList.setFocus(Qt.OtherFocusReason)
+        try:
+            self.ui.listFeedList.setCurrentIndex(self.ui.listFeedList.model().index(0))
+        except:
+            pass
         if app_just_launched:
             if settings.get('google', 'verified'):
                 self.trigger_sync()

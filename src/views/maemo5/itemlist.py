@@ -291,6 +291,10 @@ class ItemListView(View):
         self.manage_menu_bar()
         self.update_title()
         self.ui.listItemList.setFocus(Qt.OtherFocusReason)
+        try:
+            self.ui.listItemList.setCurrentIndex(self.ui.listItemList.model().index(0))
+        except:
+            pass
         self.update_item_list()
         return True
         
