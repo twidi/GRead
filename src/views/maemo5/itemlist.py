@@ -62,15 +62,20 @@ class ItemListDelegate(QStyledItemDelegate):
             text = item.title
 
             if special_feed:
-                flags = Qt.AlignTop | Qt.AlignLeft
+                alignment = Qt.AlignTop | Qt.AlignLeft
             else:
-                flags = Qt.AlignVCenter | Qt.AlignLeft
+                alignment = Qt.AlignVCenter | Qt.AlignLeft
+
 
             painter.setFont(text_font)
-            text_option = QTextOption(flags)
+            text_option = QTextOption(alignment)
             text_option.setWrapMode(QTextOption.WordWrap)
             text_style_option.rect.adjust(8, 4, -4, -4)
-            painter.drawText(QRectF(text_style_option.rect), text, text_option)
+            final_rect = QRectF(text_style_option.rect)
+            text_bounding_rect = painter.boundingRect(final_rect, text, text_option)
+            if text_bounding_rect.height() > final_rect.height():
+                text_option.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+            painter.drawText(final_rect, text, text_option)
 
             # draw subtitle
             if special_feed:
@@ -100,7 +105,6 @@ class ItemListDelegate(QStyledItemDelegate):
                     palette = subtitle_style_option.palette
                     subtitle_rect = painter.boundingRect(subtitle_style_option.rect, Qt.AlignBottom | Qt.AlignRight, subtitle)
                     subtitle_rect.adjust(-8, -8, -2, -2)
-                    flags = Qt.AlignVCenter | Qt.AlignCenter
                     if subtitle_rect.width() > option.rect.width() / 3:
                         # too long !
                         subtitle_rect.setX(int(2 * option.rect.width() / 3))
