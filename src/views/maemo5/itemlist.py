@@ -146,7 +146,8 @@ class ItemListEventFilter(QObject):
     def eventFilter(self, obj, event):
         if event.type()  == QEvent.KeyPress:
             key = event.key()
-            if key == Qt.Key_A and event.modifiers() & Qt.ShiftModifier:
+            if event.modifiers() & Qt.ShiftModifier and \
+                (key == Qt.Key_A or key == Qt.Key_M):
                 self.emit(SIGNAL("mark_all_read"))
                 return True
             elif key == Qt.Key_R:
@@ -154,6 +155,9 @@ class ItemListEventFilter(QObject):
                 return True
             elif key == Qt.Key_F:
                 self.emit(SIGNAL("fetch_more"))
+                return True
+            elif key == Qt.Key_U:
+                self.emit(SIGNAL("toggle_unread_only"))
                 return True
         return QObject.eventFilter(self, obj, event)
 
@@ -183,7 +187,7 @@ class ItemListView(View):
         else:
             self.action_show_all.setChecked(True)
         self.ui.menuBar.addActions(self.group_show.actions())
-        self.action_show_unread_only.toggled.connect(self.toggle_unread_only)
+        self.action_show_unread_only.toggled.connect(self.trigger_unread_only)
 
         # other menu boutons
         self.action_refresh = QAction("Refresh", self.win)
@@ -215,6 +219,7 @@ class ItemListView(View):
         QObject.connect(self.eventFilter, SIGNAL("mark_all_read"), self.trigger_mark_all_read)
         QObject.connect(self.eventFilter, SIGNAL("refresh"), self.trigger_refresh)
         QObject.connect(self.eventFilter, SIGNAL("fetch_more"), self.trigger_fetch_more)
+        QObject.connect(self.eventFilter, SIGNAL("toggle_unread_only"), self.toggle_unread_only)
 
 
     @property
@@ -228,13 +233,21 @@ class ItemListView(View):
     def can_fetch_more(self):
         return self.current_feed.can_fetch_more(self.show_unread_only)
 
-    def toggle_unread_only(self, checked):
+    def trigger_unread_only(self, checked):
         """
         Action when the "unread only" button is checked or unchecked
         """
-        self.get_selected()
-        self.current_feed.unread_only = checked
-        self.update_item_list()
+        if self.show_unread_only != checked:
+            self.get_selected()
+            self.current_feed.unread_only = checked
+            self.update_item_list()
+        
+    def toggle_unread_only(self):
+        """
+        Called when we want to toggle the display between all items or only 
+        unread ones
+        """
+        self.action_show_unread_only.setChecked(not self.show_unread_only)
         
     def get_selected(self, item=None):
         """
