@@ -159,6 +159,15 @@ class ItemListEventFilter(QObject):
             elif key == Qt.Key_U:
                 self.emit(SIGNAL("toggle_unread_only"))
                 return True
+            elif key == Qt.Key_M:
+                self.emit(SIGNAL("toggle_item_read"))
+                return True
+            elif key == Qt.Key_S:
+                if event.modifiers() & Qt.ShiftModifier:
+                    self.emit(SIGNAL("toggle_item_shared"))
+                else:
+                    self.emit(SIGNAL("toggle_item_starred"))
+                return True
         return QObject.eventFilter(self, obj, event)
 
 class ItemListView(View):
@@ -220,6 +229,9 @@ class ItemListView(View):
         QObject.connect(self.eventFilter, SIGNAL("refresh"), self.trigger_refresh)
         QObject.connect(self.eventFilter, SIGNAL("fetch_more"), self.trigger_fetch_more)
         QObject.connect(self.eventFilter, SIGNAL("toggle_unread_only"), self.toggle_unread_only)
+        QObject.connect(self.eventFilter, SIGNAL("toggle_item_read"), self.toggle_item_read)
+        QObject.connect(self.eventFilter, SIGNAL("toggle_item_shared"), self.toggle_item_shared)
+        QObject.connect(self.eventFilter, SIGNAL("toggle_item_starred"), self.toggle_item_starred)
 
 
     @property
@@ -501,3 +513,55 @@ class ItemListView(View):
         visually update it in the list
         """
         self.update_item(item)
+        
+    def toggle_item_read(self):
+        """
+        Called when we want to toggle the read/unread status of the selected item
+        """
+        self.get_selected()
+        if not self.selected_item:
+            return
+        item = self.selected_item
+        was_unread = item.unread
+        message = 'Entry now marked as unread'
+        if was_unread:
+            message = 'Entry now marked as read'
+            item.mark_as_read()
+        else:
+            item.mark_as_unread()
+        self.controller.item_read(item)
+        self.display_message(message)
+        
+    def toggle_item_shared(self):
+        """
+        Called when we want to toggle the shared status of the selected item
+        """
+        self.get_selected()
+        if not self.selected_item:
+            return
+        item = self.selected_item
+        was_shared = item.shared
+        message = 'Shared flag is now ON'
+        if was_shared:
+            message = 'Shared flag is now OFF'
+            item.unshare()
+        else:
+            item.share()
+        self.controller.display_message(message)
+
+    def toggle_item_starred(self):
+        """
+        Called when we want to toggle the starred status of the selected item
+        """
+        self.get_selected()
+        if not self.selected_item:
+            return
+        item = self.selected_item
+        was_starred = item.starred
+        message = 'Starred flag is now ON'
+        if was_starred:
+            message = 'Starred flag is now OFF'
+            item.unstar()
+        else:
+            item.star()
+        self.controller.display_message(message)
