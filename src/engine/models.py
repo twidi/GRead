@@ -1194,6 +1194,7 @@ class Item(_BaseModelForAccount):
         special feeds in which it appears
         """
         reading_list = self.account.special_category.special_feeds[GoogleReader.READING_LIST].strict_id
+        notes_list   = self.account.special_category.special_feeds[GoogleReader.NOTES_LIST].strict_id
 
         # each actual categories and "status" for this item
         old_cats = set(RE_ID_USER_PART.sub("", c.id) \
@@ -1203,8 +1204,10 @@ class Item(_BaseModelForAccount):
         except: pass
         old_cats.update([RE_ID_USER_PART.sub("", f.id) for f in self.feeds \
             if isinstance(f, SpecialFeed)])
-        # remove the reading list 
+        # remove the reading list and notes list
         try: old_cats.remove(reading_list)
+        except: pass
+        try: old_cats.remove(notes_list)
         except: pass
         
         # each categories ans "status" for this item in Google Reader
