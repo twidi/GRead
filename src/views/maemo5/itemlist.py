@@ -223,7 +223,6 @@ class ItemListView(View):
 
         # events
         self.eventFilter = ItemListEventFilter(self.win)
-        #self.win.installEventFilter(self.eventFilter)
         self.ui.listItemList.installEventFilter(self.eventFilter)
         QObject.connect(self.eventFilter, SIGNAL("mark_all_read"), self.trigger_mark_all_read)
         QObject.connect(self.eventFilter, SIGNAL("refresh"), self.trigger_refresh)

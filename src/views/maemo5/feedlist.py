@@ -120,6 +120,21 @@ class FeedListModel(ListModel):
         else:
             return QVariant()
 
+class FeedListEventFilter(QObject):
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.KeyPress:
+            key = event.key()
+            if key == Qt.Key_S and event.modifiers() & Qt.ShiftModifier:
+                self.emit(SIGNAL("trigger_sync"), True)
+                return True
+            if key == Qt.Key_Backspace:
+                self.emit(SIGNAL("trigger_back"), True)
+                return True
+        return QObject.eventFilter(self, obj, event)
+
 class FeedListView(View):
     def __init__(self, controller):
         super(FeedListView, self).__init__(controller, Ui_winFeedList)
@@ -166,6 +181,12 @@ class FeedListView(View):
         self.ui.listFeedList.setModel(flm)
         self.ui.listFeedList.setItemDelegate(fld)
         self.ui.listFeedList.activated.connect(self.activate_entry)
+
+        # events
+        self.eventFilter = FeedListEventFilter(self.win)
+        self.ui.listFeedList.installEventFilter(self.eventFilter)
+        QObject.connect(self.eventFilter, SIGNAL("trigger_sync"), self.trigger_sync)
+        QObject.connect(self.eventFilter, SIGNAL("trigger_back"), self.trigger_back)
         
     def update_feed_list(self):
         """
@@ -216,7 +237,6 @@ class FeedListView(View):
         self.ui.listFeedList.setModel(model)
         del old_model
 
-    
     def activate_entry(self, index):
         """
         Action when an entry is selected
@@ -284,6 +304,16 @@ class FeedListView(View):
             else:
                 self.selected_category = self.current_category
                 self.selected_feed = item
+
+    def trigger_back(self):
+        """
+        When "backspace" is clicked on a opened category, close it
+        """
+        self.get_selected()
+        if self.selected_category:
+            next = self.ui.listFeedList.model().get_next(self.selected_category)
+            if isinstance(next, Feed):
+                self.set_current_category(self.selected_category)
 
     def trigger_sync(self, *args, **kwargs):
         """
