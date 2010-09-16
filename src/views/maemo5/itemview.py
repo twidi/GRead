@@ -58,8 +58,10 @@ class ItemViewEventFilter(QObject):
                     self.emit(SIGNAL("toggle_shared"))
                 else:
                     self.emit(SIGNAL("toggle_starred"))
-                    
                 return True
+            elif key in (Qt.Key_Down, Qt.Key_Up, Qt.Key_Left, Qt.Key_Right, Qt.Key_Space):
+                self.emit(SIGNAL("init_browser_scrollbars"))
+                return False
         return QObject.eventFilter(self, obj, event)
 
 class ItemViewView(View):
@@ -135,6 +137,7 @@ class ItemViewView(View):
         QObject.connect(self.eventFilter, SIGNAL("toggle_starred"), self.toggle_starred)
         QObject.connect(self.eventFilter, SIGNAL("view_original_gread"), self.trigger_view_original_gread)
         QObject.connect(self.eventFilter, SIGNAL("view_original_browser"), self.trigger_view_original_browser)
+        QObject.connect(self.eventFilter, SIGNAL("init_browser_scrollbars"), self.init_browser_scrollbars)
 
         # item displayed
         self.current_item = None
@@ -343,3 +346,11 @@ class ItemViewView(View):
         self.trigger_starred(not was_starred)
         self.action_starred.setChecked(not was_starred)
         self.controller.display_message(message)
+        
+    def init_browser_scrollbars(self):
+        """
+        We need scrollbars !
+        """
+        frame = self.ui.webView.page().currentFrame()
+        if frame.scrollBarPolicy(Qt.Vertical) != Qt.ScrollBarAsNeeded:
+            frame.setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAsNeeded)
