@@ -316,12 +316,26 @@ class ItemListView(View):
         self.manage_menu_bar()
         self.update_title()
         self.ui.listItemList.setFocus(Qt.OtherFocusReason)
+        self.update_item_list()
+        self.select_row(row=0)
+        return True
+                
+    def select_row(self, row=None, item=None):
+        """
+        Try to select an item in the list, by a specific item, or by a number
+        """
         try:
-            self.ui.listItemList.setCurrentIndex(self.ui.listItemList.model().index(0))
+            index = None
+            model = self.ui.listItemList.model()
+            if item:
+                index = model.index_of(item)
+            if not index:
+                if not row:
+                    row = 0
+                index = model.index(row)
+            self.ui.listItemList.setCurrentIndex(index)
         except:
             pass
-        self.update_item_list()
-        return True
         
     def manage_menu_bar(self, hide_menu=None):
         """

@@ -314,6 +314,25 @@ class FeedListView(View):
         self.action_settings.setDisabled(False)
         self.action_sync.setDisabled(False)
         self.stop_loading()
+        if not self.selected_category:
+            self.select_row(row=0)
+                
+    def select_row(self, row=None, item=None):
+        """
+        Try to select an item in the list, by a specific item, or by a number
+        """
+        try:
+            index = None
+            model = self.ui.listFeedList.model()
+            if item:
+                index = model.index_of(item)
+            if not index:
+                if not row:
+                    row = 0
+                index = model.index(row)
+            self.ui.listFeedList.setCurrentIndex(index)
+        except:
+            pass
             
     def settings_updated(self):
         """
@@ -332,10 +351,6 @@ class FeedListView(View):
         """
         super(FeedListView, self).show(app_just_launched)
         self.ui.listFeedList.setFocus(Qt.OtherFocusReason)
-        try:
-            self.ui.listFeedList.setCurrentIndex(self.ui.listFeedList.model().index(0))
-        except:
-            pass
         if app_just_launched:
             if settings.get('google', 'verified'):
                 self.trigger_sync()
