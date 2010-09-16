@@ -196,11 +196,11 @@ class BaseFeed(ItemsContainer):
         
         self.categories = []
         for category in categories:
-            self._addCategory(category)
+            self.addCategory(category)
         
         self.continuation = None
         
-    def _addCategory(self, category):
+    def addCategory(self, category):
         if not category in self.categories:
             self.categories.append(category)
             category._addFeed(self)
@@ -314,10 +314,18 @@ class Item(object):
         # keep feed, can be used when item si fetched from a special feed then it's the original one
         try:
             f = item['origin']
-            self.feed = self.googleReader.getFeed(f['streamId'], None)
+            self.feed = self.googleReader.getFeed(f['streamId'])
+            if not self.feed:
+                raise
+            if not self.feed.title and 'title' in f:
+                self.feed.title = f['title']
         except:
             try:
-                self.feed = Feed(self, f['title'], f['streamId'], f.get('htmlUrl', None), 0, [])
+                self.feed = Feed(self, f.get('title', ''), f['streamId'], f.get('htmlUrl', None), 0, [])
+                try:
+                    self.googleReader._addFeed(self.feed)
+                except:
+                    pass
             except:
                 self.feed = None
 
@@ -480,8 +488,17 @@ class GoogleReader(object):
                         category = Category(self, hCategory['label'], cId)
                         self._addCategory(category)
                     categories.append(self.categoriesById[cId])
-                    
-            feed = Feed(self, sub['title'], sub['id'], sub.get('htmlUrl', None), unreadById.get(sub['id'], 0), categories)
+
+            try:
+                feed = self.getFeed(sub['id'])
+                if not feed:
+                    raise
+                if not feed.title:
+                    feed.title = sub['title']
+                for category in categories:
+                    feed.addCategory(category)
+            except:
+                feed = Feed(self, sub['title'], sub['id'], sub.get('htmlUrl', None), unreadById.get(sub['id'], 0), categories)
             if not categories:
                 self.orphanFeeds.append(feed)
             self._addFeed(feed)
@@ -574,12 +591,14 @@ class GoogleReader(object):
         return self.auth.post(url, post_parameters)
 
     def _addFeed(self, feed):
-        self.feedsById[feed.id] = feed
-        self.feeds.append(feed)
+        if feed.id not in self.feedsById:
+            self.feedsById[feed.id] = feed
+            self.feeds.append(feed)
 
     def _addCategory (self, category):
-        self.categoriesById[category.id] = category
-        self.categories.append(category)
+        if category.id not in self.categoriesById:
+            self.categoriesById[category.id] = category
+            self.categories.append(category)
         
     def getFeed(self, id):
         return self.feedsById.get(id, None)
