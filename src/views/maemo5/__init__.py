@@ -86,6 +86,21 @@ class WindowEventFilter(QObject):
                 return True
 
         return QObject.eventFilter(self, obj, event)
+        
+class ViewEventFilter(QObject):
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent)
+        
+    def isShift(self, event):
+        return event.modifiers() & Qt.ShiftModifier
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.KeyPress:
+            key = event.key()
+            if MAEMO5_PRESENT and key == Qt.Key_O:
+                self.emit(SIGNAL("toggle_orientation"), True)
+                return True
+        return False
 
 class View(object):
     def __init__(self, controller, ui, parent=None):
@@ -118,6 +133,14 @@ class View(object):
             QObject.connect(self.message_box_timer, SIGNAL("timeout()"), self.timeout_message_box_timer)
         except:
             self.message_box_timer = None
+            
+        self.context_menu        = None
+        self.context_menu_widget = None
+        
+    def add_event_filter(self, widget, event_filter_class):
+        self.event_filter = event_filter_class(self.win)
+        widget.installEventFilter(self.event_filter)
+        QObject.connect(self.event_filter, SIGNAL("toggle_orientation"), self.toggle_orientation)
         
     def display_message_box(self, text):
         try:
@@ -163,13 +186,11 @@ class View(object):
                     try:
                         self.action_orientation_portrait.setChecked(True)
                     except:
-                        raise
                         pass
                 else:
                     try:
                         self.action_orientation_landscape.setChecked(True)
                     except:
-                        raise
                         pass
 
     def add_orientation_menu(self):
@@ -180,14 +201,39 @@ class View(object):
             self.action_orientation_portrait = QAction("Portrait", self.group_orientation)
             self.action_orientation_portrait.setCheckable(True)
             self.ui.menuBar.addActions(self.group_orientation.actions())
-            self.action_orientation_landscape.toggled.connect(self.toggle_orientation)
-            self.action_orientation_portrait.toggled.connect(self.toggle_orientation)
+            self.action_orientation_portrait.toggled.connect(self.trigger_portrait_orientation)
+            
+    def toggle_orientation(self):
+        self.action_orientation_portrait.setChecked(not self.action_orientation_portrait.isChecked())
 
-    def toggle_orientation(self, checked):
-        portrait_mode = False
-        if self.action_orientation_portrait.isChecked():
-            portrait_mode = True
-        self.controller.set_portrait_mode(portrait_mode)
+    def trigger_portrait_orientation(self, checked):
+        self.controller.set_portrait_mode(checked)
+        
+    def make_context_menu(self, widget):
+        """
+        Create a context menu for the widget (the main widget for this view)
+        """
+        self.context_menu_widget = widget
+        self.context_menu_widget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.context_menu_widget.customContextMenuRequested.connect(self.request_context_menu)
+        self.context_menu = QMenu()
+        
+    def context_menu_add_orientation(self):
+        """
+        Add the orientation menus to the context menu
+        """
+        if MAEMO5_PRESENT:
+            self.context_menu.addSeparator()
+            self.context_menu.addActions(self.group_orientation.actions())
+        
+    def request_context_menu(self, pos):
+        """
+        Called when the user ask for the context menu to be displayed
+        """
+        pass
+        
+    def display_context_menu(self, pos):
+        self.context_menu.exec_(self.context_menu_widget.mapToGlobal(pos))
 
     def settings_updated(self):
         pass

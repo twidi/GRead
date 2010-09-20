@@ -7,7 +7,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
     
 from views.maemo5.ui.Ui_itemlist import Ui_winItemList
-from views.maemo5 import MAEMO5_PRESENT, ListModel, View
+from views.maemo5 import MAEMO5_PRESENT, ListModel, View, ViewEventFilter
 
 from engine import settings
 from engine.models import *
@@ -139,15 +139,14 @@ class ItemListModel(ListModel):
             return QVariant()
 
 
-class ItemListEventFilter(QObject):
-    def __init__(self, parent=None):
-        QObject.__init__(self, parent)
-
+class ItemListEventFilter(ViewEventFilter):
     def eventFilter(self, obj, event):
+        if super(ItemListEventFilter, self).eventFilter(obj, event):
+            return True
         if event.type()  == QEvent.KeyPress:
             key = event.key()
-            if event.modifiers() & Qt.ShiftModifier and \
-                (key == Qt.Key_A or key == Qt.Key_M):
+            if key in (Qt.Key_A, Qt.Key_M) and \
+                self.isShift(event):
                 self.emit(SIGNAL("mark_all_read"))
                 return True
             elif key == Qt.Key_R:
@@ -163,10 +162,16 @@ class ItemListEventFilter(QObject):
                 self.emit(SIGNAL("toggle_item_read"))
                 return True
             elif key == Qt.Key_S:
-                if event.modifiers() & Qt.ShiftModifier:
+                if self.isShift(event):
                     self.emit(SIGNAL("toggle_item_shared"))
                 else:
                     self.emit(SIGNAL("toggle_item_starred"))
+                return True
+            elif key in (Qt.Key_J, Qt.Key_N):
+                self.emit(SIGNAL("select_next"))
+                return True
+            elif key in (Qt.Key_K, Qt.Key_P):
+                self.emit(SIGNAL("select_previous"))
                 return True
         return QObject.eventFilter(self, obj, event)
 
@@ -220,18 +225,85 @@ class ItemListView(View):
         self.ui.listItemList.setModel(ilm)
         self.ui.listItemList.setItemDelegate(ild)
         self.ui.listItemList.activated.connect(self.activate_item)
+        
+        # context menu
+        self.make_context_menu(self.ui.listItemList)
+        
+        self.action_mark_item_as_read = QAction("Mark as read", self.win)
+        self.action_mark_item_as_read.triggered.connect(self.toggle_item_read)
+        self.context_menu.addAction(self.action_mark_item_as_read)
+        self.action_share_item = QAction("Share", self.win)
+        self.action_share_item.triggered.connect(self.toggle_item_shared)
+        self.context_menu.addAction(self.action_share_item)
+        self.action_star_item = QAction("Star", self.win)
+        self.action_star_item.triggered.connect(self.toggle_item_starred)
+        self.context_menu.addAction(self.action_star_item)
+        
+        self.context_menu.addSeparator()
+        self.context_menu.addAction(self.action_mark_all_read)
+        self.context_menu.addAction(self.action_fetch_more)
+        self.context_menu.addAction(self.action_refresh)
 
+        self.context_menu.addSeparator()
+        self.context_menu.addActions(self.group_show.actions())
+        self.context_menu_add_orientation()
+                
+        self.manage_actions()
+        
         # events
-        self.eventFilter = ItemListEventFilter(self.win)
-        self.ui.listItemList.installEventFilter(self.eventFilter)
-        QObject.connect(self.eventFilter, SIGNAL("mark_all_read"), self.trigger_mark_all_read)
-        QObject.connect(self.eventFilter, SIGNAL("refresh"), self.trigger_refresh)
-        QObject.connect(self.eventFilter, SIGNAL("fetch_more"), self.trigger_fetch_more)
-        QObject.connect(self.eventFilter, SIGNAL("toggle_unread_only"), self.toggle_unread_only)
-        QObject.connect(self.eventFilter, SIGNAL("toggle_item_read"), self.toggle_item_read)
-        QObject.connect(self.eventFilter, SIGNAL("toggle_item_shared"), self.toggle_item_shared)
-        QObject.connect(self.eventFilter, SIGNAL("toggle_item_starred"), self.toggle_item_starred)
+        self.add_event_filter(self.ui.listItemList, ItemListEventFilter)
+        QObject.connect(self.event_filter, SIGNAL("mark_all_read"), self.trigger_mark_all_read)
+        QObject.connect(self.event_filter, SIGNAL("refresh"), self.trigger_refresh)
+        QObject.connect(self.event_filter, SIGNAL("fetch_more"), self.trigger_fetch_more)
+        QObject.connect(self.event_filter, SIGNAL("toggle_unread_only"), self.toggle_unread_only)
+        QObject.connect(self.event_filter, SIGNAL("toggle_item_read"), self.toggle_item_read)
+        QObject.connect(self.event_filter, SIGNAL("toggle_item_shared"), self.toggle_item_shared)
+        QObject.connect(self.event_filter, SIGNAL("toggle_item_starred"), self.toggle_item_starred)
+        QObject.connect(self.event_filter, SIGNAL("select_next"), self.select_next_item)
+        QObject.connect(self.event_filter, SIGNAL("select_previous"), self.select_previous_item)
+        
+    def manage_actions(self):
+        """
+        Update the menus (main menu and context menu)
+        """
+        # selelect item actions
+        self.action_mark_item_as_read.setDisabled(not self.selected_item)
+        self.action_share_item.setDisabled(not self.selected_item)
+        self.action_star_item.setDisabled(not self.selected_item)
+        if self.selected_item:
+            if self.selected_item.unread:
+                self.action_mark_item_as_read.setText('Mark as read')
+            else:
+                self.action_mark_item_as_read.setText('Mark as unread')
+            if self.selected_item.shared:
+                self.action_share_item.setText('Unshare')
+            else:
+                self.action_share_item.setText('Share')
+            if self.selected_item.starred:
+                self.action_star_item.setText('Unstar')
+            else:
+                self.action_star_item.setText('Star')
+                
+        # current feed actions
+        self.action_mark_all_read.setDisabled(not (self.current_feed and self.current_feed.unread and not self.current_feed.is_loading))
+        self.action_fetch_more.setDisabled(not (self.current_feed and self.can_fetch_more and not self.current_feed.is_loading))
+        self.action_refresh.setDisabled(not (self.current_feed and not self.current_feed.is_loading))
+        
+         # display show mode
+        if self.show_unread_only:
+            self.action_show_unread_only.setChecked(True)
+        else:
+            self.action_show_all.setChecked(True)
 
+        
+    def request_context_menu(self, pos):
+        """
+        Called when the user ask for the context menu to be displayed
+        """
+        super(ItemListView, self).request_context_menu(pos)
+        self.get_selected()
+        self.manage_actions()
+        self.display_context_menu(pos)
 
     @property
     def show_unread_only(self):
@@ -293,16 +365,18 @@ class ItemListView(View):
         Called when the refresh button is called
         """
         self.get_selected()
-        self.manage_menu_bar(hide_menu=True)
+        self.manage_loading(loading=True)
         self.current_feed.fetch_content(unread_only=self.show_unread_only)
+        self.manage_actions()
             
     def trigger_fetch_more(self):
         """
         Called when the "fetch more" button is called
         """
         self.get_selected()
-        self.manage_menu_bar(hide_menu=True)
+        self.manage_loading(loading=True)
         self.current_feed.fetch_more_content(unread_only=self.show_unread_only)
+        self.manage_actions()
         
     def set_current_feed(self, feed):
         """
@@ -312,11 +386,13 @@ class ItemListView(View):
         self.current_feed = feed
         if MAEMO5_PRESENT:
             self.display_message_box("%s [%s unread]" % (feed.title, feed.unread))
-        self.manage_menu_bar()
+        self.manage_loading()
         self.update_title()
         self.ui.listItemList.setFocus(Qt.OtherFocusReason)
         self.update_item_list()
         self.select_row(row=0)
+        self.get_selected()
+        self.manage_actions()
         return True
                 
     def select_row(self, row=None, item=None):
@@ -336,37 +412,24 @@ class ItemListView(View):
         except:
             pass
         
-    def manage_menu_bar(self, hide_menu=None):
+    def manage_loading(self, loading=None):
         """
-        Hide the menu bar if a operation is currently running or waiting 
-        for this feed (or a category_feed in which it is present)
+        Manage the loading indicator
         """
-        if hide_menu is None:
-            hide_menu = False
-        if not hide_menu:
+        if loading is None:
+            loading = False
+        if not loading:
             if not self.current_feed:
-                hide_menu = True
+                loading = True
             else:
                 if self.current_feed.is_loading:
-                    hide_menu = True
+                    loading = True
                 else:
                     for category in self.current_feed.categories:
                         if category.category_feed and category.category_feed.is_loading:
-                            hide_menu = True
+                            loading = True
                             break
-        # display show mode
-        if self.show_unread_only:
-            self.action_show_unread_only.setChecked(True)
-        else:
-            self.action_show_all.setChecked(True)
-        # hide mark as read if needed
-        self.action_mark_all_read.setDisabled(not self.current_feed.unread)
-        # hide fetch more if needed
-        self.action_fetch_more.setDisabled(not self.can_fetch_more)
-        # hide menu bar if needed
-        self.ui.menuBar.setDisabled(hide_menu)
-        # and then manage loading animation
-        if hide_menu:
+        if loading:
             self.start_loading()
         else:
             self.stop_loading()
@@ -402,7 +465,8 @@ class ItemListView(View):
                 return
         elif feed != self.current_feed:
             return
-        self.manage_menu_bar(hide_menu=True)
+        self.manage_loading(loading=True)
+        self.manage_actions()
         
     def feed_content_fetched(self, feed):
         """
@@ -417,7 +481,8 @@ class ItemListView(View):
             return
         self.get_selected()
         self.update_item_list()
-        self.manage_menu_bar()
+        self.manage_loading()
+        self.manage_actions()
 
     def update_listview(self, content=[]):
         """
@@ -436,30 +501,50 @@ class ItemListView(View):
         self.get_selected(item)
         self.controller.display_item(item)
         
-    def activate_next_item(self):
+    def select_next_item(self):
         """
-        Activate the item just after the current one in the list.
-        Used with keyboard shortcuts
+        Select the next item in the list (but without activating it)
+        Return True if the operation is successfull
         """
         item = self.ui.listItemList.model().get_next(self.selected_item)
         if item:
             self.set_selected(item)
+            return not not self.selected_item
+        return False
+        
+    def activate_next_item(self):
+        """
+        Activate the item just after the current one in the list.
+        Usefull for keyboard shortcuts
+        """
+        select_ok = self.select_next_item(self)
+        if select_ok:
             self.controller.display_item(item)
         else:
             if self.can_fetch_more:
                 self.controller.display_message("No more message, please fetch more !")
             else:
                 self.controller.display_message("No more message !")
-
-    def activate_previous_item(self):
+                
+    def select_previous_item(self):
         """
-        Activate the item just before the current one in the list.
-        Used with keyboard shortcuts
+        Select the previous item in the list (but without activating it)
+        Return True if the operation is successfull
         """
         item = self.ui.listItemList.model().get_previous(self.selected_item)
         if item:
             self.set_selected(item)
-            self.controller.display_item(item)
+            return not not self.selected_item
+        return False
+
+    def activate_previous_item(self):
+        """
+        Activate the item just before the current one in the list.
+        Usefull for keyboard shortcuts
+        """
+        select_ok = self.select_previous_item(self)
+        if select_ok:
+            self.controller.display_item(self.selected_item)
         else:
             self.controller.display_message("No more message, you're at the top of the list")
         

@@ -9,7 +9,7 @@ from PyQt4.QtCore import *
 import time
     
 from views.maemo5.ui.Ui_feedlist import Ui_winFeedList
-from views.maemo5 import MAEMO5_PRESENT, ListModel, View
+from views.maemo5 import MAEMO5_PRESENT, ListModel, View, ViewEventFilter
 
 from engine import settings
 from engine.models import *
@@ -34,34 +34,34 @@ class FeedListDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         """
-        Paint the list item with the default options, then add the unread counter
+        Paint the list entry with the default options, then add the unread counter
         """
         painter.save()
 
         try:
-            # item to work with
+            # entry to work with
             is_category = False            
             model = index.model()
-            item = model.listdata[index.row()]
+            entry = model.listdata[index.row()]
 
             text_style_option = QStyleOptionViewItemV4(option)
             text_font = text_style_option.font
-            if isinstance(item, Feed):
+            if isinstance(entry, Feed):
                 # it's a feed
-                text = item.title
+                text = entry.title
                 # add a blank to the left to mimic a treeview
                 text_style_option.rect.adjust(15, 0, 0, 0)
-                if item.__class__ != Feed:
+                if entry.__class__ != Feed:
                     text_font.setStyle(QFont.StyleItalic)
-                if item.unread and not model.view.unread_only:
+                if entry.unread and not model.view.unread_only:
                     text_font.setWeight(QFont.Bold)
             else:
                 # it's a category
                 is_category = True
-                text = item.title
-                if item.unread and not model.view.unread_only:
+                text = entry.title
+                if entry.unread and not model.view.unread_only:
                     text_font.setWeight(QFont.Bold)
-                if isinstance(item, SpecialCategory):
+                if isinstance(entry, SpecialCategory):
                     text_font.setStyle(QFont.StyleItalic)
 
             # draw background and borders
@@ -71,11 +71,11 @@ class FeedListDelegate(QStyledItemDelegate):
             text_rect  = text_style_option.rect
 
             # display unread count
-            if item.unread:
+            if entry.unread:
                 if is_category:
-                    str_unread = "%d/%d" % (item.unread, item.count_feeds(unread_only=True))
+                    str_unread = "%d/%d" % (entry.unread, entry.count_feeds(unread_only=True))
                 else:
-                    str_unread = "%d" % item.unread
+                    str_unread = "%d" % entry.unread
                 palette = text_style_option.palette
                 unread_rect = painter.boundingRect(option.rect, Qt.AlignRight | Qt.AlignVCenter, str_unread)
                 unread_rect.adjust(-8, -3, -2, +3)
@@ -97,7 +97,7 @@ class FeedListDelegate(QStyledItemDelegate):
             painter.drawText(QRectF(text_rect), text, text_option)
             
             # draw a bar for unread category/feeds
-            if item.unread:# and not model.view.unread_only:
+            if entry.unread:# and not model.view.unread_only:
                 bar_option = QStyleOptionViewItemV4(option)
                 if is_category:
                     bar_option.rect.setLeft(1)
@@ -120,18 +120,27 @@ class FeedListModel(ListModel):
         else:
             return QVariant()
 
-class FeedListEventFilter(QObject):
-    def __init__(self, parent=None):
-        QObject.__init__(self, parent)
-
+class FeedListEventFilter(ViewEventFilter):
     def eventFilter(self, obj, event):
+        if super(FeedListEventFilter, self).eventFilter(obj, event):
+            return True
         if event.type() == QEvent.KeyPress:
             key = event.key()
             if key == Qt.Key_S and event.modifiers() & Qt.ShiftModifier:
                 self.emit(SIGNAL("trigger_sync"), True)
                 return True
-            if key == Qt.Key_Backspace:
+            elif key == Qt.Key_Backspace:
                 self.emit(SIGNAL("trigger_back"), True)
+                return True
+            elif event.modifiers() & Qt.ShiftModifier and \
+                (key == Qt.Key_A or key == Qt.Key_M):
+                self.emit(SIGNAL("mark_selected_all_read"))
+                return True
+            elif key in (Qt.Key_J, Qt.Key_N):
+                self.emit(SIGNAL("select_next"))
+                return True
+            elif key in (Qt.Key_K, Qt.Key_P):
+                self.emit(SIGNAL("select_previous"))
                 return True
         return QObject.eventFilter(self, obj, event)
 
@@ -144,6 +153,8 @@ class FeedListView(View):
 
         self.selected_category = None
         self.selected_feed     = None
+        
+        self.sync_running = False
 
         # menu bar
 
@@ -173,7 +184,7 @@ class FeedListView(View):
         else:
             self.action_show_all.setChecked(True)
         self.ui.menuBar.addActions(self.group_show.actions())
-        self.action_show_unread_only.toggled.connect(self.toggle_unread_only)
+        self.action_show_unread_only.toggled.connect(self.trigger_unread_only)
         
         # feed list
         flm = FeedListModel(data=[], view=self)
@@ -181,12 +192,51 @@ class FeedListView(View):
         self.ui.listFeedList.setModel(flm)
         self.ui.listFeedList.setItemDelegate(fld)
         self.ui.listFeedList.activated.connect(self.activate_entry)
+        
+        # context menu
+        self.make_context_menu(self.ui.listFeedList)
+        
+        self.action_mark_selected_as_read = QAction("Mark as read", self.win)
+        self.action_mark_selected_as_read.triggered.connect(self.trigger_mark_selected_as_read)
+        self.context_menu.addAction(self.action_mark_selected_as_read)
+
+        self.context_menu.addSeparator()
+        self.context_menu.addActions(self.group_show.actions())
+        self.context_menu.addSeparator()
+        self.context_menu.addAction(self.action_sync)
+        self.context_menu.addAction(self.action_settings)
+        self.context_menu_add_orientation()
+        
+        self.manage_actions()
 
         # events
-        self.eventFilter = FeedListEventFilter(self.win)
-        self.ui.listFeedList.installEventFilter(self.eventFilter)
-        QObject.connect(self.eventFilter, SIGNAL("trigger_sync"), self.trigger_sync)
-        QObject.connect(self.eventFilter, SIGNAL("trigger_back"), self.trigger_back)
+        self.add_event_filter(self.ui.listFeedList, FeedListEventFilter)
+        QObject.connect(self.event_filter, SIGNAL("trigger_sync"), self.trigger_sync)
+        QObject.connect(self.event_filter, SIGNAL("trigger_back"), self.trigger_back)
+        QObject.connect(self.event_filter, SIGNAL("mark_selected_all_read"), self.trigger_mark_selected_as_read)        
+        QObject.connect(self.event_filter, SIGNAL("select_next"), self.select_next_entry)
+        QObject.connect(self.event_filter, SIGNAL("select_previous"), self.select_previous_entry)
+    
+    def manage_actions(self):
+        """
+        Update the menus (main menu and context menu)
+        """
+        auth_ready = settings.auth_ready()
+        self.action_sync.setDisabled(self.sync_running or not auth_ready)
+        self.action_show_all.setDisabled(not auth_ready)
+        self.action_show_unread_only.setDisabled(not auth_ready)
+        self.action_show_unread_only.setChecked(self.unread_only)
+        self.action_settings.setDisabled(self.sync_running or not auth_ready)          
+        self.action_mark_selected_as_read.setDisabled(not self.can_mark_selected_as_read())
+        
+    def request_context_menu(self, pos):
+        """
+        Called when the user ask for the context menu to be displayed
+        """
+        super(FeedListView, self).request_context_menu(pos)
+        self.get_selected()
+        self.manage_actions()
+        self.display_context_menu(pos)
         
     def update_feed_list(self):
         """
@@ -209,6 +259,10 @@ class FeedListView(View):
                     feed_index = self.ui.listFeedList.model().index_of(self.selected_feed, start=category_index.row()+1)
                     if feed_index:
                         self.ui.listFeedList.setCurrentIndex(feed_index)
+                    else:
+                        self.selected_feed = None
+            else:
+                self.selected_category = None
 
     def get_content(self, unread_only=False, current_category=None):
         """
@@ -241,12 +295,12 @@ class FeedListView(View):
         """
         Action when an entry is selected
         """
-        item = index.model().listdata[index.row()]
-        self.get_selected(item)
-        if isinstance(item, Category):
-            self.set_current_category(item)
+        entry = index.model().listdata[index.row()]
+        self.get_selected(entry)
+        if isinstance(entry, Category):
+            self.set_current_category(entry)
         else:
-            self.controller.display_feed(item)
+            self.controller.display_feed(entry)
         
     def set_current_category(self, category=None):
         """
@@ -275,35 +329,38 @@ class FeedListView(View):
             and self.current_category not in self.controller.account.get_categories(unread_only=self.unread_only):
             self.current_category = None
 
-    def toggle_unread_only(self, checked):
+    def trigger_unread_only(self, checked):
         """
         Action when the "show unread" button is checked or unchecked
         """
-        self.get_selected()
-        self.unread_only = checked
-        self.verify_current_category()
-        self.update_feed_list()
+        if not settings.auth_ready():
+            return
+        if self.unread_only != checked:
+            self.get_selected()
+            self.unread_only = checked
+            self.verify_current_category()
+            self.update_feed_list()
 
-    def get_selected(self, item=None):
+    def get_selected(self, entry=None):
         """
-        Save the current selected item for select it back when the list will
+        Save the current selected entry for select it back when the list will
         be refreshed
         """
-        if item is None:
+        if entry is None:
             try:
                 index = self.ui.listFeedList.selectedIndexes()[0]
             except:
                 pass
             else:
-                item = index.model().listdata[index.row()]
+                entry = index.model().listdata[index.row()]
 
-        if item is not None:
-            if isinstance(item, Category):
-                self.selected_category = item
+        if entry is not None:
+            if isinstance(entry, Category):
+                self.selected_category = entry
                 self.selected_feed = None
             else:
                 self.selected_category = self.current_category
-                self.selected_feed = item
+                self.selected_feed = entry
 
     def trigger_back(self):
         """
@@ -319,6 +376,8 @@ class FeedListView(View):
         """
         Action when the "sync" button is triggered
         """
+        if self.sync_running:
+            return
         self.feeds_fetching_started()        
         self.controller.account.fetch_feeds(fetch_unread_content=True)
         
@@ -327,9 +386,9 @@ class FeedListView(View):
         Actions when feed's fetching starts
         """
         self.start_loading()
+        self.sync_running = True
+        self.manage_actions()
         self.update_title()
-        self.action_settings.setDisabled(True)
-        self.action_sync.setDisabled(True)
             
     def feeds_fetched(self):
         """
@@ -339,23 +398,21 @@ class FeedListView(View):
         self.verify_current_category()
         self.get_selected()
         self.update_feed_list()
-        self.action_show_all.setDisabled(False)
-        self.action_show_unread_only.setDisabled(False)
-        self.action_settings.setDisabled(False)
-        self.action_sync.setDisabled(False)
+        self.sync_running = False
+        self.manage_actions()
         self.stop_loading()
         if not self.selected_category:
             self.select_row(row=0)
                 
-    def select_row(self, row=None, item=None):
+    def select_row(self, row=None, entry=None):
         """
-        Try to select an item in the list, by a specific item, or by a number
+        Try to select an entry in the list, by a specific entry, or by a number
         """
         try:
             index = None
             model = self.ui.listFeedList.model()
-            if item:
-                index = model.index_of(item)
+            if entry:
+                index = model.index_of(entry)
             if not index:
                 if not row:
                     row = 0
@@ -463,3 +520,76 @@ class FeedListView(View):
         Called when an feed was marked as read
         """
         self.update_feed(feed)
+        
+    def can_mark_selected_as_read(self):
+        """
+        Return True if the current category/feed can be marked as read
+        """
+        if self.selected_feed and self.selected_feed.unread:
+            return True
+        elif self.selected_category and self.selected_category.unread \
+            and not isinstance(self.selected_category, (SpecialCategory, OrphanFeedsCategory)):
+            return True
+        return False
+        
+    def trigger_mark_selected_as_read(self):
+        """
+        Called when the selected category/feed must be marked as read
+        """
+        self.get_selected()
+        if self.can_mark_selected_as_read():
+            if self.selected_feed:
+                self.selected_feed.mark_as_read()
+                self.controller.feed_read(self.selected_feed)
+            else:
+                try:
+                    self.selected_category.category_feed.mark_as_read()
+                    self.controller.feed_read(self.selected_category.category_feed)
+                except:
+                    pass
+            
+    def select_next_entry(self):
+        """
+        Select the next entry in the list (but without activating it)
+        Return True if the operation is successfull
+        """
+        self.get_selected()
+        current = self.selected_feed
+        if not current:
+            current = self.selected_category
+        entry = self.ui.listFeedList.model().get_next(current)
+        if entry:
+            if isinstance(entry, Category):
+                self.selected_category = entry
+                self.selected_feed     = None
+            else:
+                self.selected_feed = entry
+            self.set_selected()
+            current = self.selected_feed
+            if not current:
+                current = self.selected_category
+            return not not current
+        return False
+            
+    def select_previous_entry(self):
+        """
+        Select the previous entry in the list (but without activating it)
+        Return True if the operation is successfull
+        """
+        self.get_selected()
+        current = self.selected_feed
+        if not current:
+            current = self.selected_category
+        entry = self.ui.listFeedList.model().get_previous(current)
+        if entry:
+            if isinstance(entry, Category):
+                self.selected_category = entry
+                self.selected_feed     = None
+            else:
+                self.selected_feed = entry
+            self.set_selected()
+            current = self.selected_feed
+            if not current:
+                current = self.selected_category
+            return not not current
+        return False

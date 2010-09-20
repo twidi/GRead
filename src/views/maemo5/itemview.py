@@ -11,7 +11,7 @@ import sys
     
 from views.maemo5.utils.qwebviewselectionsuppressor import QWebViewSelectionSuppressor
 from views.maemo5.ui.Ui_itemview import Ui_winItemView
-from views.maemo5 import MAEMO5_PRESENT, MAEMO5_ZOOMKEYS, View
+from views.maemo5 import MAEMO5_PRESENT, MAEMO5_ZOOMKEYS, View, ViewEventFilter
 from views.maemo5.utils.toolbar import ToolbarManager, Toolbar
 
 if MAEMO5_PRESENT:
@@ -25,11 +25,10 @@ from engine import settings
 from engine.models import *
 
 
-class ItemViewEventFilter(QObject):
-    def __init__(self, parent=None):
-        QObject.__init__(self, parent)
-
+class ItemViewEventFilter(ViewEventFilter):
     def eventFilter(self, obj, event):
+        if super(ItemViewEventFilter, self).eventFilter(obj, event):
+            return True
         if event.type() == QEvent.KeyPress:
             key = event.key()
             if key == Qt.Key_F7:
@@ -48,13 +47,13 @@ class ItemViewEventFilter(QObject):
                 self.emit(SIGNAL("toggle_read"))
                 return True
             elif key == Qt.Key_V:
-                if event.modifiers() & Qt.ShiftModifier:
+                if self.isShift(event):
                     self.emit(SIGNAL("view_original_gread"))
                 else:
                     self.emit(SIGNAL("view_original_browser"))
                 return True
             elif key == Qt.Key_S:
-                if event.modifiers() & Qt.ShiftModifier:
+                if self.isShift(event):
                     self.emit(SIGNAL("toggle_shared"))
                 else:
                     self.emit(SIGNAL("toggle_starred"))
@@ -100,12 +99,12 @@ class ItemViewView(View):
         self.ui.menuBar.addAction(self.action_shared)
         self.action_shared.setCheckable(True)
         self.action_shared.triggered.connect(self.trigger_shared)
-        # menu bar : mark read/unread
-        self.action_mark_read = QAction("Mark read", self.win)
-        self.action_mark_read.setObjectName('actionMarkRead')
-        self.ui.menuBar.addAction(self.action_mark_read)
-        self.action_mark_read.setCheckable(True)
-        self.action_mark_read.triggered.connect(self.trigger_mark_read)
+        # menu bar : read/unread
+        self.action_read = QAction("Read", self.win)
+        self.action_read.setObjectName('actionRead')
+        self.ui.menuBar.addAction(self.action_read)
+        self.action_read.setCheckable(True)
+        self.action_read.triggered.connect(self.trigger_read)
         # menu bar : see original
         self.action_view_original_browser = QAction("View original in Browser", self.win)
         self.action_view_original_browser.setObjectName('actionViewOriginalBrowser')
@@ -125,22 +124,64 @@ class ItemViewView(View):
         self.leftToolbar = Toolbar('<', 'Previous item', self.show_previous, 0, 0.7, parent=self.win)
         self.rightToolbar = Toolbar('>', 'Next item', self.show_next, 1, 0.7, parent=self.win)
         self.toolbar_manager = ToolbarManager([self.leftToolbar, self.rightToolbar], event_target=self.ui.webView.page(), parent=self.win)
+
+        # context menu
+        self.make_context_menu(self.ui.webView)
+        self.context_menu.addAction(self.action_read)
+        self.context_menu.addAction(self.action_shared)
+        self.context_menu.addAction(self.action_starred)
+        self.context_menu.addSeparator()
+        self.context_menu.addAction(self.action_view_original_browser)
+        self.context_menu.addAction(self.action_view_original_gread)
+        self.context_menu.addAction(self.action_return_to_item)
+        self.context_menu.addSeparator()
+        for web_action in (QWebPage.Copy, QWebPage.Back, QWebPage.Reload, QWebPage.Stop, QWebPage.CopyLinkToClipboard, \
+            ):#QWebPage.OpenImageInNewWindow, QWebPage.DownloadImageToDisk):
+            self.context_menu.addAction(self.ui.webView.pageAction(web_action))
         
         # events
-        self.eventFilter = ItemViewEventFilter(self.win)
-        self.win.installEventFilter(self.eventFilter)
-        QObject.connect(self.eventFilter, SIGNAL("zoom"), self.zoom)
-        QObject.connect(self.eventFilter, SIGNAL("next"), self.show_next)
-        QObject.connect(self.eventFilter, SIGNAL("previous"), self.show_previous)
-        QObject.connect(self.eventFilter, SIGNAL("toggle_read"), self.toggle_read)
-        QObject.connect(self.eventFilter, SIGNAL("toggle_shared"), self.toggle_shared)
-        QObject.connect(self.eventFilter, SIGNAL("toggle_starred"), self.toggle_starred)
-        QObject.connect(self.eventFilter, SIGNAL("view_original_gread"), self.trigger_view_original_gread)
-        QObject.connect(self.eventFilter, SIGNAL("view_original_browser"), self.trigger_view_original_browser)
-        QObject.connect(self.eventFilter, SIGNAL("init_browser_scrollbars"), self.init_browser_scrollbars)
+        self.add_event_filter(self.win, ItemViewEventFilter)
+        QObject.connect(self.event_filter, SIGNAL("zoom"), self.zoom)
+        QObject.connect(self.event_filter, SIGNAL("next"), self.show_next)
+        QObject.connect(self.event_filter, SIGNAL("previous"), self.show_previous)
+        QObject.connect(self.event_filter, SIGNAL("toggle_read"), self.toggle_read)
+        QObject.connect(self.event_filter, SIGNAL("toggle_shared"), self.toggle_shared)
+        QObject.connect(self.event_filter, SIGNAL("toggle_starred"), self.toggle_starred)
+        QObject.connect(self.event_filter, SIGNAL("view_original_gread"), self.trigger_view_original_gread)
+        QObject.connect(self.event_filter, SIGNAL("view_original_browser"), self.trigger_view_original_browser)
+        QObject.connect(self.event_filter, SIGNAL("init_browser_scrollbars"), self.init_browser_scrollbars)
 
         # item displayed
         self.current_item = None
+        self.current_page_is_content = False
+
+    def manage_actions(self):
+        """
+        Update the menus (main menu and context menu)
+        """
+        if self.current_item:
+            self.action_read.setChecked(not self.current_item.unread)
+            self.action_read.setDisabled(not self.current_item.can_unread)
+            self.action_shared.setChecked(self.current_item.shared)
+            self.action_starred.setChecked(self.current_item.starred)
+                
+            if self.current_page_is_content:
+                self.action_view_original_gread.setDisabled(self.current_item.url is None)
+                self.action_view_original_browser.setDisabled(self.current_item.url is None)
+                self.action_return_to_item.setDisabled(True)
+                self.action_return_to_item.setVisible(False)
+            else:
+                self.action_return_to_item.setVisible(True)
+                self.action_return_to_item.setDisabled(False)
+
+        
+    def request_context_menu(self, pos):
+        """
+        Called when the user ask for the context menu to be displayed
+        """
+        super(ItemViewView, self).request_context_menu(pos)
+        self.manage_actions()
+        self.display_context_menu(pos)
 
     def set_current_item(self, item):
         """
@@ -157,22 +198,19 @@ class ItemViewView(View):
         
         # mark the item as read
         if item.unread:
-            self.trigger_mark_read(True)
+            self.trigger_read(True)
 
         # menus
-        self.action_mark_read.setChecked(not item.unread)
-        self.action_mark_read.setDisabled(not item.can_unread)
+        self.action_read.setChecked(not item.unread)
+        self.action_read.setDisabled(not item.can_unread)
         self.action_shared.setChecked(item.shared)
         self.action_starred.setChecked(item.starred)
-            
-        self.action_view_original_gread.setDisabled(item.url is None)
-        self.action_view_original_gread.setVisible(True)
-        self.action_view_original_browser.setDisabled(item.url is None)
-        self.action_view_original_browser.setVisible(True)
-        self.action_return_to_item.setDisabled(True)
-        self.action_return_to_item.setVisible(False)
+        
+        self.manage_actions()
             
         # display content
+        self.current_page_is_content = True
+        self.ui.webView.setHtml(item.content)
         if MAEMO5_PRESENT:
             str = "%s - " % item.title
             statuses = []
@@ -185,12 +223,11 @@ class ItemViewView(View):
             if item.starred:
                 statuses.append('starred')
             self.display_message_box("%s [%s]" % (item.title, ', '.join(statuses)))
-        self.ui.webView.setHtml(item.content)
 
         self.ui.webView.setFocus(Qt.OtherFocusReason)
         return True
 
-    def trigger_mark_read(self, checked):
+    def trigger_read(self, checked):
         """
         Mark the item as read (checked==True) or unread
         """
@@ -241,10 +278,8 @@ class ItemViewView(View):
         content, a "return to item" button is added to call this method, which
         will display the original item's content
         """
-        self.action_view_original_gread.setDisabled(False)
-        self.action_view_original_gread.setVisible(True)
-        self.action_return_to_item.setDisabled(True)
-        self.action_return_to_item.setVisible(False)
+        self.manage_actions()
+        self.current_page_is_content = True
         self.ui.webView.setHtml(self.current_item.content)
 
     def open_url(self, url, force_in_gread=False, zoom_gread=None):
@@ -254,12 +289,10 @@ class ItemViewView(View):
         the url is opened in the internal browser
         """
         if force_in_gread or not QDesktopServices.openUrl(url):
+            self.current_page_is_content = False
             self.ui.webView.setHtml("")
             self.start_loading()
-            self.action_view_original_gread.setDisabled(True)
-            self.action_view_original_gread.setVisible(False)
-            self.action_return_to_item.setDisabled(False)
-            self.action_return_to_item.setVisible(True)
+            self.manage_actions()
             if zoom_gread is not None:
                 self.ui.webView.setZoomFactor(zoom_gread)
             self.ui.webView.load(url)
@@ -319,8 +352,8 @@ class ItemViewView(View):
         message = 'Entry now marked as unread'
         if was_unread:
             message = 'Entry now marked as read'
-        self.trigger_mark_read(was_unread)
-        self.action_mark_read.setChecked(was_unread)
+        self.trigger_read(was_unread)
+        self.action_read.setChecked(was_unread)
         self.display_message(message)
         
     def toggle_shared(self):
