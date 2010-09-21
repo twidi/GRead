@@ -3,9 +3,8 @@
 
 from PyQt4.QtGui import QApplication
 
-# currently only one view mode : maemo5
-from views.maemo5.controller import Controller
 from engine import settings
+from views import Controller
 
 import sys
 sys.setdefaultencoding("utf-8")
