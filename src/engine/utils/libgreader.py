@@ -24,7 +24,10 @@ import urllib2
 import urlparse
 import time
 
-import simplejson as json
+try:
+    import json
+except:
+    import simplejson as json
 try:
     import oauth2 as oauth
     has_oauth = True
