@@ -517,7 +517,7 @@ class ItemListView(View):
         Activate the item just after the current one in the list.
         Usefull for keyboard shortcuts
         """
-        select_ok = self.select_next_item(self)
+        select_ok = self.select_next_item()
         if select_ok:
             self.controller.display_item(item)
         else:
@@ -542,7 +542,7 @@ class ItemListView(View):
         Activate the item just before the current one in the list.
         Usefull for keyboard shortcuts
         """
-        select_ok = self.select_previous_item(self)
+        select_ok = self.select_previous_item()
         if select_ok:
             self.controller.display_item(self.selected_item)
         else:
