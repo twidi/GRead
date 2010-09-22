@@ -3,6 +3,8 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
+from PyQt4.QtMaemo5 import QMaemo5InformationBox
+
 from ..basic import ViewEventFilter as BasicViewEventFilter,  \
                     View            as BasicView
                     
