@@ -8,8 +8,8 @@ from PyQt4.QtCore import *
     
 import time
     
-from views.maemo5.ui.Ui_feedlist import Ui_winFeedList
-from views.maemo5 import MAEMO5_PRESENT, ListModel, View, ViewEventFilter
+from ui.Ui_feedlist import Ui_winFeedList
+from . import ListModel, View, ViewEventFilter, base_view_class, base_eventfilter_class
 
 from engine import settings
 from engine.models import *
@@ -18,10 +18,6 @@ class FeedListDelegate(QStyledItemDelegate):
     
     def sizeHint(self, option, index):
         size = super(FeedListDelegate, self).sizeHint(option, index)
-        if MAEMO5_PRESENT:
-            if size.height() != 70:
-                size.setHeight(70)
-            return size
         try:
             metrics = QFontMetrics(option.font)
             min_height = metrics.height() +10
@@ -120,7 +116,7 @@ class FeedListModel(ListModel):
         else:
             return QVariant()
 
-class FeedListEventFilter(ViewEventFilter):
+class FeedListEventFilter(base_eventfilter_class):
     def eventFilter(self, obj, event):
         if super(FeedListEventFilter, self).eventFilter(obj, event):
             return True
@@ -144,10 +140,8 @@ class FeedListEventFilter(ViewEventFilter):
                 return True
         return QObject.eventFilter(self, obj, event)
 
-class FeedListView(View):
+class FeedListView(base_view_class):
     def __init__(self, controller):
-        super(FeedListView, self).__init__(controller, Ui_winFeedList)
-        
         self.current_category = None
         self.unread_only     = settings.get('feeds', 'unread_only')
 
@@ -156,9 +150,23 @@ class FeedListView(View):
         
         self.sync_running = False
 
-        # menu bar
+        super(FeedListView, self).__init__(controller, self.get_ui_class())
+        
+        # feed list
+        flm = FeedListModel(data=[], view=self)
+        fld = self.get_feedlist_delegate_class()(self.win)
+        self.ui.listFeedList.setModel(flm)
+        self.ui.listFeedList.setItemDelegate(fld)
+        self.ui.listFeedList.activated.connect(self.activate_entry)
 
-        self.add_orientation_menu()
+    def get_ui_class(self):
+        return Ui_winFeedList
+        
+    def get_feedlist_delegate_class(self):
+        return FeedListDelegate
+
+    def init_menu(self):
+        super(FeedListView, self).init_menu()
         
         # simple menu boutons
         self.action_settings = QAction("Settings", self.win)
@@ -186,13 +194,6 @@ class FeedListView(View):
         self.ui.menuBar.addActions(self.group_show.actions())
         self.action_show_unread_only.toggled.connect(self.trigger_unread_only)
         
-        # feed list
-        flm = FeedListModel(data=[], view=self)
-        fld = FeedListDelegate(self.win)
-        self.ui.listFeedList.setModel(flm)
-        self.ui.listFeedList.setItemDelegate(fld)
-        self.ui.listFeedList.activated.connect(self.activate_entry)
-        
         # context menu
         self.make_context_menu(self.ui.listFeedList)
         
@@ -205,11 +206,12 @@ class FeedListView(View):
         self.context_menu.addSeparator()
         self.context_menu.addAction(self.action_sync)
         self.context_menu.addAction(self.action_settings)
-        self.context_menu_add_orientation()
         
         self.manage_actions()
 
-        # events
+    def init_events(self):
+        super(FeedListView, self).init_events()
+        
         self.add_event_filter(self.ui.listFeedList, FeedListEventFilter)
         QObject.connect(self.event_filter, SIGNAL("trigger_sync"), self.trigger_sync)
         QObject.connect(self.event_filter, SIGNAL("trigger_back"), self.trigger_back)

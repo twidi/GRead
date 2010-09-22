@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 """
-Feed list view
+Item list view
 """
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
     
-from views.maemo5.ui.Ui_itemlist import Ui_winItemList
-from views.maemo5 import MAEMO5_PRESENT, ListModel, View, ViewEventFilter
+from ui.Ui_itemlist import Ui_winItemList
+from . import ListModel, View, ViewEventFilter, base_view_class, base_eventfilter_class
 
 from engine import settings
 from engine.models import *
@@ -21,10 +21,6 @@ class ItemListDelegate(QStyledItemDelegate):
     
     def sizeHint(self, option, index):
         size = super(ItemListDelegate, self).sizeHint(option, index)
-        if MAEMO5_PRESENT:
-            if size.height() != 70:
-                size.setHeight(70)
-            return size
         try:
             model = index.model()
             item = model.listdata[index.row()]
@@ -139,7 +135,7 @@ class ItemListModel(ListModel):
             return QVariant()
 
 
-class ItemListEventFilter(ViewEventFilter):
+class ItemListEventFilter(base_eventfilter_class):
     def eventFilter(self, obj, event):
         if super(ItemListEventFilter, self).eventFilter(obj, event):
             return True
@@ -175,20 +171,33 @@ class ItemListEventFilter(ViewEventFilter):
                 return True
         return QObject.eventFilter(self, obj, event)
 
-class ItemListView(View):
+class ItemListView(base_view_class):
     def __init__(self, controller):
-        super(ItemListView, self).__init__(controller, Ui_winItemList, controller.feedlist_view.win)
-
         self.current_feed  = None
         self.selected_item = None
 
         self.unread_only_default = True
         self.show_mode_save      = True
+
+        super(ItemListView, self).__init__(controller, self.get_ui_class(), controller.feedlist_view.win)
+
         self.settings_updated()
 
-        # menu bar
+        # item list
+        ilm = ItemListModel(data=[], view=self)
+        ild = self.get_itemlist_delegate_class()(self.win)
+        self.ui.listItemList.setModel(ilm)
+        self.ui.listItemList.setItemDelegate(ild)
+        self.ui.listItemList.activated.connect(self.activate_item)
 
-        self.add_orientation_menu()
+    def get_ui_class(self):
+        return Ui_winItemList
+
+    def get_itemlist_delegate_class(self):
+        return ItemListDelegate
+
+    def init_menu(self):
+        super(ItemListView, self).init_menu()
 
         # menu boutons : group for show all/updated
         self.group_show = QActionGroup(self.win)
@@ -218,26 +227,22 @@ class ItemListView(View):
         self.action_mark_all_read.setObjectName('actionMarkAllRead')
         self.ui.menuBar.addAction(self.action_mark_all_read)
         self.action_mark_all_read.triggered.connect(self.trigger_mark_all_read)
-
-        # item list
-        ilm = ItemListModel(data=[], view=self)
-        ild = ItemListDelegate(self.win)
-        self.ui.listItemList.setModel(ilm)
-        self.ui.listItemList.setItemDelegate(ild)
-        self.ui.listItemList.activated.connect(self.activate_item)
         
         # context menu
         self.make_context_menu(self.ui.listItemList)
         
-        self.action_mark_item_as_read = QAction("Mark as read", self.win)
-        self.action_mark_item_as_read.triggered.connect(self.toggle_item_read)
-        self.context_menu.addAction(self.action_mark_item_as_read)
-        self.action_share_item = QAction("Share", self.win)
-        self.action_share_item.triggered.connect(self.toggle_item_shared)
-        self.context_menu.addAction(self.action_share_item)
-        self.action_star_item = QAction("Star", self.win)
-        self.action_star_item.triggered.connect(self.toggle_item_starred)
-        self.context_menu.addAction(self.action_star_item)
+        self.action_item_read = QAction("Read", self.win)
+        self.action_item_read.triggered.connect(self.trigger_item_read)
+        self.action_item_read.setCheckable(True)
+        self.context_menu.addAction(self.action_item_read)
+        self.action_item_shared = QAction("Shared", self.win)
+        self.action_item_shared.setCheckable(True)
+        self.action_item_shared.triggered.connect(self.trigger_item_shared)
+        self.context_menu.addAction(self.action_item_shared)
+        self.action_item_starred = QAction("Starred", self.win)
+        self.action_item_starred.setCheckable(True)
+        self.action_item_starred.triggered.connect(self.trigger_item_starred)
+        self.context_menu.addAction(self.action_item_starred)
         
         self.context_menu.addSeparator()
         self.context_menu.addAction(self.action_mark_all_read)
@@ -246,9 +251,11 @@ class ItemListView(View):
 
         self.context_menu.addSeparator()
         self.context_menu.addActions(self.group_show.actions())
-        self.context_menu_add_orientation()
                 
         self.manage_actions()
+        
+    def init_events(self):
+        super(ItemListView, self).init_events()
         
         # events
         self.add_event_filter(self.ui.listItemList, ItemListEventFilter)
@@ -267,22 +274,14 @@ class ItemListView(View):
         Update the menus (main menu and context menu)
         """
         # selelect item actions
-        self.action_mark_item_as_read.setDisabled(not self.selected_item)
-        self.action_share_item.setDisabled(not self.selected_item)
-        self.action_star_item.setDisabled(not self.selected_item)
+        self.action_item_read.setDisabled(not self.selected_item)
+        self.action_item_shared.setDisabled(not self.selected_item)
+        self.action_item_starred.setDisabled(not self.selected_item)
         if self.selected_item:
-            if self.selected_item.unread:
-                self.action_mark_item_as_read.setText('Mark as read')
-            else:
-                self.action_mark_item_as_read.setText('Mark as unread')
-            if self.selected_item.shared:
-                self.action_share_item.setText('Unshare')
-            else:
-                self.action_share_item.setText('Share')
-            if self.selected_item.starred:
-                self.action_star_item.setText('Unstar')
-            else:
-                self.action_star_item.setText('Star')
+            self.action_item_read.setChecked(not self.selected_item.unread)
+            self.action_item_read.setDisabled(not self.selected_item.can_unread)
+            self.action_item_shared.setChecked(self.selected_item.shared)
+            self.action_item_starred.setChecked(self.selected_item.starred)
                 
         # current feed actions
         self.action_mark_all_read.setDisabled(not (self.current_feed and self.current_feed.unread and not self.current_feed.is_loading))
@@ -384,8 +383,6 @@ class ItemListView(View):
         """
         self.update_listview(content=[])
         self.current_feed = feed
-        if MAEMO5_PRESENT:
-            self.display_message_box("%s [%s unread]" % (feed.title, feed.unread))
         self.manage_loading()
         self.update_title()
         self.ui.listItemList.setFocus(Qt.OtherFocusReason)
@@ -519,7 +516,7 @@ class ItemListView(View):
         """
         select_ok = self.select_next_item()
         if select_ok:
-            self.controller.display_item(item)
+            self.controller.display_item(self.selected_item)
         else:
             if self.can_fetch_more:
                 self.controller.display_message("No more message, please fetch more !")
@@ -612,6 +609,39 @@ class ItemListView(View):
         """
         self.update_item(item)
         
+    def trigger_item_read(self, checked):
+        """
+        Mark the selected item as read (checked==True) or unread
+        """
+        if self.selected_item and checked == self.selected_item.unread:
+            if self.selected_item.unread:
+                self.selected_item.mark_as_read()
+            else:
+                self.selected_item.mark_as_unread()
+            self.controller.item_read(self.selected_item)
+        
+    def trigger_item_shared(self, checked):
+        """
+        Share the selected item (checked==True) or unshare it
+        """
+        if self.selected_item and checked != self.selected_item.shared:
+            if self.selected_item.shared:
+                self.selected_item.unshare()
+            else:
+                self.selected_item.share()
+            self.controller.item_shared(self.selected_item)
+        
+    def trigger_item_starred(self, checked):
+        """
+        Share the selected item (checked==True) or unshare it
+        """
+        if self.selected_item and checked != self.selected_item.starred:
+            if self.selected_item.starred:
+                self.selected_item.unstar()
+            else:
+                self.selected_item.star()
+            self.controller.item_starred(self.selected_item)
+        
     def toggle_item_read(self):
         """
         Called when we want to toggle the read/unread status of the selected item
@@ -619,15 +649,11 @@ class ItemListView(View):
         self.get_selected()
         if not self.selected_item:
             return
-        item = self.selected_item
-        was_unread = item.unread
+        was_unread = selected_item.unread
         message = 'Entry now marked as unread'
         if was_unread:
             message = 'Entry now marked as read'
-            item.mark_as_read()
-        else:
-            item.mark_as_unread()
-        self.controller.item_read(item)
+        self.trigger_read(was_unread)
         self.display_message(message)
         
     def toggle_item_shared(self):
@@ -637,14 +663,11 @@ class ItemListView(View):
         self.get_selected()
         if not self.selected_item:
             return
-        item = self.selected_item
-        was_shared = item.shared
+        was_shared = self.selected_item.shared
         message = 'Shared flag is now ON'
         if was_shared:
             message = 'Shared flag is now OFF'
-            item.unshare()
-        else:
-            item.share()
+        self.trigger_shared(not was_shared)
         self.controller.display_message(message)
 
     def toggle_item_starred(self):
@@ -654,12 +677,9 @@ class ItemListView(View):
         self.get_selected()
         if not self.selected_item:
             return
-        item = self.selected_item
-        was_starred = item.starred
+        was_starred = self.selected_item.starred
         message = 'Starred flag is now ON'
         if was_starred:
             message = 'Starred flag is now OFF'
-            item.unstar()
-        else:
-            item.star()
+        self.trigger_starred(not was_starred)
         self.controller.display_message(message)

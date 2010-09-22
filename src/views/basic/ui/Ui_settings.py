@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'settings.ui'
+# Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/basic/ui/settings.ui'
 #
-# Created: Tue Sep 14 23:05:51 2010
+# Created: Wed Sep 22 01:23:51 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_Settings(object):
     def setupUi(self, Settings):
         Settings.setObjectName("Settings")
-        Settings.resize(517, 628)
+        Settings.resize(315, 346)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -25,7 +25,7 @@ class Ui_Settings(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtGui.QWidget(self.scrollArea)
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 513, 624))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 311, 342))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.verticalLayout_4 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_4.setContentsMargins(9, -1, -1, -1)
@@ -33,7 +33,6 @@ class Ui_Settings(object):
         self.groupGoogle = QtGui.QGroupBox(self.scrollAreaWidgetContents)
         self.groupGoogle.setObjectName("groupGoogle")
         self.formLayout = QtGui.QFormLayout(self.groupGoogle)
-        self.formLayout.setContentsMargins(-1, 19, -1, -1)
         self.formLayout.setObjectName("formLayout")
         self.labelSettingsAccount = QtGui.QLabel(self.groupGoogle)
         self.labelSettingsAccount.setObjectName("labelSettingsAccount")
@@ -54,7 +53,6 @@ class Ui_Settings(object):
         self.groupFeeds = QtGui.QGroupBox(self.scrollAreaWidgetContents)
         self.groupFeeds.setObjectName("groupFeeds")
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.groupFeeds)
-        self.verticalLayout_2.setContentsMargins(-1, 19, -1, -1)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -78,7 +76,6 @@ class Ui_Settings(object):
         self.groupSpecials = QtGui.QGroupBox(self.groupFeeds)
         self.groupSpecials.setObjectName("groupSpecials")
         self.gridLayout = QtGui.QGridLayout(self.groupSpecials)
-        self.gridLayout.setContentsMargins(-1, 19, -1, -1)
         self.gridLayout.setObjectName("gridLayout")
         self.checkSettingsShowStarred = QtGui.QCheckBox(self.groupSpecials)
         self.checkSettingsShowStarred.setObjectName("checkSettingsShowStarred")
@@ -103,7 +100,6 @@ class Ui_Settings(object):
         self.groupItems = QtGui.QGroupBox(self.scrollAreaWidgetContents)
         self.groupItems.setObjectName("groupItems")
         self.verticalLayout_5 = QtGui.QVBoxLayout(self.groupItems)
-        self.verticalLayout_5.setContentsMargins(-1, 19, -1, -1)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.horizontalLayout_3 = QtGui.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
@@ -119,18 +115,6 @@ class Ui_Settings(object):
         self.horizontalLayout_3.addWidget(self.selectSettingsItemsShowMode)
         self.verticalLayout_5.addLayout(self.horizontalLayout_3)
         self.verticalLayout_4.addWidget(self.groupItems)
-        self.groupOther = QtGui.QGroupBox(self.scrollAreaWidgetContents)
-        self.groupOther.setObjectName("groupOther")
-        self.verticalLayout_3 = QtGui.QVBoxLayout(self.groupOther)
-        self.verticalLayout_3.setContentsMargins(-1, 19, -1, -1)
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.checkSettingsPortraitMode = QtGui.QCheckBox(self.groupOther)
-        self.checkSettingsPortraitMode.setObjectName("checkSettingsPortraitMode")
-        self.verticalLayout_3.addWidget(self.checkSettingsPortraitMode)
-        self.checkSettingsScrollTitles = QtGui.QCheckBox(self.groupOther)
-        self.checkSettingsScrollTitles.setObjectName("checkSettingsScrollTitles")
-        self.verticalLayout_3.addWidget(self.checkSettingsScrollTitles)
-        self.verticalLayout_4.addWidget(self.groupOther)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.verticalLayout.addWidget(self.scrollArea)
         self.labelSettingsAccount.setBuddy(self.inputSettingsAccount)
@@ -150,8 +134,7 @@ class Ui_Settings(object):
         Settings.setTabOrder(self.checkSettingsShowAll, self.checkSettingsShowRead)
         Settings.setTabOrder(self.checkSettingsShowRead, self.checkSettingsShowFriends)
         Settings.setTabOrder(self.checkSettingsShowFriends, self.selectSettingsItemsShowMode)
-        Settings.setTabOrder(self.selectSettingsItemsShowMode, self.checkSettingsPortraitMode)
-        Settings.setTabOrder(self.checkSettingsPortraitMode, self.scrollArea)
+        Settings.setTabOrder(self.selectSettingsItemsShowMode, self.scrollArea)
 
     def retranslateUi(self, Settings):
         Settings.setWindowTitle(QtGui.QApplication.translate("Settings", "Settings", None, QtGui.QApplication.UnicodeUTF8))
@@ -176,10 +159,6 @@ class Ui_Settings(object):
         self.selectSettingsItemsShowMode.setItemText(1, QtGui.QApplication.translate("Settings", "Default unread, save each", None, QtGui.QApplication.UnicodeUTF8))
         self.selectSettingsItemsShowMode.setItemText(2, QtGui.QApplication.translate("Settings", "Default all, no save", None, QtGui.QApplication.UnicodeUTF8))
         self.selectSettingsItemsShowMode.setItemText(3, QtGui.QApplication.translate("Settings", "Default unread, no save", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupOther.setTitle(QtGui.QApplication.translate("Settings", "Other", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkSettingsPortraitMode.setText(QtGui.QApplication.translate("Settings", "Portrait mode by default", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkSettingsScrollTitles.setText(QtGui.QApplication.translate("Settings", "Scroll long feed names", None, QtGui.QApplication.UnicodeUTF8))
-
 
 
 if __name__ == "__main__":

@@ -9,11 +9,10 @@ from PyQt4.QtGui import QApplication
 from engine.signals import SIGNALS
 from engine.models import *
 from engine.operations import Operation
-from views.maemo5 import MAEMO5_PRESENT
-from views.maemo5.feedlist import FeedListView
-from views.maemo5.itemlist import ItemListView
-from views.maemo5.itemview import ItemViewView
-from views.maemo5.settings_dialog import show_settings
+from feedlist import FeedListView
+from itemlist import ItemListView
+from itemview import ItemViewView
+from settings_dialog import SettingsDialog
 
 class Controller(QObject):
 
@@ -32,15 +31,6 @@ class Controller(QObject):
         self.views = []
         self.current_view = None
 
-        # manage orientation
-        self.portrait_mode = False
-        self.set_portrait_mode(settings.get('other', 'portrait_mode'))
-
-        # manage scrolling titles
-        if MAEMO5_PRESENT:
-            self.title_timer = QTimer()
-            QObject.connect(self.title_timer, SIGNAL("timeout()"), self.timeout_title_timer)
-
         # connect signals
         QObject.connect(self, SIGNALS["settings_updated"], self.settings_updated)
         QObject.connect(self.account.operations_manager, SIGNALS["operation_started"], self.update_titles, Qt.QueuedConnection)
@@ -52,6 +42,15 @@ class Controller(QObject):
         QObject.connect(self.account.operations_manager, SIGNALS["get_feed_content_done"], self.feed_content_fetched, Qt.QueuedConnection)
         QObject.connect(self.account.operations_manager, SIGNALS["get_more_feed_content_done"], self.feed_content_fetched, Qt.QueuedConnection)
         
+    def create_views(self):
+        """
+        Create all the views used by the application
+        """
+        self.settings_dialog = SettingsDialog(controller=self)
+        self.feedlist_view   = FeedListView(controller=self)
+        self.itemlist_view   = ItemListView(controller=self)
+        self.itemview_view   = ItemViewView(controller=self)
+        
     def run(self):
         """
         Initialize graphic things and show the application by displaying the 
@@ -61,20 +60,16 @@ class Controller(QObject):
             return
         self.is_running = True
         
-        self.feedlist_view = FeedListView(controller=self)
-        self.itemlist_view = ItemListView(controller=self)
-        self.itemview_view = ItemViewView(controller=self)
+        self.create_views()
         self.current_view = self.feedlist_view
         
         self.current_view.show(app_just_launched=True)
         
     def settings_updated(self, auth_unverified_changed=False):
         """
-        When settings are updated, update portrait_mode if needed and call 
-        same method for all views, and if the auth_unverified_changed
-        parameter is true, ask for a resync
+        When settings are updated, call same method for all views, and if 
+        the auth_unverified_changed parameter is true, ask for a resync
         """
-        self.set_portrait_mode(settings.get('other', 'portrait_mode'))
         for view in self.views:
             try:
                 view.settings_updated()
@@ -82,23 +77,6 @@ class Controller(QObject):
                 pass
         if auth_unverified_changed:
             self.account.fetch_feeds(fetch_unread_content=True)
-
-    def manage_orientation(self):
-        """
-        Manage the application orientation mode
-        """
-        if MAEMO5_PRESENT:
-            for view in self.views:
-                try:
-                    view.manage_orientation()
-                except:
-                    pass
-
-    def set_portrait_mode(self, portrait_mode):
-        if portrait_mode == self.portrait_mode:
-            return
-        self.portrait_mode = portrait_mode
-        self.manage_orientation()
         
     def add_view(self, view):
         """
@@ -112,10 +90,7 @@ class Controller(QObject):
         """
         nb = self.account.operations_manager.count_running()
         if nb:
-            if MAEMO5_PRESENT:
-                return "%d" % nb
-            else:
-                return "%d operations" % nb
+            return "%d operations" % nb
         else:
             return ""
             
@@ -186,13 +161,13 @@ class Controller(QObject):
         """
         self.switch_view('itemlist')
         if not self.itemlist_view.set_current_feed(feed):
-            self.switch_view('feedlist', hide_current=True)
+            self.switch_view('feedlist')
         
     def trigger_settings(self):
         """
         Will display the settings dialog box
         """
-        show_settings(self)
+        self.settings_dialog.open()
         
     def start_loading(self):
         """

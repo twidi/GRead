@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Feed list view
+Item content view
 """
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -9,23 +9,15 @@ from PyQt4.QtWebKit import *
 
 import sys
     
-from views.maemo5.utils.qwebviewselectionsuppressor import QWebViewSelectionSuppressor
-from views.maemo5.ui.Ui_itemview import Ui_winItemView
-from views.maemo5 import MAEMO5_PRESENT, MAEMO5_ZOOMKEYS, View, ViewEventFilter
-from views.maemo5.utils.toolbar import ToolbarManager, Toolbar
-
-if MAEMO5_PRESENT:
-    try:
-        from views.maemo5.utils.zoomkeys import grab as grab_zoom_keys
-        MAEMO5_ZOOMKEYS = True
-    except Exception, e:
-        sys.stderr.write("ZOOMKEYS ERROR : %s" % e)
+from ui.Ui_itemview import Ui_winItemView
+from . import View, ViewEventFilter, base_view_class, base_eventfilter_class
+from utils.toolbar import ToolbarManager, Toolbar
 
 from engine import settings
 from engine.models import *
 
 
-class ItemViewEventFilter(ViewEventFilter):
+class ItemViewEventFilter(base_eventfilter_class):
     def eventFilter(self, obj, event):
         if super(ItemViewEventFilter, self).eventFilter(obj, event):
             return True
@@ -63,29 +55,38 @@ class ItemViewEventFilter(ViewEventFilter):
                 return False
         return QObject.eventFilter(self, obj, event)
 
-class ItemViewView(View):
+class ItemViewView(base_view_class):
     def __init__(self, controller):
-        super(ItemViewView, self).__init__(controller, Ui_winItemView, controller.itemlist_view.win)
+        # item displayed
+        self.current_item = None
+        self.current_page_is_content = False
+        
+        super(ItemViewView, self).__init__(controller, self.get_ui_class(), controller.itemlist_view.win)
         
         # web view
-        if MAEMO5_PRESENT:
-            self.suppressor = QWebViewSelectionSuppressor(self.ui.webView)
-            self.suppressor.enable()
-            scroller = self.ui.webView.property("kineticScroller").toPyObject()
-            if scroller:
-                scroller.setEnabled(True)
-            if MAEMO5_ZOOMKEYS:
-                try:
-                    grab_zoom_keys(self.win.winId(), True)
-                except Exception, e:
-                    pass
         self.ui.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self.ui.webView.page().linkClicked.connect(self.link_clicked)
         self.ui.webView.loadFinished.connect(self.trigger_web_view_loaded)
 
-        # menu bar
+        self.init_toolbars()
 
-        self.add_orientation_menu()
+    def get_ui_class(self):
+        return Ui_winItemView
+
+    def init_toolbars(self):
+        toolbar_class = self.get_toolbar_class()
+        self.leftToolbar = toolbar_class('<', 'Previous item', self.show_previous, 0, 0.7, parent=self.win)
+        self.rightToolbar = toolbar_class('>', 'Next item', self.show_next, 1, 0.7, parent=self.win)
+        self.toolbar_manager = self.get_toolbar_manager_class()([self.leftToolbar, self.rightToolbar], event_target=self.ui.webView.page(), parent=self.win)
+        
+    def get_toolbar_class(self):
+        return Toolbar
+        
+    def get_toolbar_manager_class(self):
+        return ToolbarManager
+
+    def init_menu(self):
+        super(ItemViewView, self).init_menu()
 
         # menu bar : starred
         self.action_starred = QAction("Starred", self.win)
@@ -120,11 +121,6 @@ class ItemViewView(View):
         self.ui.menuBar.addAction(self.action_return_to_item)
         self.action_return_to_item.triggered.connect(self.trigger_return_to_item)
 
-        # toolbars
-        self.leftToolbar = Toolbar('<', 'Previous item', self.show_previous, 0, 0.7, parent=self.win)
-        self.rightToolbar = Toolbar('>', 'Next item', self.show_next, 1, 0.7, parent=self.win)
-        self.toolbar_manager = ToolbarManager([self.leftToolbar, self.rightToolbar], event_target=self.ui.webView.page(), parent=self.win)
-
         # context menu
         self.make_context_menu(self.ui.webView)
         self.context_menu.addAction(self.action_read)
@@ -139,6 +135,9 @@ class ItemViewView(View):
             ):#QWebPage.OpenImageInNewWindow, QWebPage.DownloadImageToDisk):
             self.context_menu.addAction(self.ui.webView.pageAction(web_action))
         
+    def init_events(self):
+        super(ItemViewView, self).init_events()
+        
         # events
         self.add_event_filter(self.win, ItemViewEventFilter)
         QObject.connect(self.event_filter, SIGNAL("zoom"), self.zoom)
@@ -150,10 +149,6 @@ class ItemViewView(View):
         QObject.connect(self.event_filter, SIGNAL("view_original_gread"), self.trigger_view_original_gread)
         QObject.connect(self.event_filter, SIGNAL("view_original_browser"), self.trigger_view_original_browser)
         QObject.connect(self.event_filter, SIGNAL("init_browser_scrollbars"), self.init_browser_scrollbars)
-
-        # item displayed
-        self.current_item = None
-        self.current_page_is_content = False
 
     def manage_actions(self):
         """
@@ -211,18 +206,6 @@ class ItemViewView(View):
         # display content
         self.current_page_is_content = True
         self.ui.webView.setHtml(item.content)
-        if MAEMO5_PRESENT:
-            str = "%s - " % item.title
-            statuses = []
-            if item.unread:
-                statuses.append('unread')
-            else:
-                statuses.append('read')
-            if item.shared:
-                statuses.append('shared')
-            if item.starred:
-                statuses.append('starred')
-            self.display_message_box("%s [%s]" % (item.title, ', '.join(statuses)))
 
         self.ui.webView.setFocus(Qt.OtherFocusReason)
         return True

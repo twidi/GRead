@@ -3,17 +3,7 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-import time
-
 from engine import settings
-
-MAEMO5_PRESENT = False
-MAEMO5_ZOOMKEYS = False
-try:
-    from PyQt4.QtMaemo5 import QMaemo5InformationBox
-    MAEMO5_PRESENT = True
-except:
-    pass
 
 class ListModel(QAbstractListModel):
     def __init__(self, data, view):
@@ -95,11 +85,6 @@ class ViewEventFilter(QObject):
         return event.modifiers() & Qt.ShiftModifier
 
     def eventFilter(self, obj, event):
-        if event.type() == QEvent.KeyPress:
-            key = event.key()
-            if MAEMO5_PRESENT and key == Qt.Key_O:
-                self.emit(SIGNAL("toggle_orientation"), True)
-                return True
         return False
 
 class View(object):
@@ -114,9 +99,6 @@ class View(object):
         
         self.win = QMainWindow(parent, Qt.Window)
 
-        if MAEMO5_PRESENT:
-            self.win.setAttribute(Qt.WA_Maemo5StackedWindow, True)
-
         self.win.view = self
         self.ui = ui()
         self.ui.setupUi(self.win)
@@ -124,23 +106,30 @@ class View(object):
         
         self.win.installEventFilter(WindowEventFilter(self.win))
 
-        if MAEMO5_PRESENT:
-            self.manage_orientation()
-
         try:
             self.message_box_timer = QTimer()
             self.message_box_timer_running = False
             QObject.connect(self.message_box_timer, SIGNAL("timeout()"), self.timeout_message_box_timer)
         except:
             self.message_box_timer = None
-            
+        
+        self.init_menu()
+        self.post_init_menu()
+        self.init_events()
+        
+    def init_menu(self):
         self.context_menu        = None
         self.context_menu_widget = None
+        
+    def post_init_menu(self):
+        pass
+        
+    def init_events(self):
+        pass
         
     def add_event_filter(self, widget, event_filter_class):
         self.event_filter = event_filter_class(self.win)
         widget.installEventFilter(self.event_filter)
-        QObject.connect(self.event_filter, SIGNAL("toggle_orientation"), self.toggle_orientation)
         
     def display_message_box(self, text):
         try:
@@ -166,48 +155,9 @@ class View(object):
         self.message_box_timer_running = False
         
     def show(self, app_just_launched=False):
-        self.manage_orientation()
         self.win.show()
         self.launched = True
         self.update_title()
-                
-    def manage_orientation(self):
-        if MAEMO5_PRESENT:
-            if self.controller.portrait_mode:
-                if not self.win.testAttribute(Qt.WA_Maemo5PortraitOrientation):
-                    self.win.setAttribute(Qt.WA_Maemo5PortraitOrientation, True)
-            else:
-                if not self.win.testAttribute(Qt.WA_Maemo5LandscapeOrientation):
-                    self.win.setAttribute(Qt.WA_Maemo5LandscapeOrientation, True)
-
-            # check the correct button
-            if self.controller.is_current_view(self):
-                if self.controller.portrait_mode:
-                    try:
-                        self.action_orientation_portrait.setChecked(True)
-                    except:
-                        pass
-                else:
-                    try:
-                        self.action_orientation_landscape.setChecked(True)
-                    except:
-                        pass
-
-    def add_orientation_menu(self):
-        if MAEMO5_PRESENT:
-            self.group_orientation = QActionGroup(self.win)
-            self.action_orientation_landscape = QAction("Landscape", self.group_orientation)
-            self.action_orientation_landscape.setCheckable(True)
-            self.action_orientation_portrait = QAction("Portrait", self.group_orientation)
-            self.action_orientation_portrait.setCheckable(True)
-            self.ui.menuBar.addActions(self.group_orientation.actions())
-            self.action_orientation_portrait.toggled.connect(self.trigger_portrait_orientation)
-            
-    def toggle_orientation(self):
-        self.action_orientation_portrait.setChecked(not self.action_orientation_portrait.isChecked())
-
-    def trigger_portrait_orientation(self, checked):
-        self.controller.set_portrait_mode(checked)
         
     def make_context_menu(self, widget):
         """
@@ -217,14 +167,6 @@ class View(object):
         self.context_menu_widget.setContextMenuPolicy(Qt.CustomContextMenu)
         self.context_menu_widget.customContextMenuRequested.connect(self.request_context_menu)
         self.context_menu = QMenu()
-        
-    def context_menu_add_orientation(self):
-        """
-        Add the orientation menus to the context menu
-        """
-        if MAEMO5_PRESENT:
-            self.context_menu.addSeparator()
-            self.context_menu.addActions(self.group_orientation.actions())
         
     def request_context_menu(self, pos):
         """
@@ -242,69 +184,37 @@ class View(object):
         return QApplication.applicationName()
         
     def update_title(self):
-        if MAEMO5_PRESENT and self.controller.current_view == self:
-            self.controller.title_timer.stop()
         self.title = self.get_title()
         if not self.title:
             self.title = QApplication.applicationName()
         operations_part = self.controller.get_title_operations_part()
         if operations_part:
-            if MAEMO5_PRESENT:
-                self.title = "(%s) %s" % (operations_part, self.title)
-            else:
-                self.title = "%s - %s" % (self.title, operations_part)
+            self.title = "%s - %s" % (self.title, operations_part)
         self.win.setWindowTitle(self.title)
-        
-        self.title_start = 0
-        self.title_step  = 2
-        if MAEMO5_PRESENT and self.controller.current_view == self and len(self.title) > self.get_max_title_length():
-            self.controller.title_timer.start(200)
-            
-    def get_max_title_length(self):
-        if self.controller.portrait_mode:
-            return 11
-        return 25
-            
-    def update_display_title(self):
-        max = self.get_max_title_length()
-        if not settings.get('other', 'scroll_titles') or len(self.title) <= max:
-            display_title = self.title
-            self.controller.title_timer.stop()
-        else:
-            self.title_start += self.title_step
-            if self.title_start < 0 or len(self.title) - self.title_start < max:
-                self.title_step = self.title_step * -1
-                self.title_start += self.title_step
-            display_title = self.title[self.title_start:]
-        self.win.setWindowTitle(display_title)
         
     def set_focused(self):
         self.controller.set_current_view(self)
-        self.manage_orientation()
 
     def start_loading(self):
-        if MAEMO5_PRESENT:
-            self.win.setAttribute(Qt.WA_Maemo5ShowProgressIndicator, True)
+        pass
             
     def stop_loading(self):
-        if MAEMO5_PRESENT:
-            self.win.setAttribute(Qt.WA_Maemo5ShowProgressIndicator, False)
+        pass
 
     def display_message(self, message, level="information"):
         """
-        Display a message for a level ([information|warning|critical]), and handle the
-        Maemo5 special case
+        Display a message for a level ([information|warning|critical])
         """
-        if MAEMO5_PRESENT:
-            QMaemo5InformationBox.information(self.win, '<p>%s</p>' % message, QMaemo5InformationBox.DefaultTimeout)
+        box = QMessageBox(self.win)
+        box.setText(message)
+        box.setWindowTitle(QApplication.applicationName())
+        if level == "critical":
+            box.setIcon(QMessageBox.Critical)
+        elif level == "warning":
+            box.setIcon(QMessageBox.Warning)
         else:
-            box = QMessageBox(self.win)
-            box.setText(message)
-            box.setWindowTitle(QApplication.applicationName())
-            if level == "critical":
-                box.setIcon(QMessageBox.Critical)
-            elif level == "warning":
-                box.setIcon(QMessageBox.Warning)
-            else:
-                box.setIcon(QMessageBox.Information)
-            box.exec_()
+            box.setIcon(QMessageBox.Information)
+        box.exec_()
+
+base_view_class = View
+base_eventfilter_class = ViewEventFilter

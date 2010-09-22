@@ -9,8 +9,6 @@ from PyQt4.QtCore import *
 
 import time
 
-from views.maemo5 import MAEMO5_PRESENT
-
 class ToolbarOwnerEventFilter(QObject):
     def __init__(self, *args, **kwargs):
         super(ToolbarOwnerEventFilter, self).__init__(*args, **kwargs)
@@ -36,12 +34,8 @@ class ToolbarManager(QObject):
         self.timer        = QTimer()
         self.delay        = 0
         self.max_delay = 1000.0 # ms (don't forget ".0")
-        if MAEMO5_PRESENT:
-            self.max_delay = 1500.0
 
         parent.installEventFilter(self)
-        if MAEMO5_PRESENT:
-            self.event_target.installEventFilter(self)            
         parent.installEventFilter(ToolbarOwnerEventFilter(parent=self))
         QObject.connect(self.timer, SIGNAL("timeout()"), self.hide)
         
@@ -81,16 +75,9 @@ class ToolbarManager(QObject):
             self.timer.setInterval(self.delay)
 
     def eventFilter(self, obj, e):
-        if MAEMO5_PRESENT:
-            if e.type() == QEvent.HoverMove:
-                if self.delay and self.delay < 500:
-                    self.display()
-                elif (not self.delay):
-                    self.display()                
-        else:
-            if e.type() == QEvent.HoverMove:
-                if (not self.delay) or self.delay < 500:
-                    self.display()
+        if e.type() == QEvent.HoverMove:
+            if (not self.delay) or self.delay < 500:
+                self.display()
         return False
         
 class Toolbar(QObject):
