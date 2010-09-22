@@ -24,6 +24,3 @@ view_mode = detect_view_mode()
 # provide direct access to correct controller class
 _controller_module = __import__('.'.join(['views', view_mode, 'controller']), globals(), locals(), ['Controller'])
 Controller = getattr(_controller_module, 'Controller')
-
-# and same for views
-views_module = __import__('.'.join(['views', view_mode]), globals(), locals())

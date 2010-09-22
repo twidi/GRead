@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Settings</class>
+ <widget class="QDialog" name="Settings">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>517</width>
+    <height>628</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Settings</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>513</width>
+        <height>624</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <property name="leftMargin">
+        <number>9</number>
+       </property>
+       <item>
+        <widget class="QGroupBox" name="groupGoogle">
+         <property name="title">
+          <string>Google credentials</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <property name="topMargin">
+           <number>19</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelSettingsAccount">
+            <property name="text">
+             <string>Account</string>
+            </property>
+            <property name="buddy">
+             <cstring>inputSettingsAccount</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="inputSettingsAccount">
+            <property name="inputMethodHints">
+             <set>Qt::ImhEmailCharactersOnly|Qt::ImhNoAutoUppercase</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="labelSettingsPassword">
+            <property name="text">
+             <string>Password</string>
+            </property>
+            <property name="buddy">
+             <cstring>inputSettingsPassword</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="inputSettingsPassword">
+            <property name="inputMethodHints">
+             <set>Qt::ImhNoAutoUppercase|Qt::ImhNoPredictiveText</set>
+            </property>
+            <property name="echoMode">
+             <enum>QLineEdit::PasswordEchoOnEdit</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupFeeds">
+         <property name="title">
+          <string>Feeds list</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <property name="topMargin">
+           <number>19</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QLabel" name="labelSettingsHomeDefault">
+              <property name="text">
+               <string>Default</string>
+              </property>
+              <property name="buddy">
+               <cstring>selectSettingsHomeDefault</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="selectSettingsHomeDefault">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <item>
+               <property name="text">
+                <string>Feeds</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Labels</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkSettingsHomeShowUnread">
+              <property name="text">
+               <string>Show unread only</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupSpecials">
+            <property name="title">
+             <string>Show specials</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout">
+             <property name="topMargin">
+              <number>19</number>
+             </property>
+             <item row="0" column="0">
+              <widget class="QCheckBox" name="checkSettingsShowStarred">
+               <property name="text">
+                <string>Starred</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QCheckBox" name="checkSettingsShowShared">
+               <property name="text">
+                <string>Shared</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QCheckBox" name="checkSettingsShowNotes">
+               <property name="text">
+                <string>Notes</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QCheckBox" name="checkSettingsShowAll">
+               <property name="text">
+                <string>All</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QCheckBox" name="checkSettingsShowRead">
+               <property name="text">
+                <string>Read</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QCheckBox" name="checkSettingsShowFriends">
+               <property name="text">
+                <string>Friends</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupItems">
+         <property name="title">
+          <string>Items list</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <property name="topMargin">
+           <number>19</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLabel" name="labelSettingsItemsShowMode">
+              <property name="text">
+               <string>Show</string>
+              </property>
+              <property name="buddy">
+               <cstring>selectSettingsItemsShowMode</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="selectSettingsItemsShowMode">
+              <item>
+               <property name="text">
+                <string>Default all, save each</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Default unread, save each</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Default all, no save</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Default unread, no save</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupOther">
+         <property name="title">
+          <string>Other</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <property name="topMargin">
+           <number>19</number>
+          </property>
+          <item>
+           <widget class="QCheckBox" name="checkSettingsPortraitMode">
+            <property name="text">
+             <string>Portrait mode by default</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="checkSettingsScrollTitles">
+            <property name="text">
+             <string>Scroll long feed names</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>inputSettingsAccount</tabstop>
+  <tabstop>inputSettingsPassword</tabstop>
+  <tabstop>selectSettingsHomeDefault</tabstop>
+  <tabstop>checkSettingsHomeShowUnread</tabstop>
+  <tabstop>checkSettingsShowStarred</tabstop>
+  <tabstop>checkSettingsShowShared</tabstop>
+  <tabstop>checkSettingsShowNotes</tabstop>
+  <tabstop>checkSettingsShowAll</tabstop>
+  <tabstop>checkSettingsShowRead</tabstop>
+  <tabstop>checkSettingsShowFriends</tabstop>
+  <tabstop>selectSettingsItemsShowMode</tabstop>
+  <tabstop>checkSettingsPortraitMode</tabstop>
+  <tabstop>scrollArea</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
