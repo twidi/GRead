@@ -370,9 +370,15 @@ class FeedListView(base_view_class):
         """
         self.get_selected()
         if self.selected_category:
-            next = self.ui.listFeedList.model().get_next(self.selected_category)
+            previous = self.ui.listFeedList.model().get_previous(self.selected_category)
+            next     = self.ui.listFeedList.model().get_next(self.selected_category)
             if isinstance(next, Feed):
                 self.set_current_category(self.selected_category)
+                if not self.selected_category:
+                    self.current_category  = previous
+                    self.selected_category = previous
+                    self.set_current_category(previous)
+            
 
     def trigger_sync(self, *args, **kwargs):
         """
