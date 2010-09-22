@@ -503,6 +503,7 @@ class ItemListView(base_view_class):
         Select the next item in the list (but without activating it)
         Return True if the operation is successfull
         """
+        self.get_selected()
         item = self.ui.listItemList.model().get_next(self.selected_item)
         if item:
             self.set_selected(item)
@@ -528,6 +529,7 @@ class ItemListView(base_view_class):
         Select the previous item in the list (but without activating it)
         Return True if the operation is successfull
         """
+        self.get_selected()
         item = self.ui.listItemList.model().get_previous(self.selected_item)
         if item:
             self.set_selected(item)
@@ -649,7 +651,7 @@ class ItemListView(base_view_class):
         self.get_selected()
         if not self.selected_item:
             return
-        was_unread = selected_item.unread
+        was_unread = self.selected_item.unread
         message = 'Entry now marked as unread'
         if was_unread:
             message = 'Entry now marked as read'
