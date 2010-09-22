@@ -655,7 +655,7 @@ class ItemListView(base_view_class):
         message = 'Entry now marked as unread'
         if was_unread:
             message = 'Entry now marked as read'
-        self.trigger_read(was_unread)
+        self.trigger_item_read(was_unread)
         self.display_message(message)
         
     def toggle_item_shared(self):
@@ -669,7 +669,7 @@ class ItemListView(base_view_class):
         message = 'Shared flag is now ON'
         if was_shared:
             message = 'Shared flag is now OFF'
-        self.trigger_shared(not was_shared)
+        self.trigger_item_shared(not was_shared)
         self.controller.display_message(message)
 
     def toggle_item_starred(self):
@@ -683,5 +683,5 @@ class ItemListView(base_view_class):
         message = 'Starred flag is now ON'
         if was_starred:
             message = 'Starred flag is now OFF'
-        self.trigger_starred(not was_starred)
+        self.trigger_item_starred(not was_starred)
         self.controller.display_message(message)
