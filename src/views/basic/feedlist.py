@@ -70,7 +70,12 @@ class FeedListDelegate(QStyledItemDelegate):
             # display unread count
             if entry.unread:
                 if is_category:
-                    str_unread = "%d/%d" % (entry.unread, entry.count_feeds(unread_only=True))
+                    if isinstance(entry, SpecialCategory):
+                        count = sum([1 for special_type in settings.special_feeds\
+                            if settings.get('feeds', 'show_%s' % special_type) and entry.special_feeds[special_type].unread])
+                    else:
+                        count = entry.count_feeds(unread_only=True)
+                    str_unread = "%d/%d" % (entry.unread, count)
                 else:
                     str_unread = "%d" % entry.unread
                 unread_rect = painter.boundingRect(option.rect, Qt.AlignRight | Qt.AlignVCenter, str_unread)
@@ -489,8 +494,10 @@ class FeedListView(base_view_class):
         """
         Called when a feed content was just fetched, to redraw the ui
         """
-        for category in feed.categories:
-            self.update_category(category)
+        self.update_feed(feed)
+        if isinstance(feed, CategoryFeed):
+            for other_feed in feed.categories[0].get_feeds(unread_only=self.unread_only):
+                self.update_feed(other_feed)
 
     def update_category(self, category):
         """
