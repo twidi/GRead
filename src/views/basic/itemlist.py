@@ -510,6 +510,12 @@ class ItemListView(base_view_class):
         item = index.model().listdata[index.row()]
         self.get_selected(item)
         self.controller.display_item(item)
+                
+    def get_next_item(self):
+        """
+        Return the next item in the list
+        """
+        return self.ui.listItemList.model().get_next(self.selected_item)
         
     def select_next_item(self):
         """
@@ -517,7 +523,7 @@ class ItemListView(base_view_class):
         Return True if the operation is successfull
         """
         self.get_selected()
-        item = self.ui.listItemList.model().get_next(self.selected_item)
+        item = self.get_next_item()
         if item:
             self.set_selected(item)
             return not not self.selected_item
@@ -537,13 +543,19 @@ class ItemListView(base_view_class):
             else:
                 self.controller.display_message("No more message !")
                 
+    def get_previous_item(self):
+        """
+        Return the previous item in the list
+        """
+        return self.ui.listItemList.model().get_previous(self.selected_item)
+                
     def select_previous_item(self):
         """
         Select the previous item in the list (but without activating it)
         Return True if the operation is successfull
         """
         self.get_selected()
-        item = self.ui.listItemList.model().get_previous(self.selected_item)
+        item = self.get_previous_item()
         if item:
             self.set_selected(item)
             return not not self.selected_item

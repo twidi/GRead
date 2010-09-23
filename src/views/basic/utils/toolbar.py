@@ -136,6 +136,9 @@ class Toolbar(QObject):
         
         if callback:
             self.action.triggered.connect(callback)
+            
+    def set_tooltip(self, tooltip):
+        self.action.setToolTip(tooltip)
 
     def replace(self):
         self.move(self.x, self.y)

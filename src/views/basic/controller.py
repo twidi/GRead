@@ -256,6 +256,18 @@ class Controller(QObject):
         if not self.itemview_view.set_current_item(item):
             self.switch_view('itemlist', hide_current=True)
             
+    def get_next_item(self):
+        """
+        Returnthe next available item
+        """
+        return self.itemlist_view.get_next_item()
+            
+    def get_previous_item(self):
+        """
+        Returnthe previous available item
+        """
+        return self.itemlist_view.get_previous_item()
+            
     def display_next_item(self):
         """
         Display the next available item

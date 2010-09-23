@@ -184,16 +184,33 @@ class ItemViewView(base_view_class):
         """
         self.start_loading()
 
-        self.leftToolbar.enable()
-        self.rightToolbar.enable()
-        self.toolbar_manager.display()
-
         self.current_item = item
         self.update_title()
         
         # mark the item as read
         if item.unread:
             self.trigger_read(True)
+            
+        # display content
+        self.current_page_is_content = True
+        self.ui.webView.setHtml(item.content)
+
+        self.ui.webView.setFocus(Qt.OtherFocusReason)
+        
+        # toolbars
+        previous = self.controller.get_previous_item()
+        next     = self.controller.get_next_item()
+        if previous:
+            self.leftToolbar.set_tooltip(previous.title)
+            self.leftToolbar.enable()
+        else:
+            self.leftToolbar.disable()
+        if next:
+            self.rightToolbar.set_tooltip(next.title)
+            self.rightToolbar.enable()
+        else:
+            self.rightToolbar.disable()
+        self.toolbar_manager.display()
 
         # menus
         self.action_read.setChecked(not item.unread)
@@ -202,12 +219,7 @@ class ItemViewView(base_view_class):
         self.action_starred.setChecked(item.starred)
         
         self.manage_actions()
-            
-        # display content
-        self.current_page_is_content = True
-        self.ui.webView.setHtml(item.content)
-
-        self.ui.webView.setFocus(Qt.OtherFocusReason)
+        
         return True
 
     def trigger_read(self, checked):
