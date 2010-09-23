@@ -505,6 +505,7 @@ class GoogleReader(object):
                     feed.title = sub['title']
                 for category in categories:
                     feed.addCategory(category)
+                feed.unread = unreadById.get(sub['id'], 0)
             except:
                 feed = Feed(self, sub['title'], sub['id'], sub.get('htmlUrl', None), unreadById.get(sub['id'], 0), categories)
             if not categories:
@@ -514,6 +515,7 @@ class GoogleReader(object):
         specialUnreads = [id for id in unreadById if id.find('/state/com.google/') != -1]
         for type in self.specialFeeds:
             feed = self.specialFeeds[type]
+            feed.unread = 0
             for id in specialUnreads:
                 if id.endswith('/%s' % type):
                     feed.unread = unreadById.get(id, 0)
