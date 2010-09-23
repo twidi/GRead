@@ -24,8 +24,6 @@ class DistError(ModelError):pass
 
 # regexp to remove html tags from items' title
 RE_REMOVE_TAGS = re.compile(r'<[^<]*?/?>')
-# regexp to find feeds in item
-RE_ID_USER_PART = re.compile(r'^user/(:?\-|\d+)/')
 
 
 setlocale(LC_ALL, "")
@@ -175,6 +173,9 @@ class Account(object):
         """
         # create the object from libgreader
         self.g_object = GoogleReader(self.g_auth)
+        self.g_object.getUserInfo()
+        # regexp to find feeds in item
+        self.RE_ID_USER_PART = re.compile(r'^user/(:?\-|%s)/' % self.g_object.userId)
         # create the category for special feeds
         self.g_object.makeSpecialFeeds()
         self.special_category = SpecialCategory(self)
@@ -394,7 +395,7 @@ class Category(_BaseModelForAccount):
         super(Category, self).__init__(id, account)
         
         # also save by strict_id
-        self.strict_id = RE_ID_USER_PART.sub("", id)
+        self.strict_id = self.account.RE_ID_USER_PART.sub("", id)
         self.__class__._objects_by_id[account.id][self.strict_id] = self
         
         self.g_category  = g_category
@@ -1025,7 +1026,7 @@ class SpecialFeed(Feed):
             g_feed  = g_feed, 
         )
         self.special_type = special_type
-        self.strict_id = RE_ID_USER_PART.sub("", self.id)
+        self.strict_id = self.account.RE_ID_USER_PART.sub("", self.id)
         
 class CategoryFeed(Feed):
     """
@@ -1197,12 +1198,12 @@ class Item(_BaseModelForAccount):
         notes_list   = self.account.special_category.special_feeds[GoogleReader.NOTES_LIST].strict_id
 
         # each actual categories and "status" for this item
-        old_cats = set(RE_ID_USER_PART.sub("", c.id) \
+        old_cats = set(self.account.RE_ID_USER_PART.sub("", c.id) \
             for c in itertools.chain(*[f.categories for f in self.feeds]))
         # remove the special category
         try: old_cats.remove(self.account.special_category.id)
         except: pass
-        old_cats.update([RE_ID_USER_PART.sub("", f.id) for f in self.feeds \
+        old_cats.update([self.account.RE_ID_USER_PART.sub("", f.id) for f in self.feeds \
             if isinstance(f, SpecialFeed)])
         # remove the reading list and notes list
         try: old_cats.remove(reading_list)
@@ -1211,9 +1212,9 @@ class Item(_BaseModelForAccount):
         except: pass
         
         # each categories ans "status" for this item in Google Reader
-        new_cats  = set([RE_ID_USER_PART.sub("", id) \
+        new_cats  = set([self.account.RE_ID_USER_PART.sub("", id) \
             for id in self.g_item.data.get('categories', []) \
-            if RE_ID_USER_PART.match(id)])
+            if self.account.RE_ID_USER_PART.match(id)])
             
         # check in which cat we have to add/remove this item
         cats_to_add = new_cats.difference(old_cats)

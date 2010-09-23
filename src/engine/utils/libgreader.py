@@ -310,7 +310,7 @@ class Item(object):
                 self.read = True
             elif category.endswith('/state/com.google/starred'):
                 self.starred = True
-            elif category.endswith('/state/com.google/broadcast'):
+            elif category in ('user/-/state/com.google/broadcast', 'user/%s/state/com.google/broadcast' % self.googleReader.userId):
                 self.shared = True
 
         self.canUnread = item.get('isReadStateLocked', 'false') != 'true'
@@ -441,6 +441,8 @@ class GoogleReader(object):
         self.categoriesById = {}
         self.specialFeeds = {}
         self.orphanFeeds = []
+        
+        self.userId = None
 
     def toJSON(self):
         """
@@ -478,6 +480,9 @@ class GoogleReader(object):
 
         self._clearLists()
         unreadById = {}
+        
+        if not self.userId:
+            self.getUserInfo()
 
         unreadJson = self.httpGet(GoogleReader.UNREAD_COUNT_URL, { 'output': 'json', })
         unreadCounts = json.loads(unreadJson, strict=False)['unreadcounts']
@@ -512,7 +517,7 @@ class GoogleReader(object):
                 self.orphanFeeds.append(feed)
             self._addFeed(feed)
 
-        specialUnreads = [id for id in unreadById if id.find('/state/com.google/') != -1]
+        specialUnreads = [id for id in unreadById if id.find('user/%s/state/com.google/' % self.userId) != -1]
         for type in self.specialFeeds:
             feed = self.specialFeeds[type]
             feed.unread = 0
@@ -578,7 +583,9 @@ class GoogleReader(object):
         Returns a dictionary of user info that google stores.
         """
         userJson = self.httpGet(GoogleReader.USER_INFO_URL)
-        return json.loads(userJson, strict=False)
+        result = json.loads(userJson, strict=False)
+        self.userId = result['userId']
+        return result
 
     def getUserSignupDate(self):
         """
