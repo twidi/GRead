@@ -122,11 +122,17 @@ class FeedListEventFilter(base_eventfilter_class):
             return True
         if event.type() == QEvent.KeyPress:
             key = event.key()
-            if key == Qt.Key_S and event.modifiers() & Qt.ShiftModifier:
+            if key == Qt.Key_S and sel.isShift(event):
                 self.emit(SIGNAL("trigger_sync"), True)
                 return True
             elif key == Qt.Key_Backspace:
                 self.emit(SIGNAL("trigger_back"), True)
+                return True
+            elif key == Qt.Key_O and not self.isShift(event):
+                self.emit(SIGNAL("trigger_open"), True)
+                return True
+            elif key == Qt.Key_U:
+                self.emit(SIGNAL("toggle_unread_only"))
                 return True
             elif event.modifiers() & Qt.ShiftModifier and \
                 (key == Qt.Key_A or key == Qt.Key_M):
@@ -215,6 +221,8 @@ class FeedListView(base_view_class):
         self.add_event_filter(self.ui.listFeedList, FeedListEventFilter)
         QObject.connect(self.event_filter, SIGNAL("trigger_sync"), self.trigger_sync)
         QObject.connect(self.event_filter, SIGNAL("trigger_back"), self.trigger_back)
+        QObject.connect(self.event_filter, SIGNAL("trigger_open"), self.trigger_open)
+        QObject.connect(self.event_filter, SIGNAL("toggle_unread_only"), self.toggle_unread_only)
         QObject.connect(self.event_filter, SIGNAL("mark_selected_all_read"), self.trigger_mark_selected_as_read)        
         QObject.connect(self.event_filter, SIGNAL("select_next"), self.select_next_entry)
         QObject.connect(self.event_filter, SIGNAL("select_previous"), self.select_previous_entry)
@@ -293,6 +301,16 @@ class FeedListView(base_view_class):
         self.ui.listFeedList.setModel(model)
         del old_model
 
+    def trigger_open(self):
+        """
+        Action when an "open" action is done on an entry
+        """
+        self.get_selected()
+        if self.selected_feed:
+            self.controller.display_feed(self.selected_feed)
+        elif self.selected_category:
+            self.set_current_category(self.selected_category)
+
     def activate_entry(self, index):
         """
         Action when an entry is selected
@@ -342,6 +360,13 @@ class FeedListView(base_view_class):
             self.unread_only = checked
             self.verify_current_category()
             self.update_feed_list()
+        
+    def toggle_unread_only(self):
+        """
+        Called when we want to toggle the display between all items or only 
+        unread ones
+        """
+        self.action_show_unread_only.setChecked(not self.unread_only)
 
     def get_selected(self, entry=None):
         """

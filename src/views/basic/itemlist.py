@@ -154,6 +154,9 @@ class ItemListEventFilter(base_eventfilter_class):
             elif key == Qt.Key_U:
                 self.emit(SIGNAL("toggle_unread_only"))
                 return True
+            elif key == Qt.Key_O and not self.isShift(event):
+                self.emit(SIGNAL("trigger_open"), True)
+                return True
             elif key == Qt.Key_M:
                 self.emit(SIGNAL("toggle_item_read"))
                 return True
@@ -263,6 +266,7 @@ class ItemListView(base_view_class):
         QObject.connect(self.event_filter, SIGNAL("refresh"), self.trigger_refresh)
         QObject.connect(self.event_filter, SIGNAL("fetch_more"), self.trigger_fetch_more)
         QObject.connect(self.event_filter, SIGNAL("toggle_unread_only"), self.toggle_unread_only)
+        QObject.connect(self.event_filter, SIGNAL("trigger_open"), self.trigger_open)
         QObject.connect(self.event_filter, SIGNAL("toggle_item_read"), self.toggle_item_read)
         QObject.connect(self.event_filter, SIGNAL("toggle_item_shared"), self.toggle_item_shared)
         QObject.connect(self.event_filter, SIGNAL("toggle_item_starred"), self.toggle_item_starred)
@@ -489,6 +493,14 @@ class ItemListView(base_view_class):
         model = ItemListModel(data=content, view=self)
         self.ui.listItemList.setModel(model)
         del old_model
+        
+    def trigger_open(self):
+        """
+        Action when an "open" action is done on an item
+        """
+        self.get_selected()
+        if self.selected_item:
+            self.controller.display_item(self.selected_item)
         
     def activate_item(self, index):
         """

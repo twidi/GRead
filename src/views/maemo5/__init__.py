@@ -14,7 +14,7 @@ class ViewEventFilter(BasicViewEventFilter):
     def eventFilter(self, obj, event):
         if event.type() == QEvent.KeyPress:
             key = event.key()
-            if key == Qt.Key_O:
+            if key == Qt.Key_O and self.isShift(event):
                 self.emit(SIGNAL("toggle_orientation"), True)
                 return True
         return False
