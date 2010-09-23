@@ -17,7 +17,7 @@ __all__ = [
 ]
 
 from PyQt4.QtCore import Qt, QObject, QThread, QMutex
-import itertools, sys, urllib2
+import itertools, sys, urllib2, socket
 from collections import deque
 from engine.signals import SIGNALS
 from engine import network
@@ -160,7 +160,7 @@ class Operation(object):
                     else:
                         # it's a real error and we will continue after a delayfs
                         self.status = 'sleeping'
-            except urllib2.URLError, e:
+            except (urllib2.URLError, socket.error), e:
                 # we have an urllib2 error... seems we are not connected !
                 self.add_error(e)
                 self.wait_for_network()
