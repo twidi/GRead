@@ -124,7 +124,7 @@ class FeedListEventFilter(base_eventfilter_class):
             return True
         if event.type() == QEvent.KeyPress:
             key = event.key()
-            if key == Qt.Key_S and sel.isShift(event):
+            if key == Qt.Key_S and self.isShift(event):
                 self.emit(SIGNAL("trigger_sync"), True)
                 return True
             elif key == Qt.Key_Backspace:
