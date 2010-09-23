@@ -33,7 +33,7 @@ class FeedListDelegate(QStyledItemDelegate):
         Paint the list entry with the default options, then add the unread counter
         """
         painter.save()
-
+        
         try:
             # entry to work with
             is_category = False            
@@ -41,6 +41,7 @@ class FeedListDelegate(QStyledItemDelegate):
             entry = model.listdata[index.row()]
 
             text_style_option = QStyleOptionViewItemV4(option)
+            palette = text_style_option.palette
             text_font = text_style_option.font
             if isinstance(entry, Feed):
                 # it's a feed
@@ -72,10 +73,9 @@ class FeedListDelegate(QStyledItemDelegate):
                     str_unread = "%d/%d" % (entry.unread, entry.count_feeds(unread_only=True))
                 else:
                     str_unread = "%d" % entry.unread
-                palette = text_style_option.palette
                 unread_rect = painter.boundingRect(option.rect, Qt.AlignRight | Qt.AlignVCenter, str_unread)
                 unread_rect.adjust(-8, -3, -2, +3)
-                painter.setBrush(QBrush(palette.color(palette.Highlight)))
+                painter.setBrush(palette.highlight())
                 painter.setPen(palette.color(palette.Highlight))
                 painter.setRenderHint(QPainter.Antialiasing);
                 painter.drawRoundedRect(unread_rect, 4, 4);
@@ -89,6 +89,8 @@ class FeedListDelegate(QStyledItemDelegate):
             text_option = QTextOption(Qt.AlignLeft | Qt.AlignVCenter)
             text_option.setWrapMode(QTextOption.WordWrap)
             painter.setFont(text_font)
+            if option.state & QStyle.State_Selected:
+                painter.setPen(palette.color(palette.HighlightedText))
             text_rect.adjust(8, 4, 0, -4)
             painter.drawText(QRectF(text_rect), text, text_option)
             
@@ -102,7 +104,7 @@ class FeedListDelegate(QStyledItemDelegate):
                 bar_option.rect.setWidth(1)
                 bar_option.rect.adjust(0, 1, 0, -1)
                 painter.setPen(palette.color(palette.Highlight))
-                painter.setBrush(QBrush(palette.color(palette.Highlight)))
+                painter.setBrush(palette.highlight())
                 painter.setRenderHint(QPainter.Antialiasing);
                 painter.drawRoundedRect(bar_option.rect, 4, 4);
 

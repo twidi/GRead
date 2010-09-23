@@ -49,6 +49,7 @@ class ItemListDelegate(QStyledItemDelegate):
 
             # draw background and borders
             text_style_option = QStyleOptionViewItemV4(option)
+            palette = text_style_option.palette
             self.parent().style().drawControl(QStyle.CE_ItemViewItem, text_style_option, painter)
 
             # draw text
@@ -62,8 +63,9 @@ class ItemListDelegate(QStyledItemDelegate):
             else:
                 alignment = Qt.AlignVCenter | Qt.AlignLeft
 
-
             painter.setFont(text_font)
+            if option.state & QStyle.State_Selected:
+                painter.setPen(palette.color(palette.HighlightedText))
             text_option = QTextOption(alignment)
             text_option.setWrapMode(QTextOption.WordWrap)
             text_style_option.rect.adjust(8, 4, -4, -4)
@@ -98,13 +100,12 @@ class ItemListDelegate(QStyledItemDelegate):
                     subtitle_font.setWeight(QFont.Normal)
                     painter.setFont(subtitle_font)
 
-                    palette = subtitle_style_option.palette
                     subtitle_rect = painter.boundingRect(subtitle_style_option.rect, Qt.AlignBottom | Qt.AlignRight, subtitle)
                     subtitle_rect.adjust(-8, -8, -2, -2)
                     if subtitle_rect.width() > option.rect.width() / 3:
                         # too long !
                         subtitle_rect.setX(int(2 * option.rect.width() / 3))
-                    painter.setBrush(QBrush(palette.color(palette.Highlight)))
+                    painter.setBrush(palette.highlight())
                     painter.setPen(palette.color(palette.Highlight))
                     painter.setRenderHint(QPainter.Antialiasing);
                     painter.drawRoundedRect(subtitle_rect, 4, 4);
@@ -120,7 +121,7 @@ class ItemListDelegate(QStyledItemDelegate):
                 bar_option.rect.adjust(0, 1, 0, -1)
                 palette = bar_option.palette
                 painter.setPen(palette.color(palette.Highlight))
-                painter.setBrush(QBrush(palette.color(palette.Highlight)))
+                painter.setBrush(palette.highlight())
                 painter.setRenderHint(QPainter.Antialiasing);
                 painter.drawRoundedRect(bar_option.rect, 4, 4);
 
