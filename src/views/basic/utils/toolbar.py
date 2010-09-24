@@ -98,15 +98,15 @@ class Toolbar(QObject):
         self.action.setToolTip(tooltip)
         self.toolbar.addAction(self.action)
         
-        button = self.toolbar.children()[-1]
+        self.button = self.toolbar.children()[-1]
         self.toolbar.setContentsMargins(0, 0, 0, 0)
         
-        font = button.font()
+        font = self.button.font()
         font.setPointSizeF(font.pointSizeF() * 3)
-        button.setFont(font)
+        self.button.setFont(font)
 
         palette = self.toolbar.palette()
-        button.setStyleSheet(
+        self.button.setStyleSheet(
             """
             QToolButton {
                 border : none;
@@ -120,14 +120,14 @@ class Toolbar(QObject):
             }
             """ %
             {
-                'border_radius': int(button.height()/2),
+                'border_radius': int(self.button.height()/2),
                 'background_hover': palette.color(palette.Highlight).name(),
                 'foreground_hover': palette.color(palette.HighlightedText).name(),
             }
         )
         self.toolbar.setStyleSheet("border:none;background:transparent")
         
-        self.toolbar.resize(button.sizeHint())
+        self.toolbar.resize(self.button.sizeHint())
 
         self.move(x, y)
         self.toolbar.setMovable(False)

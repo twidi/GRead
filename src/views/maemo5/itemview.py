@@ -57,3 +57,11 @@ class ItemViewView(BasicItemViewView):
         self.display_message_box("%s [%s]" % (item.title, ', '.join(statuses)))
 
         return True
+
+    def show_previous(self):
+        self.toolbar_manager.move_cursor_away_of_toolbar()
+        super(ItemViewView, self).show_previous()
+
+    def show_next(self):
+        self.toolbar_manager.move_cursor_away_of_toolbar()
+        super(ItemViewView, self).show_next()

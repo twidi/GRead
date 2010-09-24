@@ -22,5 +22,8 @@ class ToolbarManager(BasicToolbarManager):
             elif (not self.delay):
                 self.display()                
         return False
+        
+    def move_cursor_away_of_toolbar(self):
+        QCursor.setPos(self.parent().mapToGlobal(self.parent().pos()))
 
 
