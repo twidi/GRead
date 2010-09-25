@@ -144,10 +144,8 @@ class ItemViewView(base_view_class):
         return ItemViewEventFilter
         
     def init_events(self):
-        super(ItemViewView, self).init_events()
-        
-        # events
         self.add_event_filter(self.win, self.get_event_filter_class())
+        super(ItemViewView, self).init_events()
         QObject.connect(self.event_filter, SIGNAL("zoom"), self.zoom)
         QObject.connect(self.event_filter, SIGNAL("next"), self.show_next)
         QObject.connect(self.event_filter, SIGNAL("previous"), self.show_previous)

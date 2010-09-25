@@ -141,7 +141,7 @@ class FeedListEventFilter(base_eventfilter_class):
             elif key == Qt.Key_U:
                 self.emit(SIGNAL("toggle_unread_only"))
                 return True
-            elif event.modifiers() & Qt.ShiftModifier and \
+            elif self.isShift(event) and \
                 (key == Qt.Key_A or key == Qt.Key_M):
                 self.emit(SIGNAL("mark_selected_all_read"))
                 return True
@@ -172,7 +172,7 @@ class FeedListView(base_view_class):
         fld = self.get_feedlist_delegate_class()(self.win)
         self.ui.listFeedList.setModel(flm)
         self.ui.listFeedList.setItemDelegate(fld)
-        self.ui.listFeedList.activated.connect(self.activate_entry)
+        self.ui.listFeedList.activated.connect(self.activate_index)
 
     def get_ui_class(self):
         return Ui_winFeedList
@@ -228,9 +228,8 @@ class FeedListView(base_view_class):
         return FeedListEventFilter
 
     def init_events(self):
-        super(FeedListView, self).init_events()
-        
         self.add_event_filter(self.ui.listFeedList, self.get_event_filter_class())
+        super(FeedListView, self).init_events()        
         QObject.connect(self.event_filter, SIGNAL("trigger_sync"), self.trigger_sync)
         QObject.connect(self.event_filter, SIGNAL("trigger_back"), self.trigger_back)
         QObject.connect(self.event_filter, SIGNAL("trigger_open"), self.trigger_open)
@@ -323,12 +322,21 @@ class FeedListView(base_view_class):
         elif self.selected_category:
             self.set_current_category(self.selected_category)
 
-    def activate_entry(self, index):
+    def activate_index(self, index):
         """
         Action when an entry is selected
         """
         entry = index.model().listdata[index.row()]
+        self.activate_entry(entry)
+            
+    def activate_entry(self, entry, redraw=False):
+        if not isinstance(entry, Category):
+            if not self.current_category or self.current_category not in entry.categories:
+                self.current_category = entry.categories[0]
         self.get_selected(entry)
+        if redraw:
+            self.verify_current_category()
+            self.update_feed_list()            
         if isinstance(entry, Category):
             self.set_current_category(entry)
         else:

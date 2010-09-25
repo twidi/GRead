@@ -281,6 +281,46 @@ class Account(object):
         self.unread = self.special_category.unread
         return self.unread
         
+    def get_feeds(self, unread_only=False, order_by=None, reverse_order=None, exclude=None):
+        """
+        Get the list of all feeds, filtering only unread if asfed, and ordering
+        them as asked.
+        order_by can be "title", "date" or "unread" (default ""title"")
+        By default reverse_order is False for "title" and True for "date" 
+        and "unread"
+        Only work for "date" if all feeds were specifically fetched
+        """
+        result = []
+        to_sort = Feed.get_for_account(self)
+        if unread_only:
+            to_sort = [feed for feed in to_sort if feed.unread]
+
+        # remove feeds to exclude\
+        if exclude:
+            for feed in exclude:
+                to_sort.remove(feed)
+        
+        if order_by == 'title' or order_by not in ('title', 'date', 'unread'):
+            # if sort by title, just use the current list
+            if reverse_order is None:
+                reverse_order = False
+            result = sorted(to_sort, \
+                key=locale_keyfunc(attrgetter('title')), reverse=False)
+        elif order_by == 'date':
+            # if sort by date, reverse True by default
+            if reverse_order is None:
+                reverse_order = True
+            result = sorted(to_sort, key=attrgetter('date'),\
+                reverse=reverse_order)
+        elif order_by == 'unread':
+            # if sort by unread, reverse True by default
+            if reverse_order is None:
+                reverse_order = True
+            result = sorted(to_sort, key=attrgetter('unread'),\
+                reverse=reverse_order)
+                
+        return result
+        
     def get_categories(self, unread_only=False, order_by=None, reverse_order=None):
         """
         Get the list of all categories, filtering only unread if asked, and
@@ -477,10 +517,16 @@ class Category(_BaseModelForAccount):
         result = []
         if self.category_feed:
             if len(self.feeds) > 2:
-                result = [self.category_feed, ]
+                if not exclude or self.category_feed not in exclude:
+                    result = [self.category_feed, ]
             to_sort = self.feeds[1:]
         else:
             to_sort = self.feeds
+
+        # remove feeds to exclude
+        if exclude:
+            for feed in exclude:
+                to_sort.remove(feed)
 
         # only keep unread items if wanted
         if unread_only:
@@ -506,11 +552,6 @@ class Category(_BaseModelForAccount):
                 reverse_order = True
             result += sorted(to_sort, key=attrgetter('unread'),\
                 reverse=reverse_order)
-
-        # remove feeds to exclude
-        if exclude:
-            for feed in exclude:
-                result.remove(feed)
                 
         return result
         

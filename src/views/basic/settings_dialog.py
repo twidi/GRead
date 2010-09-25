@@ -5,34 +5,30 @@ Settings view
 """
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-    
+
+from . import Dialog
 from ui.Ui_settings import Ui_Settings
 from engine.signals import SIGNALS
 from engine import settings
 
-class SettingsDialog(object):
+class SettingsDialog(Dialog):
     def __init__(self, controller):
-        self.controller = controller
-        self.created = False
+        super(SettingsDialog, self).__init__(controller)
         self.google_was_verified = False
         self.google_credentials_changed = False
 
     def get_ui_class(self):
         return Ui_Settings
         
-    def create(self):
-        self.dialog = QDialog()
-        self.ui = self.get_ui_class()()
-        self.ui.setupUi(self.dialog)
-        self.dialog.setWindowTitle("%s - Settings" % QApplication.applicationName())
-        self.created = True
+    def get_title(self):
+        return "%s - Settings" % QApplication.applicationName()
         
-    def open(self):
-        # create dialog
-        if not self.created:
-            self.create()
+    def before_open(self):
+        super(SettingsDialog, self).before_open()
         self.update_inputs()
-        self.dialog.exec_()
+        
+    def after_close(self):
+        super(SettingsDialog, self).after_close()
         self.read_inputs()
         self.save_settings()
         

@@ -264,10 +264,8 @@ class ItemListView(base_view_class):
         return ItemListEventFilter
         
     def init_events(self):
-        super(ItemListView, self).init_events()
-        
-        # events
         self.add_event_filter(self.ui.listItemList, self.get_event_filter_class())
+        super(ItemListView, self).init_events()
         QObject.connect(self.event_filter, SIGNAL("mark_all_read"), self.trigger_mark_all_read)
         QObject.connect(self.event_filter, SIGNAL("refresh"), self.trigger_refresh)
         QObject.connect(self.event_filter, SIGNAL("fetch_more"), self.trigger_fetch_more)

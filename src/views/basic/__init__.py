@@ -90,7 +90,11 @@ class ViewEventFilter(QObject):
         return False
         
     def preEventFilter(self, obj, event):
-        return False
+        if event.type() == QEvent.KeyPress:
+            key = event.key()
+            if key == Qt.Key_Space and self.isShift(event):
+                self.emit(SIGNAL("trigger_filter_feeds"))
+                return False
         
     def postEventFilter(self, obj, event):
         return False
@@ -133,7 +137,7 @@ class View(object):
         pass
         
     def init_events(self):
-        pass
+        QObject.connect(self.event_filter, SIGNAL("trigger_filter_feeds"), self.controller.trigger_filter_feeds)
         
     def add_event_filter(self, widget, event_filter_class):
         self.event_filter = event_filter_class(self.win)
@@ -223,6 +227,38 @@ class View(object):
         else:
             box.setIcon(QMessageBox.Information)
         box.exec_()
+
+class Dialog(object):
+    def __init__(self, controller):
+        self.controller = controller
+        self.created = False
+
+    def get_ui_class(self):
+        pass
+        
+    def create(self):
+        self.win = QDialog()
+        self.ui = self.get_ui_class()()
+        self.ui.setupUi(self.win)
+        self.win.setWindowTitle(self.get_title())
+        self.created = True
+        
+    def get_title(self):
+        return QApplication.applicationName()
+
+    def before_open(self):
+        pass
+        
+    def after_close(self):
+        pass
+        
+    def open(self):
+        # create dialog
+        if not self.created:
+            self.create()
+        self.before_open()
+        self.win.exec_()
+        self.after_close()
 
 base_view_class = View
 base_eventfilter_class = ViewEventFilter

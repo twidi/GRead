@@ -12,6 +12,7 @@ from feedlist import FeedListView
 from itemlist import ItemListView
 from itemview import ItemViewView
 from settings_dialog import SettingsDialog
+from filter_feeds_dialog import FilterFeedsDialog
 
 from engine import settings
 
@@ -32,10 +33,13 @@ class Controller(BasicController):
         """
         Create all the views used by the application
         """
-        self.settings_dialog = SettingsDialog(controller=self)
-        self.feedlist_view   = FeedListView(controller=self)
-        self.itemlist_view   = ItemListView(controller=self)
-        self.itemview_view   = ItemViewView(controller=self)
+        # dialogs
+        self.settings_dialog     = SettingsDialog(controller=self)
+        self.filter_feeds_dialog = FilterFeedsDialog(controller=self)
+        # normal views
+        self.feedlist_view = FeedListView(controller=self)
+        self.itemlist_view = ItemListView(controller=self)
+        self.itemview_view = ItemViewView(controller=self)
 
     def settings_updated(self, *args, **kwargs):
         self.set_portrait_mode(settings.get('other', 'portrait_mode'))

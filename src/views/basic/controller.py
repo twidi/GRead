@@ -13,6 +13,7 @@ from feedlist import FeedListView
 from itemlist import ItemListView
 from itemview import ItemViewView
 from settings_dialog import SettingsDialog
+from filter_feeds_dialog import FilterFeedsDialog
 
 class Controller(QObject):
 
@@ -46,10 +47,13 @@ class Controller(QObject):
         """
         Create all the views used by the application
         """
-        self.settings_dialog = SettingsDialog(controller=self)
-        self.feedlist_view   = FeedListView(controller=self)
-        self.itemlist_view   = ItemListView(controller=self)
-        self.itemview_view   = ItemViewView(controller=self)
+        # dialogs
+        self.settings_dialog     = SettingsDialog(controller=self)
+        self.filter_feeds_dialog = FilterFeedsDialog(controller=self)
+        # normal views
+        self.feedlist_view = FeedListView(controller=self)
+        self.itemlist_view = ItemListView(controller=self)
+        self.itemview_view = ItemViewView(controller=self)
         
     def run(self):
         """
@@ -111,23 +115,12 @@ class Controller(QObject):
         if self.current_view:
             self.current_view.update_display_title()
 
-    def hide_children(self, view):
-        """
-        Hide all views which are children of the specified one
-        """
-        for child in self.views:
-            if child.win.parent() == view.win and child.win.isVisible():
-                self.hide_children(child)
-                child.win.hide()
-
     def set_current_view(self, view):
         """
         Set the specified view as the current one
         """
         if view != self.current_view:
-            old_current_view  = self.current_view
             self.current_view = view
-            self.hide_children(self.current_view)
             self.current_view.show()
 
     def is_current_view(self, view):
@@ -153,7 +146,7 @@ class Controller(QObject):
         """
         if self.current_view:
             self.current_view.display_message(message, level)
-        
+
     def display_feed(self, feed):
         """
         Display a feed by displaying the itemlist view.
@@ -162,7 +155,7 @@ class Controller(QObject):
         self.switch_view('itemlist')
         if not self.itemlist_view.set_current_feed(feed):
             self.switch_view('feedlist')
-        
+
     def trigger_settings(self):
         """
         Will display the settings dialog box
@@ -250,11 +243,11 @@ class Controller(QObject):
     def display_item(self, item):
         """
         Display an item by displaying the itemview view.
-        If the specified iem cannot be selected, return to the previous view
+        If the specified item cannot be selected, return to the previous view
         """
         self.switch_view('itemview')
         if not self.itemview_view.set_current_item(item):
-            self.switch_view('itemlist', hide_current=True)
+            self.switch_view('itemlist')
             
     def get_next_item(self):
         """
@@ -319,3 +312,9 @@ class Controller(QObject):
                 view.feed_read(feed)
             except:
                 pass
+
+    def trigger_filter_feeds(self):
+        """
+        Will display the filter feeds dialog
+        """
+        self.filter_feeds_dialog.open()
