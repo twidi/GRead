@@ -30,6 +30,13 @@ class ItemViewEventFilter(BasicItemViewEventFilter):
                 return False
         return False
 
+class WebPage(QWebPage):
+    def __init__(self, *args, **kwargs):
+        super(WebPage, self).__init__(*args, **kwargs)
+        
+    def userAgentForUrl(self, url):
+        return "Mozilla/5.0 (iPhone; U; CPU like Mac OS X; en) AppleWebKit/420+ (KHTML, like Gecko) Version/3.0 Mobile/1A543a Safari/419.3"
+
 class ItemViewView(BasicItemViewView):
     
     def __init__(self, *args, **kwargs):
@@ -48,6 +55,9 @@ class ItemViewView(BasicItemViewView):
                 grab_zoom_keys(self.win.winId(), True)
             except Exception, e:
                 pass
+                
+    def get_web_page(self):
+        return WebPage(parent=self.ui.webView)
             
     def get_event_filter_class(self):
         return ItemViewEventFilter

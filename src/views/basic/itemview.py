@@ -63,11 +63,17 @@ class ItemViewView(base_view_class):
         super(ItemViewView, self).__init__(controller, self.get_ui_class(), controller.itemlist_view.win)
         
         # web view
+        page = self.get_web_page()
+        if page:
+            self.ui.webView.setPage(page)
         self.ui.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self.ui.webView.page().linkClicked.connect(self.link_clicked)
         self.ui.webView.loadFinished.connect(self.trigger_web_view_loaded)
 
         self.init_toolbars()
+        
+    def get_web_page(self):
+        return None
 
     def get_ui_class(self):
         return Ui_winItemView
