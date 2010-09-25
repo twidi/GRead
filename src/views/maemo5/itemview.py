@@ -9,7 +9,8 @@ from PyQt4.QtWebKit import *
 
 from utils.qwebviewselectionsuppressor import QWebViewSelectionSuppressor
 from utils.toolbar import ToolbarManager
-from ..basic.itemview import ItemViewView as BasicItemViewView
+from ..basic.itemview import ItemViewView as BasicItemViewView, \
+                             ItemViewEventFilter as BasicItemViewEventFilter
 
 ZOOMKEYS_ACTIVATED = False
 try:
@@ -17,6 +18,17 @@ try:
     ZOOMKEYS_ACTIVATED = True
 except Exception, e:
     sys.stderr.write("ZOOMKEYS ERROR : %s" % e)
+
+class ItemViewEventFilter(BasicItemViewEventFilter):
+    def preEventFilter(self, obj, event):
+        if super(ItemViewEventFilter, self).preEventFilter(obj, event):
+            return True
+        if event.type() == QEvent.KeyPress:
+            key = event.key()
+            if key in (Qt.Key_Down, Qt.Key_Up, Qt.Key_Left, Qt.Key_Right, Qt.Key_Space):
+                self.emit(SIGNAL("init_browser_scrollbars"))
+                return False
+        return False
 
 class ItemViewView(BasicItemViewView):
     
@@ -36,6 +48,13 @@ class ItemViewView(BasicItemViewView):
                 grab_zoom_keys(self.win.winId(), True)
             except Exception, e:
                 pass
+            
+    def get_event_filter_class(self):
+        return ItemViewEventFilter
+
+    def init_events(self):
+        super(ItemViewView, self).init_events()
+        QObject.connect(self.event_filter, SIGNAL("init_browser_scrollbars"), self.init_browser_scrollbars)
         
     def get_toolbar_manager_class(self):
         return ToolbarManager
@@ -65,3 +84,12 @@ class ItemViewView(BasicItemViewView):
     def show_next(self):
         self.toolbar_manager.move_cursor_away_of_toolbar()
         super(ItemViewView, self).show_next()
+        
+        
+    def init_browser_scrollbars(self):
+        """
+        We need scrollbars to navigate with keyboard
+        """
+        frame = self.ui.webView.page().currentFrame()
+        if frame.scrollBarPolicy(Qt.Vertical) != Qt.ScrollBarAsNeeded:
+            frame.setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAsNeeded)

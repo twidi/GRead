@@ -85,6 +85,14 @@ class ViewEventFilter(QObject):
         return event.modifiers() & Qt.ShiftModifier
 
     def eventFilter(self, obj, event):
+        if self.preEventFilter(obj, event):
+            return True
+        return False
+        
+    def preEventFilter(self, obj, event):
+        return False
+        
+    def postEventFilter(self, obj, event):
         return False
 
 class View(object):

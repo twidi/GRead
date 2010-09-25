@@ -151,6 +151,8 @@ class FeedListEventFilter(base_eventfilter_class):
             elif key in (Qt.Key_K, Qt.Key_P):
                 self.emit(SIGNAL("select_previous"))
                 return True
+        if self.postEventFilter(obj, event):
+            return True
         return QObject.eventFilter(self, obj, event)
 
 class FeedListView(base_view_class):
@@ -221,11 +223,14 @@ class FeedListView(base_view_class):
         self.context_menu.addAction(self.action_settings)
         
         self.manage_actions()
+            
+    def get_event_filter_class(self):
+        return FeedListEventFilter
 
     def init_events(self):
         super(FeedListView, self).init_events()
         
-        self.add_event_filter(self.ui.listFeedList, FeedListEventFilter)
+        self.add_event_filter(self.ui.listFeedList, self.get_event_filter_class())
         QObject.connect(self.event_filter, SIGNAL("trigger_sync"), self.trigger_sync)
         QObject.connect(self.event_filter, SIGNAL("trigger_back"), self.trigger_back)
         QObject.connect(self.event_filter, SIGNAL("trigger_open"), self.trigger_open)

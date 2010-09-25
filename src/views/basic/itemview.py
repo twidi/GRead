@@ -50,9 +50,8 @@ class ItemViewEventFilter(base_eventfilter_class):
                 else:
                     self.emit(SIGNAL("toggle_starred"))
                 return True
-            elif key in (Qt.Key_Down, Qt.Key_Up, Qt.Key_Left, Qt.Key_Right, Qt.Key_Space):
-                self.emit(SIGNAL("init_browser_scrollbars"))
-                return False
+        if self.postEventFilter(obj, event):
+            return True
         return QObject.eventFilter(self, obj, event)
 
 class ItemViewView(base_view_class):
@@ -134,12 +133,15 @@ class ItemViewView(base_view_class):
         for web_action in (QWebPage.Copy, QWebPage.Back, QWebPage.Reload, QWebPage.Stop, QWebPage.CopyLinkToClipboard, \
             ):#QWebPage.OpenImageInNewWindow, QWebPage.DownloadImageToDisk):
             self.context_menu.addAction(self.ui.webView.pageAction(web_action))
+            
+    def get_event_filter_class(self):
+        return ItemViewEventFilter
         
     def init_events(self):
         super(ItemViewView, self).init_events()
         
         # events
-        self.add_event_filter(self.win, ItemViewEventFilter)
+        self.add_event_filter(self.win, self.get_event_filter_class())
         QObject.connect(self.event_filter, SIGNAL("zoom"), self.zoom)
         QObject.connect(self.event_filter, SIGNAL("next"), self.show_next)
         QObject.connect(self.event_filter, SIGNAL("previous"), self.show_previous)
@@ -148,7 +150,6 @@ class ItemViewView(base_view_class):
         QObject.connect(self.event_filter, SIGNAL("toggle_starred"), self.toggle_starred)
         QObject.connect(self.event_filter, SIGNAL("view_original_gread"), self.trigger_view_original_gread)
         QObject.connect(self.event_filter, SIGNAL("view_original_browser"), self.trigger_view_original_browser)
-        QObject.connect(self.event_filter, SIGNAL("init_browser_scrollbars"), self.init_browser_scrollbars)
 
     def manage_actions(self):
         """
@@ -374,11 +375,3 @@ class ItemViewView(base_view_class):
         self.trigger_starred(not was_starred)
         self.action_starred.setChecked(not was_starred)
         self.controller.display_message(message)
-        
-    def init_browser_scrollbars(self):
-        """
-        We need scrollbars !
-        """
-        frame = self.ui.webView.page().currentFrame()
-        if frame.scrollBarPolicy(Qt.Vertical) != Qt.ScrollBarAsNeeded:
-            frame.setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAsNeeded)

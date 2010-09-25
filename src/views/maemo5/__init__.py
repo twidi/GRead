@@ -11,7 +11,9 @@ from ..basic import ViewEventFilter as BasicViewEventFilter,  \
 from engine import settings
 
 class ViewEventFilter(BasicViewEventFilter):
-    def eventFilter(self, obj, event):
+    def preEventFilter(self, obj, event):
+        if super(ViewEventFilter, self).preEventFilter(obj, event):
+            return True
         if event.type() == QEvent.KeyPress:
             key = event.key()
             if key == Qt.Key_O and self.isShift(event):

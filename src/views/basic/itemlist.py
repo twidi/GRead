@@ -173,6 +173,8 @@ class ItemListEventFilter(base_eventfilter_class):
             elif key in (Qt.Key_K, Qt.Key_P):
                 self.emit(SIGNAL("select_previous"))
                 return True
+        if self.postEventFilter(obj, event):
+            return True
         return QObject.eventFilter(self, obj, event)
 
 class ItemListView(base_view_class):
@@ -257,12 +259,15 @@ class ItemListView(base_view_class):
         self.context_menu.addActions(self.group_show.actions())
                 
         self.manage_actions()
+            
+    def get_event_filter_class(self):
+        return ItemListEventFilter
         
     def init_events(self):
         super(ItemListView, self).init_events()
         
         # events
-        self.add_event_filter(self.ui.listItemList, ItemListEventFilter)
+        self.add_event_filter(self.ui.listItemList, self.get_event_filter_class())
         QObject.connect(self.event_filter, SIGNAL("mark_all_read"), self.trigger_mark_all_read)
         QObject.connect(self.event_filter, SIGNAL("refresh"), self.trigger_refresh)
         QObject.connect(self.event_filter, SIGNAL("fetch_more"), self.trigger_fetch_more)
