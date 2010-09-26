@@ -204,6 +204,8 @@ class ItemListView(base_view_class):
 
     def init_menu(self):
         super(ItemListView, self).init_menu()
+        
+        menu_container = self.get_menu_container()
 
         # menu boutons : group for show all/updated
         self.group_show = QActionGroup(self.win)
@@ -215,45 +217,46 @@ class ItemListView(base_view_class):
             self.action_show_unread_only.setChecked(True)
         else:
             self.action_show_all.setChecked(True)
-        self.ui.menuBar.addActions(self.group_show.actions())
+        menu_container.addActions(self.group_show.actions())
         self.action_show_unread_only.toggled.connect(self.trigger_unread_only)
 
+        menu_container.addSeparator()
+
         # other menu boutons
-        self.action_refresh = QAction("Refresh", self.win)
+        self.group_other = QActionGroup(self.win)
+        self.group_other.setExclusive(False)
+        self.action_refresh = QAction("Refresh", self.group_other)
         self.action_refresh.setObjectName('actionRefresh')
-        self.ui.menuBar.addAction(self.action_refresh)
         self.action_refresh.triggered.connect(self.trigger_refresh)
 
-        self.action_fetch_more = QAction("Fetch more", self.win)
+        self.action_fetch_more = QAction("Fetch more", self.group_other)
         self.action_fetch_more.setObjectName('actionFetchMore')
-        self.ui.menuBar.addAction(self.action_fetch_more)
         self.action_fetch_more.triggered.connect(self.trigger_fetch_more)
 
-        self.action_mark_all_read = QAction("Mark all as read", self.win)
+        self.action_mark_all_read = QAction("Mark all as read", self.group_other)
         self.action_mark_all_read.setObjectName('actionMarkAllRead')
-        self.ui.menuBar.addAction(self.action_mark_all_read)
         self.action_mark_all_read.triggered.connect(self.trigger_mark_all_read)
-        
+
+        menu_container.addActions(self.group_other.actions())
+
         # context menu
         self.make_context_menu(self.ui.listItemList)
         
-        self.action_item_read = QAction("Read", self.win)
+        self.group_item_actions = QActionGroup(self.win)
+        self.group_item_actions.setExclusive(False)
+        self.action_item_read = QAction("Read", self.group_item_actions)
         self.action_item_read.triggered.connect(self.trigger_item_read)
         self.action_item_read.setCheckable(True)
-        self.context_menu.addAction(self.action_item_read)
-        self.action_item_shared = QAction("Shared", self.win)
-        self.action_item_shared.setCheckable(True)
-        self.action_item_shared.triggered.connect(self.trigger_item_shared)
-        self.context_menu.addAction(self.action_item_shared)
-        self.action_item_starred = QAction("Starred", self.win)
+        self.action_item_starred = QAction("Starred", self.group_item_actions)
         self.action_item_starred.setCheckable(True)
         self.action_item_starred.triggered.connect(self.trigger_item_starred)
-        self.context_menu.addAction(self.action_item_starred)
+        self.action_item_shared = QAction("Shared", self.group_item_actions)
+        self.action_item_shared.setCheckable(True)
+        self.action_item_shared.triggered.connect(self.trigger_item_shared)
+        self.context_menu.addActions(self.group_item_actions.actions())
         
         self.context_menu.addSeparator()
-        self.context_menu.addAction(self.action_mark_all_read)
-        self.context_menu.addAction(self.action_fetch_more)
-        self.context_menu.addAction(self.action_refresh)
+        self.context_menu.addActions(self.group_other.actions())
 
         self.context_menu.addSeparator()
         self.context_menu.addActions(self.group_show.actions())

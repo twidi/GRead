@@ -183,30 +183,34 @@ class FeedListView(base_view_class):
     def init_menu(self):
         super(FeedListView, self).init_menu()
         
+        menu_container = self.get_menu_container()
+        
         # simple menu boutons
         self.action_settings = QAction("Settings", self.win)
         self.action_settings.setObjectName('actionSettings')
         self.action_sync = QAction("Synchronize all", self.win)
         self.action_sync.setDisabled(not settings.auth_ready())
         self.action_sync.setObjectName('actionSync')
-        self.ui.menuBar.addAction(self.action_settings)
-        self.ui.menuBar.addAction(self.action_sync)
+        menu_container.addAction(self.action_settings)
+        menu_container.addAction(self.action_sync)
         self.action_settings.triggered.connect(self.controller.trigger_settings)
         self.action_sync.triggered.connect(self.trigger_sync)
+        
+        menu_container.addSeparator()
 
         # menu boutons : group for show all/unread
         self.group_show = QActionGroup(self.win)
         self.action_show_all = QAction("Show all", self.group_show)
         self.action_show_all.setCheckable(True)
         self.action_show_all.setDisabled(True)
-        self.action_show_unread_only = QAction("Show unread", self.group_show)
+        self.action_show_unread_only = QAction("Unread only", self.group_show)
         self.action_show_unread_only.setCheckable(True)
         self.action_show_unread_only.setDisabled(True)
         if settings.get('feeds', 'unread_only'):
             self.action_show_unread_only.setChecked(True)
         else:
             self.action_show_all.setChecked(True)
-        self.ui.menuBar.addActions(self.group_show.actions())
+        menu_container.addActions(self.group_show.actions())
         self.action_show_unread_only.toggled.connect(self.trigger_unread_only)
         
         # context menu

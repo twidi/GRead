@@ -9,6 +9,7 @@ from PyQt4.QtWebKit import *
 
 from utils.qwebviewselectionsuppressor import QWebViewSelectionSuppressor
 from utils.toolbar import ToolbarManager
+from ui.Ui_itemview import Ui_winItemView
 from ..basic.itemview import ItemViewView as BasicItemViewView, \
                              ItemViewEventFilter as BasicItemViewEventFilter
 
@@ -55,6 +56,9 @@ class ItemViewView(BasicItemViewView):
                 grab_zoom_keys(self.win.winId(), True)
             except Exception, e:
                 pass
+
+    def get_ui_class(self):
+        return Ui_winItemView
                 
     def get_web_page(self):
         return WebPage(parent=self.ui.webView)

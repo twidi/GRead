@@ -132,6 +132,9 @@ class View(object):
         self.post_init_menu()
         self.init_events()
         
+    def get_menu_container(self):
+        return self.ui.toolBar
+        
     def init_menu(self):
         self.context_menu        = None
         self.context_menu_widget = None

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/basic/ui/feedlist.ui'
+# Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/maemo5/ui/feedlist.ui'
 #
-# Created: Mon Sep 27 00:07:18 2010
+# Created: Tue Sep 14 04:04:11 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -39,9 +39,10 @@ class Ui_winFeedList(object):
         self.listFeedList.setObjectName("listFeedList")
         self.verticalLayout.addWidget(self.listFeedList)
         winFeedList.setCentralWidget(self.centralWidget)
-        self.toolBar = QtGui.QToolBar(winFeedList)
-        self.toolBar.setObjectName("toolBar")
-        winFeedList.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.TopToolBarArea), self.toolBar)
+        self.menuBar = QtGui.QMenuBar(winFeedList)
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 800, 37))
+        self.menuBar.setObjectName("menuBar")
+        winFeedList.setMenuBar(self.menuBar)
 
         self.retranslateUi(winFeedList)
         QtCore.QMetaObject.connectSlotsByName(winFeedList)
@@ -49,7 +50,6 @@ class Ui_winFeedList(object):
     def retranslateUi(self, winFeedList):
         winFeedList.setWindowTitle(QtGui.QApplication.translate("winFeedList", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
         self.messageBox.setText(QtGui.QApplication.translate("winFeedList", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolBar.setWindowTitle(QtGui.QApplication.translate("winFeedList", "toolBar", None, QtGui.QApplication.UnicodeUTF8))
 
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/basic/ui/itemview.ui'
+# Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/maemo5/ui/itemview.ui'
 #
-# Created: Mon Sep 27 00:07:24 2010
+# Created: Tue Sep 14 03:27:42 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -34,9 +34,10 @@ class Ui_winItemView(object):
         self.webView.setObjectName("webView")
         self.verticalLayout.addWidget(self.webView)
         winItemView.setCentralWidget(self.centralWidget)
-        self.toolBar = QtGui.QToolBar(winItemView)
-        self.toolBar.setObjectName("toolBar")
-        winItemView.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.TopToolBarArea), self.toolBar)
+        self.menuBar = QtGui.QMenuBar(winItemView)
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 800, 37))
+        self.menuBar.setObjectName("menuBar")
+        winItemView.setMenuBar(self.menuBar)
 
         self.retranslateUi(winItemView)
         QtCore.QMetaObject.connectSlotsByName(winItemView)
@@ -44,7 +45,6 @@ class Ui_winItemView(object):
     def retranslateUi(self, winItemView):
         winItemView.setWindowTitle(QtGui.QApplication.translate("winItemView", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
         self.messageBox.setText(QtGui.QApplication.translate("winItemView", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolBar.setWindowTitle(QtGui.QApplication.translate("winItemView", "toolBar", None, QtGui.QApplication.UnicodeUTF8))
 
 from PyQt4 import QtWebKit
 

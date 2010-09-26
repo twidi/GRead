@@ -31,6 +31,9 @@ class View(BasicView):
         # can handle landscape or portrait mode
         self.manage_orientation()
         
+    def get_menu_container(self):
+        return self.ui.menuBar
+        
     def init_menu(self):
         self.add_orientation_menu()
         super(View, self).init_menu()
@@ -65,7 +68,7 @@ class View(BasicView):
         self.action_orientation_landscape.setCheckable(True)
         self.action_orientation_portrait = QAction("Portrait", self.group_orientation)
         self.action_orientation_portrait.setCheckable(True)
-        self.ui.menuBar.addActions(self.group_orientation.actions())
+        self.get_menu_container().addActions(self.group_orientation.actions())
         self.action_orientation_portrait.toggled.connect(self.trigger_portrait_orientation)
             
     def toggle_orientation(self):

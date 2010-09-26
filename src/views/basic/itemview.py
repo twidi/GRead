@@ -92,49 +92,52 @@ class ItemViewView(base_view_class):
 
     def init_menu(self):
         super(ItemViewView, self).init_menu()
+        
+        menu_container = self.get_menu_container()
 
+        self.group_actions = QActionGroup(self.win)
+        self.group_actions.setExclusive(False)
+        # menu bar : read/unread
+        self.action_read = QAction("Read", self.group_actions)
+        self.action_read.setObjectName('actionRead')
+        self.action_read.setCheckable(True)
+        self.action_read.triggered.connect(self.trigger_read)
         # menu bar : starred
-        self.action_starred = QAction("Starred", self.win)
+        self.action_starred = QAction("Starred", self.group_actions)
         self.action_starred.setObjectName('actionStarred')
-        self.ui.menuBar.addAction(self.action_starred)
         self.action_starred.setCheckable(True)
         self.action_starred.triggered.connect(self.trigger_starred)
         # menu bar : shared
-        self.action_shared = QAction("Shared", self.win)
+        self.action_shared = QAction("Shared", self.group_actions)
         self.action_shared.setObjectName('actionShared')
-        self.ui.menuBar.addAction(self.action_shared)
         self.action_shared.setCheckable(True)
         self.action_shared.triggered.connect(self.trigger_shared)
-        # menu bar : read/unread
-        self.action_read = QAction("Read", self.win)
-        self.action_read.setObjectName('actionRead')
-        self.ui.menuBar.addAction(self.action_read)
-        self.action_read.setCheckable(True)
-        self.action_read.triggered.connect(self.trigger_read)
+        
+        menu_container.addActions(self.group_actions.actions())
+
+        menu_container.addSeparator()
+
         # menu bar : see original
-        self.action_view_original_browser = QAction("View original in Browser", self.win)
+        self.group_view = QActionGroup(self.win)
+        self.group_actions.setExclusive(False)
+        self.action_view_original_browser = QAction("View original in Browser", self.group_view)
         self.action_view_original_browser.setObjectName('actionViewOriginalBrowser')
-        self.ui.menuBar.addAction(self.action_view_original_browser)
         self.action_view_original_browser.triggered.connect(self.trigger_view_original_browser)
-        self.action_view_original_gread = QAction("View original in GRead", self.win)
+        self.action_view_original_gread = QAction("View original in GRead", self.group_view)
         self.action_view_original_gread.setObjectName('actionViewOriginalGRead')
-        self.ui.menuBar.addAction(self.action_view_original_gread)
         self.action_view_original_gread.triggered.connect(self.trigger_view_original_gread)
         # menu bar : return to item
-        self.action_return_to_item = QAction("Return to entry", self.win)
+        self.action_return_to_item = QAction("Return to entry", self.group_view)
         self.action_return_to_item.setObjectName('actionReturnToItem')
-        self.ui.menuBar.addAction(self.action_return_to_item)
         self.action_return_to_item.triggered.connect(self.trigger_return_to_item)
+
+        menu_container.addActions(self.group_view.actions())
 
         # context menu
         self.make_context_menu(self.ui.webView)
-        self.context_menu.addAction(self.action_read)
-        self.context_menu.addAction(self.action_shared)
-        self.context_menu.addAction(self.action_starred)
+        self.context_menu.addActions(self.group_actions.actions())
         self.context_menu.addSeparator()
-        self.context_menu.addAction(self.action_view_original_browser)
-        self.context_menu.addAction(self.action_view_original_gread)
-        self.context_menu.addAction(self.action_return_to_item)
+        self.context_menu.addActions(self.group_view.actions())
         self.context_menu.addSeparator()
         for web_action in (QWebPage.Copy, QWebPage.Back, QWebPage.Reload, QWebPage.Stop, QWebPage.CopyLinkToClipboard, \
             ):#QWebPage.OpenImageInNewWindow, QWebPage.DownloadImageToDisk):
