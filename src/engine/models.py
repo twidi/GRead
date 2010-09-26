@@ -524,7 +524,8 @@ class Category(_BaseModelForAccount):
                     result = [self.category_feed, ]
             to_sort = self.feeds[1:]
         else:
-            to_sort = self.feeds
+            # make a copy to not remove exluded feed from original list
+            to_sort = self.feeds[0:]
 
         # remove feeds to exclude
         if exclude:
@@ -1013,7 +1014,8 @@ class Feed(_BaseModelForAccount):
         if unread_only:
             to_sort = [item for item in self.items if item.unread]
         else:
-            to_sort = self.items
+            # make a copy to not change the original sort list
+            to_sort = self.items[0:]
             
         if order_by == 'title':
             # if sort by title, create a new sorted list
