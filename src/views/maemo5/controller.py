@@ -70,3 +70,8 @@ class Controller(BasicController):
             return "%d" % nb
         else:
             return ""
+            
+    def display_feed(self, feed):
+        if self.current_view == self.itemview_view:
+            self.itemview_view.win.hide()
+        super(Controller, self).display_feed(feed)
