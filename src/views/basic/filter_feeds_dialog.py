@@ -75,6 +75,7 @@ class FilterFeedsDialog(Dialog):
         except:
             pass
 
+        self.ui.editFilter.setText('')
         self.ui.editFilter.setFocus(Qt.OtherFocusReason)
 
     def activate_index(self, index):
