@@ -298,7 +298,10 @@ class Account(object):
         # remove feeds to exclude\
         if exclude:
             for feed in exclude:
-                to_sort.remove(feed)
+                try:
+                    to_sort.remove(feed)
+                except:
+                    pass
         
         if order_by == 'title' or order_by not in ('title', 'date', 'unread'):
             # if sort by title, just use the current list
@@ -526,7 +529,10 @@ class Category(_BaseModelForAccount):
         # remove feeds to exclude
         if exclude:
             for feed in exclude:
-                to_sort.remove(feed)
+                try:
+                    to_sort.remove(feed)
+                except:
+                    pass
 
         # only keep unread items if wanted
         if unread_only:
