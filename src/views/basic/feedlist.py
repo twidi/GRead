@@ -648,3 +648,17 @@ class FeedListView(base_view_class):
                 current = self.selected_category
             return not not current
         return False
+
+    def help_keys(self):
+        return {
+            'title': 'Feeds list', 
+            'keys': [
+                ('shift-S', 'Synchronize all'), 
+                ('Back', 'Close opened label'), 
+                ('O', 'Open selected label/feed'), 
+                ('U', 'Switch between all & unread only mode'), 
+                ('shift-A/M', 'Mark selected label/feed as read'), 
+                ('J/N', 'Move to next entry in the list'), 
+                ('K/P', 'Move to previous entry in the list'), 
+            ]
+        }

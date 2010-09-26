@@ -713,3 +713,21 @@ class ItemListView(base_view_class):
             message = 'Starred flag is now OFF'
         self.trigger_item_starred(not was_starred)
         self.controller.display_message(message)
+
+    def help_keys(self):
+        return {
+            'title': 'Items list (feed view)', 
+            'keys': [
+                ('Back/Esc', 'Return to feeds list'), 
+                ('shift-A/M', 'Mark all in feed as read'), 
+                ('R', 'Refresh feed (and fetch new content)'), 
+                ('F', 'Fetch more content'), 
+                ('U', 'Switch between all & unread only mode'), 
+                ('O', 'Open selected item'), 
+                ('M', 'Toggle read status of selected item'), 
+                ('S', 'Toggle starred status of selected item'), 
+                ('shift-S', 'Toggle shared status of selected item'), 
+                ('J/N', 'Move to next item in the list'), 
+                ('K/P', 'Move to previous item in the list'), 
+            ]
+       }

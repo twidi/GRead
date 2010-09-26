@@ -103,3 +103,13 @@ class ItemViewView(BasicItemViewView):
         frame = self.ui.webView.page().currentFrame()
         if frame.scrollBarPolicy(Qt.Vertical) != Qt.ScrollBarAsNeeded:
             frame.setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAsNeeded)
+
+    def help_keys(self):
+        help = super(ItemViewView, self).help_keys()
+        new_help = { 'title': help['title'], 'keys': []}
+        for key in help['keys']:
+            if key[0].startswith('F7'):
+                new_help['keys'].append(('Vol. keys', key[1]))
+            else:
+                new_help['keys'].append(key)
+        return new_help

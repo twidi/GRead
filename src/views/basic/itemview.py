@@ -379,3 +379,19 @@ class ItemViewView(base_view_class):
         self.trigger_starred(not was_starred)
         self.action_starred.setChecked(not was_starred)
         self.controller.display_message(message)
+
+    def help_keys(self):
+        return {
+            'title': 'Item view', 
+            'keys': [
+                ('Back/Esc', 'Return to items list'), 
+                ('F7/F8', 'Zoom in/out'), 
+                ('J/N', 'Move to next item'), 
+                ('K/P', 'Move to previous item'), 
+                ('M', 'Toggle read status'), 
+                ('S', 'Toggle starred status'), 
+                ('shift-S', 'Toggle shared status'), 
+                ('V', 'Show original in external browser'), 
+                ('shift-V', 'Show original in GRead'), 
+            ]
+       }

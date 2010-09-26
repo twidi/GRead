@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/basic/ui/settings.ui'
 #
-# Created: Wed Sep 22 01:23:51 2010
+# Created: Sun Sep 26 23:21:49 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_Settings(object):
     def setupUi(self, Settings):
         Settings.setObjectName("Settings")
-        Settings.resize(315, 346)
+        Settings.resize(452, 376)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -25,11 +25,21 @@ class Ui_Settings(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtGui.QWidget(self.scrollArea)
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 311, 342))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 448, 372))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.verticalLayout_4 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_4.setContentsMargins(9, -1, -1, -1)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
+        self.Trick = QtGui.QLabel(self.scrollAreaWidgetContents)
+        self.Trick.setTextFormat(QtCore.Qt.PlainText)
+        self.Trick.setAlignment(QtCore.Qt.AlignCenter)
+        self.Trick.setObjectName("Trick")
+        self.verticalLayout_4.addWidget(self.Trick)
+        self.line = QtGui.QFrame(self.scrollAreaWidgetContents)
+        self.line.setFrameShape(QtGui.QFrame.HLine)
+        self.line.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line.setObjectName("line")
+        self.verticalLayout_4.addWidget(self.line)
         self.groupGoogle = QtGui.QGroupBox(self.scrollAreaWidgetContents)
         self.groupGoogle.setObjectName("groupGoogle")
         self.formLayout = QtGui.QFormLayout(self.groupGoogle)
@@ -138,6 +148,7 @@ class Ui_Settings(object):
 
     def retranslateUi(self, Settings):
         Settings.setWindowTitle(QtGui.QApplication.translate("Settings", "Settings", None, QtGui.QApplication.UnicodeUTF8))
+        self.Trick.setText(QtGui.QApplication.translate("Settings", "Trick : press \"h\" in GRead to display help about keyboard shortcuts", None, QtGui.QApplication.UnicodeUTF8))
         self.groupGoogle.setTitle(QtGui.QApplication.translate("Settings", "Google credentials", None, QtGui.QApplication.UnicodeUTF8))
         self.labelSettingsAccount.setText(QtGui.QApplication.translate("Settings", "Account", None, QtGui.QApplication.UnicodeUTF8))
         self.labelSettingsPassword.setText(QtGui.QApplication.translate("Settings", "Password", None, QtGui.QApplication.UnicodeUTF8))

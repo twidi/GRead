@@ -318,3 +318,30 @@ class Controller(QObject):
         Will display the filter feeds dialog
         """
         self.filter_feeds_dialog.open()
+
+    def trigger_help(self):
+        self.display_message(self.compose_help_message())
+        
+    def compose_help_message(self):
+        help = [
+            self.help_keys(),
+            self.feedlist_view.help_keys(),
+            self.itemlist_view.help_keys(),
+            self.itemview_view.help_keys(),
+        ]
+        text = ""
+        for cat in help:
+            text += "%s:\n" % cat['title']
+            for key in cat['keys']:
+                text += "  %s\t=  %s\n" % (key[0], key[1])
+            text += "\n"
+        return text
+        
+    def help_keys(self):
+        return {
+            'title': 'General', 
+            'keys': [
+                ('shift-SPACE', 'Feeds filter dialog'), 
+                ('H', 'This help'), 
+            ]
+        } 

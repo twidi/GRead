@@ -95,6 +95,9 @@ class ViewEventFilter(QObject):
             if key == Qt.Key_Space and self.isShift(event):
                 self.emit(SIGNAL("trigger_filter_feeds"))
                 return False
+            elif key == Qt.Key_H:
+                self.emit(SIGNAL("trigger_help"))
+                return False
         
     def postEventFilter(self, obj, event):
         return False
@@ -138,6 +141,7 @@ class View(object):
         
     def init_events(self):
         QObject.connect(self.event_filter, SIGNAL("trigger_filter_feeds"), self.controller.trigger_filter_feeds)
+        QObject.connect(self.event_filter, SIGNAL("trigger_help"), self.controller.trigger_help)
         
     def add_event_filter(self, widget, event_filter_class):
         self.event_filter = event_filter_class(self.win)

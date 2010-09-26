@@ -131,8 +131,10 @@ class View(BasicView):
         super(View, self).add_event_filter(*args, **kwargs)
         QObject.connect(self.event_filter, SIGNAL("toggle_orientation"), self.toggle_orientation)
 
-    def display_message(self, message, level="information"):
-        QMaemo5InformationBox.information(self.win, '<p>%s</p>' % message, QMaemo5InformationBox.DefaultTimeout)
+    def display_message(self, message, level="information", timeout=None):
+        if timeout is None:
+            timeout = QMaemo5InformationBox.DefaultTimeout
+        QMaemo5InformationBox.information(self.win, '<p>%s</p>' % message, timeout)
 
     def show(self, *args, **kwargs):
         self.manage_orientation()
