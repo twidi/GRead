@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/basic/ui/feedlist.ui'
 #
-# Created: Mon Sep 27 00:07:18 2010
+# Created: Tue Sep 28 16:41:53 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -19,17 +19,17 @@ class Ui_winFeedList(object):
         self.verticalLayout.setSpacing(0)
         self.verticalLayout.setMargin(0)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.messageBox = QtGui.QLabel(self.centralWidget)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Preferred)
+        self.bannerTop = QtGui.QLabel(self.centralWidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.messageBox.sizePolicy().hasHeightForWidth())
-        self.messageBox.setSizePolicy(sizePolicy)
-        self.messageBox.setMaximumSize(QtCore.QSize(16777215, 0))
-        self.messageBox.setAlignment(QtCore.Qt.AlignBottom|QtCore.Qt.AlignHCenter)
-        self.messageBox.setWordWrap(True)
-        self.messageBox.setObjectName("messageBox")
-        self.verticalLayout.addWidget(self.messageBox)
+        sizePolicy.setHeightForWidth(self.bannerTop.sizePolicy().hasHeightForWidth())
+        self.bannerTop.setSizePolicy(sizePolicy)
+        self.bannerTop.setMaximumSize(QtCore.QSize(16777215, 0))
+        self.bannerTop.setAlignment(QtCore.Qt.AlignBottom|QtCore.Qt.AlignHCenter)
+        self.bannerTop.setWordWrap(True)
+        self.bannerTop.setObjectName("bannerTop")
+        self.verticalLayout.addWidget(self.bannerTop)
         self.listFeedList = QtGui.QListView(self.centralWidget)
         self.listFeedList.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.listFeedList.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
@@ -38,6 +38,17 @@ class Ui_winFeedList(object):
         self.listFeedList.setWordWrap(True)
         self.listFeedList.setObjectName("listFeedList")
         self.verticalLayout.addWidget(self.listFeedList)
+        self.bannerBottom = QtGui.QLabel(self.centralWidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.bannerBottom.sizePolicy().hasHeightForWidth())
+        self.bannerBottom.setSizePolicy(sizePolicy)
+        self.bannerBottom.setMaximumSize(QtCore.QSize(16777215, 0))
+        self.bannerBottom.setAlignment(QtCore.Qt.AlignTop|QtCore.Qt.AlignHCenter)
+        self.bannerBottom.setWordWrap(True)
+        self.bannerBottom.setObjectName("bannerBottom")
+        self.verticalLayout.addWidget(self.bannerBottom)
         winFeedList.setCentralWidget(self.centralWidget)
         self.toolBar = QtGui.QToolBar(winFeedList)
         self.toolBar.setObjectName("toolBar")
@@ -48,7 +59,8 @@ class Ui_winFeedList(object):
 
     def retranslateUi(self, winFeedList):
         winFeedList.setWindowTitle(QtGui.QApplication.translate("winFeedList", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
-        self.messageBox.setText(QtGui.QApplication.translate("winFeedList", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
+        self.bannerTop.setText(QtGui.QApplication.translate("winFeedList", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
+        self.bannerBottom.setText(QtGui.QApplication.translate("winFeedList", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
         self.toolBar.setWindowTitle(QtGui.QApplication.translate("winFeedList", "toolBar", None, QtGui.QApplication.UnicodeUTF8))
 
 

@@ -49,7 +49,10 @@ helpers = {
 
     'feeds_specials': GoogleReader.SPECIAL_FEEDS,
     
-    'items_show_mode': ('all-save', 'unread-save', 'all-nosave', 'unread-nosave'), 
+    'items_show_mode': ['all-save', 'unread-save', 'all-nosave', 'unread-nosave'], 
+    
+    'info_banner_position': ['top', 'bottom', 'hide'], 
+    'info_banner_hide': ['never', 'slide', 'delay'], 
 
     'booleans': (
         'google.verified',
@@ -97,7 +100,12 @@ _default = {
     'other': {
         'portrait_mode': False,
         'scroll_titles': True,
-    }
+    }, 
+    'info': {
+        'banner_position': 'bottom', 
+        'banner_hide': 'slide', 
+        'banner_hide_delay': 2000, 
+    }, 
 }
 
 # list of all special feeds with their name

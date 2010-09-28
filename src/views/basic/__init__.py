@@ -121,13 +121,19 @@ class View(object):
         
         self.win.installEventFilter(WindowEventFilter(self.win))
 
-        try:
-            self.message_box_timer = QTimer()
-            self.message_box_timer_running = False
-            QObject.connect(self.message_box_timer, SIGNAL("timeout()"), self.timeout_message_box_timer)
-        except:
-            self.message_box_timer = None
+        # banner 
+        if settings.get('info', 'banner_position') == 'top':
+            self.banner = self.ui.bannerTop
+            self.ui.bannerBottom.hide()
+        else:
+            self.banner = self.ui.bannerBottom
+            self.ui.bannerTop.hide()
+
+        self.banner_timer = QTimer()
+        self.banner_timer_running = False
+        QObject.connect(self.banner_timer, SIGNAL("timeout()"), self.timeout_banner_timer)
         
+        # menu & events
         self.init_menu()
         self.post_init_menu()
         self.init_events()
@@ -150,28 +156,36 @@ class View(object):
         self.event_filter = event_filter_class(self.win)
         widget.installEventFilter(self.event_filter)
         
-    def display_message_box(self, text):
+    def display_banner(self, text):
+        if settings.get('info', 'banner_position') == 'hide':
+            return
         try:
-            self.message_box_timer.stop()
-            self.ui.messageBox.setText(text)
-            height = self.ui.messageBox.sizeHint().height()
-            self.ui.messageBox.setMaximumHeight(height)
-            self.ui.messageBox.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-            self.message_box_timer.start(500 + 100 * int(len(text)/50))
+            self.banner_timer.stop()
+            self.banner.setText(text)
+            height = self.banner.sizeHint().height()
+            self.banner.setMaximumHeight(height)
+            if settings.get('info', 'banner_hide') != 'never':
+                delay = int(settings.get('info', 'banner_hide_delay'))
+                if settings.get('info', 'banner_hide') == 'slide':
+                    delay = delay / 4
+                self.banner_timer.start(delay + 100 * int(len(text)/50))
         except:
             self.display_message(text)
         
-    def timeout_message_box_timer(self):
-        if self.message_box_timer_running:
+    def timeout_banner_timer(self):
+        if self.banner_timer_running:
             return
-        self.message_box_timer_running = True
-        self.message_box_timer.setInterval(int(self.message_box_timer.interval()/1.2))
-        height = self.ui.messageBox.height()
-        if height == 0:
-            self.message_box_timer.stop()
+        self.banner_timer_running = True
+        if settings.get('info', 'banner_hide') == 'slide':
+            self.banner_timer.setInterval(int(self.banner_timer.interval()/1.2))
         else:
-            self.ui.messageBox.setMaximumHeight(height-1)
-        self.message_box_timer_running = False
+            self.banner.setMaximumHeight(0)
+        height = self.banner.height()
+        if height == 0:
+            self.banner_timer.stop()
+        else:
+            self.banner.setMaximumHeight(height-1)
+        self.banner_timer_running = False
         
     def show(self, app_just_launched=False):
         self.win.show()
@@ -197,7 +211,16 @@ class View(object):
         self.context_menu.exec_(self.context_menu_widget.mapToGlobal(pos))
 
     def settings_updated(self):
-        pass
+        old_banner = self.banner
+        if settings.get('info', 'banner_position') == 'top':
+            self.banner = self.ui.bannerTop
+        else:
+            self.banner = self.ui.bannerBottom
+        if old_banner != self.banner:
+            self.banner.show()
+            self.banner.setMaximumHeight(old_banner.height())
+            old_banner.setMaximumHeight(0)
+            old_banner.hide()
 
     def get_title(self):
         return QApplication.applicationName()

@@ -73,24 +73,6 @@ class ItemViewView(BasicItemViewView):
     def get_toolbar_manager_class(self):
         return ToolbarManager
 
-    def set_current_item(self, item):
-        if not super(ItemViewView, self).set_current_item(item):
-            return
-            
-        str = "%s - " % item.title
-        statuses = []
-        if item.unread:
-            statuses.append('unread')
-        else:
-            statuses.append('read')
-        if item.shared:
-            statuses.append('shared')
-        if item.starred:
-            statuses.append('starred')
-        self.display_message_box("%s [%s]" % (item.title, ', '.join(statuses)))
-
-        return True
-
     def show_previous(self):
         self.toolbar_manager.move_cursor_away_of_toolbar()
         super(ItemViewView, self).show_previous()

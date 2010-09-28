@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/maemo5/ui/itemlist.ui'
 #
-# Created: Mon Sep 13 22:30:37 2010
+# Created: Tue Sep 28 16:42:00 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -19,17 +19,17 @@ class Ui_winItemList(object):
         self.verticalLayout.setSpacing(0)
         self.verticalLayout.setMargin(0)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.messageBox = QtGui.QLabel(self.centralWidget)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Preferred)
+        self.bannerTop = QtGui.QLabel(self.centralWidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.messageBox.sizePolicy().hasHeightForWidth())
-        self.messageBox.setSizePolicy(sizePolicy)
-        self.messageBox.setMaximumSize(QtCore.QSize(16777215, 0))
-        self.messageBox.setAlignment(QtCore.Qt.AlignBottom|QtCore.Qt.AlignHCenter)
-        self.messageBox.setWordWrap(True)
-        self.messageBox.setObjectName("messageBox")
-        self.verticalLayout.addWidget(self.messageBox)
+        sizePolicy.setHeightForWidth(self.bannerTop.sizePolicy().hasHeightForWidth())
+        self.bannerTop.setSizePolicy(sizePolicy)
+        self.bannerTop.setMaximumSize(QtCore.QSize(16777215, 0))
+        self.bannerTop.setAlignment(QtCore.Qt.AlignBottom|QtCore.Qt.AlignHCenter)
+        self.bannerTop.setWordWrap(True)
+        self.bannerTop.setObjectName("bannerTop")
+        self.verticalLayout.addWidget(self.bannerTop)
         self.listItemList = QtGui.QListView(self.centralWidget)
         self.listItemList.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.listItemList.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
@@ -38,6 +38,17 @@ class Ui_winItemList(object):
         self.listItemList.setWordWrap(True)
         self.listItemList.setObjectName("listItemList")
         self.verticalLayout.addWidget(self.listItemList)
+        self.bannerBottom = QtGui.QLabel(self.centralWidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.bannerBottom.sizePolicy().hasHeightForWidth())
+        self.bannerBottom.setSizePolicy(sizePolicy)
+        self.bannerBottom.setMaximumSize(QtCore.QSize(16777215, 0))
+        self.bannerBottom.setAlignment(QtCore.Qt.AlignTop|QtCore.Qt.AlignHCenter)
+        self.bannerBottom.setWordWrap(True)
+        self.bannerBottom.setObjectName("bannerBottom")
+        self.verticalLayout.addWidget(self.bannerBottom)
         winItemList.setCentralWidget(self.centralWidget)
         self.menuBar = QtGui.QMenuBar(winItemList)
         self.menuBar.setGeometry(QtCore.QRect(0, 0, 800, 37))
@@ -49,7 +60,8 @@ class Ui_winItemList(object):
 
     def retranslateUi(self, winItemList):
         winItemList.setWindowTitle(QtGui.QApplication.translate("winItemList", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
-        self.messageBox.setText(QtGui.QApplication.translate("winItemList", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
+        self.bannerTop.setText(QtGui.QApplication.translate("winItemList", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
+        self.bannerBottom.setText(QtGui.QApplication.translate("winItemList", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
 
 
 if __name__ == "__main__":

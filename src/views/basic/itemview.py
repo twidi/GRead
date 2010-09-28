@@ -228,6 +228,19 @@ class ItemViewView(base_view_class):
         
         self.manage_actions()
         
+            
+        str = "%s - " % item.title
+        statuses = []
+        if item.unread:
+            statuses.append('unread')
+        else:
+            statuses.append('read')
+        if item.shared:
+            statuses.append('shared')
+        if item.starred:
+            statuses.append('starred')
+        self.display_banner("%s [%s]" % (item.title, ', '.join(statuses)))
+
         return True
 
     def trigger_read(self, checked):

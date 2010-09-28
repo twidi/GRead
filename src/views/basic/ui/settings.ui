@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>452</width>
-    <height>376</height>
+    <width>442</width>
+    <height>508</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -33,8 +33,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>448</width>
-        <height>372</height>
+        <width>438</width>
+        <height>504</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -248,6 +248,107 @@
                 <string>Default unread, no save</string>
                </property>
               </item>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBanner">
+         <property name="title">
+          <string>Informations banner</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelSettingsBannerPosition">
+              <property name="text">
+               <string>Position</string>
+              </property>
+              <property name="buddy">
+               <cstring>selectSettingsBannerPosition</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" colspan="2">
+             <widget class="QComboBox" name="selectSettingsBannerPosition">
+              <item>
+               <property name="text">
+                <string>Top</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Bottom</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Never display</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="labelSettingsBannerHideMode">
+              <property name="text">
+               <string>Hide</string>
+              </property>
+              <property name="buddy">
+               <cstring>selectSettingsBannerHideMode</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" rowspan="2" colspan="2">
+             <widget class="QComboBox" name="selectSettingsBannerHideMode">
+              <item>
+               <property name="text">
+                <string>Never</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Slide</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Delay</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="labelSettingsBannerHideDelay">
+              <property name="text">
+               <string>Hide after</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QSpinBox" name="spinSettingsBannerHideDelay">
+              <property name="minimum">
+               <number>500</number>
+              </property>
+              <property name="maximum">
+               <number>60000</number>
+              </property>
+              <property name="singleStep">
+               <number>100</number>
+              </property>
+              <property name="value">
+               <number>2000</number>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="2">
+             <widget class="QLabel" name="labelSettingsBannerHideDelayMs">
+              <property name="text">
+               <string>ms</string>
+              </property>
              </widget>
             </item>
            </layout>

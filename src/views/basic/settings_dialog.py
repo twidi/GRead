@@ -52,7 +52,50 @@ class SettingsDialog(Dialog):
         try:
             self.ui.selectSettingsItemsShowMode.setCurrentIndex(settings.helpers['items_show_mode'].index(settings.get('items', 'show_mode')))
         except:
+            raise
             self.ui.selectSettingsItemsShowMode.setCurrentIndex(0)
+    
+        try:
+            self.ui.selectSettingsBannerPosition.setCurrentIndex(settings.helpers['info_banner_position'].index(settings.get('info', 'banner_position')))
+        except:
+            raise
+            self.ui.selectSettingsBannerPosition.setCurrentIndex(0)
+        self.ui.selectSettingsBannerPosition.currentIndexChanged.connect(self.update_banner_position)
+        self.update_banner_position()
+    
+        try:
+            self.ui.selectSettingsBannerHideMode.setCurrentIndex(settings.helpers['info_banner_hide'].index(settings.get('info', 'banner_hide')))
+        except:
+            raise
+            self.ui.selectSettingsBannerHideMode.setCurrentIndex(0)            
+        self.ui.selectSettingsBannerHideMode.currentIndexChanged.connect(self.update_banner_hide_mode)            
+        self.update_banner_hide_mode()
+
+        self.ui.spinSettingsBannerHideDelay.setValue(int(settings.get('info', 'banner_hide_delay')))
+        
+    def update_banner_position(self):
+        show = settings.helpers['info_banner_position'][self.ui.selectSettingsBannerPosition.currentIndex()] != 'hide'
+        if show:
+            self.ui.labelSettingsBannerHideMode.setDisabled(False)
+            self.ui.selectSettingsBannerHideMode.setDisabled(False)
+            self.update_banner_hide_mode()
+        else:
+            self.ui.labelSettingsBannerHideMode.setDisabled(True)
+            self.ui.selectSettingsBannerHideMode.setDisabled(True)
+            self.ui.spinSettingsBannerHideDelay.setDisabled(True)
+            self.ui.labelSettingsBannerHideDelay.setDisabled(True)
+            self.ui.labelSettingsBannerHideDelayMs.setDisabled(True)
+        
+    def update_banner_hide_mode(self):
+        show = settings.helpers['info_banner_hide'][self.ui.selectSettingsBannerHideMode.currentIndex()] == 'delay'
+        if show:
+            self.ui.spinSettingsBannerHideDelay.setDisabled(False)
+            self.ui.labelSettingsBannerHideDelay.setDisabled(False)
+            self.ui.labelSettingsBannerHideDelayMs.setDisabled(False)
+        else:
+            self.ui.spinSettingsBannerHideDelay.setDisabled(True)
+            self.ui.labelSettingsBannerHideDelay.setDisabled(True)
+            self.ui.labelSettingsBannerHideDelayMs.setDisabled(True)            
             
     def read_inputs(self):
         self.google_credentials_changed = False
@@ -91,6 +134,18 @@ class SettingsDialog(Dialog):
         except:
             pass
     
+        try:
+            settings.set('info', 'banner_position', settings.helpers['info_banner_position'][self.ui.selectSettingsBannerPosition.currentIndex()])
+        except:
+            pass
+    
+        try:
+            settings.set('info', 'banner_hide', settings.helpers['info_banner_hide'][self.ui.selectSettingsBannerHideMode.currentIndex()])
+        except:
+            pass
+
+        settings.set('info', 'banner_hide_delay', self.ui.spinSettingsBannerHideDelay.value())
+
     def save_settings(self):
         settings.save()
         self.controller.emit(SIGNALS['settings_updated'], not self.google_was_verified and self.google_credentials_changed)

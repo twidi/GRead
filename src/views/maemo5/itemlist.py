@@ -28,9 +28,3 @@ class ItemListView(BasicItemListView):
 
     def get_itemlist_delegate_class(self):
         return ItemListDelegate
-
-    def set_current_feed(self, feed):
-        if not super(ItemListView, self).set_current_feed(feed):
-            return False
-        self.display_message_box("%s [%s unread]" % (feed.title, feed.unread))
-        return True

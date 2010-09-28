@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/basic/ui/filter_feeds.ui'
 #
-# Created: Sun Sep 26 01:26:00 2010
+# Created: Tue Sep 28 16:41:58 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!

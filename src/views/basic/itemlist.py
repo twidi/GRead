@@ -402,6 +402,9 @@ class ItemListView(base_view_class):
         self.select_row(row=0)
         self.get_selected()
         self.manage_actions()
+
+        self.display_banner("%s [%s unread]" % (feed.title, feed.unread))
+
         return True
                 
     def select_row(self, row=None, item=None):
