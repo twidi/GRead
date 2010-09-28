@@ -394,6 +394,7 @@ class ItemListView(base_view_class):
         """
         self.update_listview(content=[])
         self.current_feed = feed
+        self.manage_show_mode()
         self.manage_loading()
         self.update_title()
         self.ui.listItemList.setFocus(Qt.OtherFocusReason)
@@ -586,6 +587,10 @@ class ItemListView(base_view_class):
         show_mode = str(settings.get('items', 'show_mode'))
         self.unread_only_default = show_mode.find('unread') != -1
         self.show_mode_save      = show_mode.find('nosave') == -1
+        
+    def manage_show_mode(self):
+        show_mode = getattr(self.current_feed, 'unread_only', self.unread_only_default)
+        self.current_feed.unread_only = show_mode
 
     def update_item(self, item):
         """
