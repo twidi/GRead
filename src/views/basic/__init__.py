@@ -77,6 +77,18 @@ class WindowEventFilter(QObject):
 
         return QObject.eventFilter(self, obj, event)
         
+class BannerEventFilter(QObject):
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.MouseButtonPress:
+            self.emit(SIGNAL("hide_banner"))
+            return False            
+
+        return QObject.eventFilter(self, obj, event)
+        
+        
 class ViewEventFilter(QObject):
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
@@ -97,6 +109,9 @@ class ViewEventFilter(QObject):
                 return False
             elif key == Qt.Key_H:
                 self.emit(SIGNAL("trigger_help"))
+                return False
+            elif key == Qt.Key_I:
+                self.emit(SIGNAL("toggle_banner"))
                 return False
         
     def postEventFilter(self, obj, event):
@@ -132,6 +147,10 @@ class View(object):
         self.banner_timer = QTimer()
         self.banner_timer_running = False
         QObject.connect(self.banner_timer, SIGNAL("timeout()"), self.timeout_banner_timer)
+        banner_event_filter = BannerEventFilter(self.win)
+        self.ui.bannerTop.installEventFilter(banner_event_filter)
+        self.ui.bannerBottom.installEventFilter(banner_event_filter)
+        QObject.connect(banner_event_filter, SIGNAL("hide_banner"), self.hide_banner)
         
         # menu & events
         self.init_menu()
@@ -151,38 +170,62 @@ class View(object):
     def init_events(self):
         QObject.connect(self.event_filter, SIGNAL("trigger_filter_feeds"), self.controller.trigger_filter_feeds)
         QObject.connect(self.event_filter, SIGNAL("trigger_help"), self.controller.trigger_help)
+        QObject.connect(self.event_filter, SIGNAL("toggle_banner"), self.toggle_banner)
         
     def add_event_filter(self, widget, event_filter_class):
         self.event_filter = event_filter_class(self.win)
         widget.installEventFilter(self.event_filter)
         
+    def toggle_banner(self):
+        if self.banner.isVisible():
+            if self.banner_timer.isActive():
+                self.stop_banner_sliding()
+                self.show_banner()
+            else:
+                self.hide_banner()
+        else:
+            self.show_banner()
+
     def display_banner(self, text):
         if settings.get('info', 'banner_position') == 'hide':
             return
-        try:
-            self.banner_timer.stop()
-            self.banner.setText(text)
-            height = self.banner.sizeHint().height()
-            self.banner.setMaximumHeight(height)
-            if settings.get('info', 'banner_hide') != 'never':
-                delay = int(settings.get('info', 'banner_hide_delay'))
-                if settings.get('info', 'banner_hide') == 'slide':
-                    delay = delay / 4
-                self.banner_timer.start(delay + 100 * int(len(text)/50))
-        except:
-            self.display_message(text)
+        self.banner_timer.stop()
+        self.banner.setText(text)
+        self.show_banner()
+        if settings.get('info', 'banner_hide') != 'never':
+            self.start_banner_sliding()
+            
+    def start_banner_sliding(self):
+        delay = int(settings.get('info', 'banner_hide_delay'))
+        if settings.get('info', 'banner_hide') == 'slide':
+            delay = delay / 4
+        self.banner_timer.start(delay + 100 * int(len(self.banner.text())/50))
+        
+    def stop_banner_sliding(self):
+        self.banner_timer.stop()
+            
+    def show_banner(self):
+        self.banner.show()
+        height = self.banner.sizeHint().height()
+        self.banner.setMaximumHeight(height)
+            
+    def hide_banner(self):
+        self.stop_banner_sliding()
+        self.banner.hide()
         
     def timeout_banner_timer(self):
         if self.banner_timer_running:
             return
         self.banner_timer_running = True
-        if settings.get('info', 'banner_hide') == 'slide':
-            self.banner_timer.setInterval(int(self.banner_timer.interval()/1.2))
-        else:
-            self.banner.setMaximumHeight(0)
+        if settings.get('info', 'banner_hide') == 'delay':
+            self.hide_banner()
+            self.banner_timer_running = False
+            return
+        self.banner_timer.setInterval(int(self.banner_timer.interval()/1.2))
         height = self.banner.height()
         if height == 0:
-            self.banner_timer.stop()
+            self.stop_banner_sliding()
+            self.banner.hide()
         else:
             self.banner.setMaximumHeight(height-1)
         self.banner_timer_running = False

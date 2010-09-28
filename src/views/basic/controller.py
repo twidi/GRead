@@ -343,5 +343,6 @@ class Controller(QObject):
             'keys': [
                 ('shift-SPACE', 'Feeds filter dialog'), 
                 ('H', 'This help'), 
+                ('I', 'Toggle informations banner visibility'), 
             ]
         } 
