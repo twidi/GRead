@@ -398,3 +398,25 @@ class ItemViewView(base_view_class):
                 ('shift-V', 'Show original in GRead'), 
             ]
        }
+
+        
+    def item_read(self, item):
+        """
+        Called when an item the unread/read status of an item is changed, to 
+        visually update it in the list
+        """
+        self.manage_actions()
+        
+    def item_shared(self, item):
+        """
+        Called when an item the shared status of an item is changed, to 
+        visually update it in the list
+        """
+        self.manage_actions()
+        
+    def item_starred(self, item):
+        """
+        Called when an item the starred status of an item is changed, to 
+        visually update it in the list
+        """
+        self.manage_actions()
