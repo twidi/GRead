@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/maemo5/ui/settings.ui'
 #
-# Created: Tue Sep 28 17:03:24 2010
+# Created: Thu Sep 30 00:33:52 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -156,28 +156,19 @@ class Ui_Settings(object):
         self.selectSettingsBannerPosition.addItem("")
         self.selectSettingsBannerPosition.addItem("")
         self.gridLayout_2.addWidget(self.selectSettingsBannerPosition, 0, 1, 1, 2)
-        self.labelSettingsBannerHideMode = QtGui.QLabel(self.groupBanner)
-        self.labelSettingsBannerHideMode.setObjectName("labelSettingsBannerHideMode")
-        self.gridLayout_2.addWidget(self.labelSettingsBannerHideMode, 1, 0, 1, 1)
-        self.selectSettingsBannerHideMode = QtGui.QComboBox(self.groupBanner)
-        self.selectSettingsBannerHideMode.setObjectName("selectSettingsBannerHideMode")
-        self.selectSettingsBannerHideMode.addItem("")
-        self.selectSettingsBannerHideMode.addItem("")
-        self.selectSettingsBannerHideMode.addItem("")
-        self.gridLayout_2.addWidget(self.selectSettingsBannerHideMode, 1, 1, 2, 2)
-        self.labelSettingsBannerHideDelay = QtGui.QLabel(self.groupBanner)
-        self.labelSettingsBannerHideDelay.setObjectName("labelSettingsBannerHideDelay")
-        self.gridLayout_2.addWidget(self.labelSettingsBannerHideDelay, 3, 0, 1, 1)
+        self.checkSettingsBannerHide = QtGui.QCheckBox(self.groupBanner)
+        self.checkSettingsBannerHide.setObjectName("checkSettingsBannerHide")
+        self.gridLayout_2.addWidget(self.checkSettingsBannerHide, 1, 0, 1, 1)
         self.spinSettingsBannerHideDelay = QtGui.QSpinBox(self.groupBanner)
         self.spinSettingsBannerHideDelay.setMinimum(500)
         self.spinSettingsBannerHideDelay.setMaximum(60000)
         self.spinSettingsBannerHideDelay.setSingleStep(100)
         self.spinSettingsBannerHideDelay.setProperty("value", 2000)
         self.spinSettingsBannerHideDelay.setObjectName("spinSettingsBannerHideDelay")
-        self.gridLayout_2.addWidget(self.spinSettingsBannerHideDelay, 3, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.spinSettingsBannerHideDelay, 1, 1, 1, 1)
         self.labelSettingsBannerHideDelayMs = QtGui.QLabel(self.groupBanner)
         self.labelSettingsBannerHideDelayMs.setObjectName("labelSettingsBannerHideDelayMs")
-        self.gridLayout_2.addWidget(self.labelSettingsBannerHideDelayMs, 3, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.labelSettingsBannerHideDelayMs, 1, 2, 1, 1)
         self.verticalLayout_31.addLayout(self.gridLayout_2)
         self.verticalLayout_4.addWidget(self.groupBanner)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
@@ -187,7 +178,6 @@ class Ui_Settings(object):
         self.labelSettingsHomeDefault.setBuddy(self.selectSettingsHomeDefault)
         self.labelSettingsItemsShowMode.setBuddy(self.selectSettingsItemsShowMode)
         self.labelSettingsBannerPosition.setBuddy(self.selectSettingsBannerPosition)
-        self.labelSettingsBannerHideMode.setBuddy(self.selectSettingsBannerHideMode)
 
         self.retranslateUi(Settings)
         QtCore.QMetaObject.connectSlotsByName(Settings)
@@ -236,11 +226,7 @@ class Ui_Settings(object):
         self.selectSettingsBannerPosition.setItemText(0, QtGui.QApplication.translate("Settings", "Top", None, QtGui.QApplication.UnicodeUTF8))
         self.selectSettingsBannerPosition.setItemText(1, QtGui.QApplication.translate("Settings", "Bottom", None, QtGui.QApplication.UnicodeUTF8))
         self.selectSettingsBannerPosition.setItemText(2, QtGui.QApplication.translate("Settings", "Never display", None, QtGui.QApplication.UnicodeUTF8))
-        self.labelSettingsBannerHideMode.setText(QtGui.QApplication.translate("Settings", "Hide", None, QtGui.QApplication.UnicodeUTF8))
-        self.selectSettingsBannerHideMode.setItemText(0, QtGui.QApplication.translate("Settings", "Never", None, QtGui.QApplication.UnicodeUTF8))
-        self.selectSettingsBannerHideMode.setItemText(1, QtGui.QApplication.translate("Settings", "Slide", None, QtGui.QApplication.UnicodeUTF8))
-        self.selectSettingsBannerHideMode.setItemText(2, QtGui.QApplication.translate("Settings", "Delay", None, QtGui.QApplication.UnicodeUTF8))
-        self.labelSettingsBannerHideDelay.setText(QtGui.QApplication.translate("Settings", "Hide after", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkSettingsBannerHide.setText(QtGui.QApplication.translate("Settings", "Hide after", None, QtGui.QApplication.UnicodeUTF8))
         self.labelSettingsBannerHideDelayMs.setText(QtGui.QApplication.translate("Settings", "ms", None, QtGui.QApplication.UnicodeUTF8))
 
 

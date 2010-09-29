@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/maemo5/ui/itemlist.ui'
 #
-# Created: Tue Sep 28 16:42:00 2010
+# Created: Thu Sep 30 00:33:56 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -20,12 +20,13 @@ class Ui_winItemList(object):
         self.verticalLayout.setMargin(0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.bannerTop = QtGui.QLabel(self.centralWidget)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Maximum)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.bannerTop.sizePolicy().hasHeightForWidth())
         self.bannerTop.setSizePolicy(sizePolicy)
         self.bannerTop.setMaximumSize(QtCore.QSize(16777215, 0))
+        self.bannerTop.setText("")
         self.bannerTop.setAlignment(QtCore.Qt.AlignBottom|QtCore.Qt.AlignHCenter)
         self.bannerTop.setWordWrap(True)
         self.bannerTop.setObjectName("bannerTop")
@@ -45,6 +46,7 @@ class Ui_winItemList(object):
         sizePolicy.setHeightForWidth(self.bannerBottom.sizePolicy().hasHeightForWidth())
         self.bannerBottom.setSizePolicy(sizePolicy)
         self.bannerBottom.setMaximumSize(QtCore.QSize(16777215, 0))
+        self.bannerBottom.setText("")
         self.bannerBottom.setAlignment(QtCore.Qt.AlignTop|QtCore.Qt.AlignHCenter)
         self.bannerBottom.setWordWrap(True)
         self.bannerBottom.setObjectName("bannerBottom")
@@ -60,8 +62,6 @@ class Ui_winItemList(object):
 
     def retranslateUi(self, winItemList):
         winItemList.setWindowTitle(QtGui.QApplication.translate("winItemList", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
-        self.bannerTop.setText(QtGui.QApplication.translate("winItemList", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
-        self.bannerBottom.setText(QtGui.QApplication.translate("winItemList", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
 
 
 if __name__ == "__main__":

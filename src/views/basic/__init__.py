@@ -144,9 +144,8 @@ class View(object):
             self.banner = self.ui.bannerBottom
             self.ui.bannerTop.hide()
 
-        self.banner_timer = QTimer()
-        self.banner_timer_running = False
-        QObject.connect(self.banner_timer, SIGNAL("timeout()"), self.timeout_banner_timer)
+        self.banner_animation = QPropertyAnimation(self.banner, 'maximumHeight')
+        self.banner_animation.finished.connect(self.hide_banner)
         banner_event_filter = BannerEventFilter(self.win)
         self.ui.bannerTop.installEventFilter(banner_event_filter)
         self.ui.bannerBottom.installEventFilter(banner_event_filter)
@@ -178,7 +177,7 @@ class View(object):
         
     def toggle_banner(self):
         if self.banner.isVisible():
-            if self.banner_timer.isActive():
+            if self.banner_animation.state() == QAbstractAnimation.Running:
                 self.stop_banner_sliding()
                 self.show_banner()
             else:
@@ -187,22 +186,30 @@ class View(object):
             self.show_banner()
 
     def display_banner(self, text):
-        if settings.get('info', 'banner_position') == 'hide':
+        if not text or settings.get('info', 'banner_position') == 'hide':
             return
-        self.banner_timer.stop()
+        self.stop_banner_sliding()
         self.banner.setText(text)
         self.show_banner()
-        if settings.get('info', 'banner_hide') != 'never':
+        if settings.get('info', 'banner_hide'):
             self.start_banner_sliding()
             
-    def start_banner_sliding(self):
+    def banner_delay(self):
         delay = int(settings.get('info', 'banner_hide_delay'))
-        if settings.get('info', 'banner_hide') == 'slide':
-            delay = delay / 4
-        self.banner_timer.start(delay + 100 * int(len(self.banner.text())/50))
+        len_text = len(self.banner.text())
+        if len_text > 50:
+            delay += 300 * int(len(self.banner.text())/50)
+        return delay
+            
+    def start_banner_sliding(self):
+        self.banner_animation.setEasingCurve(QEasingCurve.InExpo)
+        self.banner_animation.setDuration(self.banner_delay())
+        self.banner_animation.setStartValue(self.banner.maximumHeight())
+        self.banner_animation.setEndValue(0)
+        self.banner_animation.start()
         
     def stop_banner_sliding(self):
-        self.banner_timer.stop()
+        self.banner_animation.stop()
             
     def show_banner(self):
         self.banner.show()
@@ -210,25 +217,9 @@ class View(object):
         self.banner.setMaximumHeight(height)
             
     def hide_banner(self):
-        self.stop_banner_sliding()
-        self.banner.hide()
-        
-    def timeout_banner_timer(self):
-        if self.banner_timer_running:
-            return
-        self.banner_timer_running = True
-        if settings.get('info', 'banner_hide') == 'delay':
-            self.hide_banner()
-            self.banner_timer_running = False
-            return
-        self.banner_timer.setInterval(int(self.banner_timer.interval()/1.2))
-        height = self.banner.height()
-        if height == 0:
+        if self.banner_animation.state() == QAbstractAnimation.Running:
             self.stop_banner_sliding()
-            self.banner.hide()
-        else:
-            self.banner.setMaximumHeight(height-1)
-        self.banner_timer_running = False
+        self.banner.hide()
         
     def show(self, app_just_launched=False):
         self.win.show()
@@ -260,8 +251,9 @@ class View(object):
         else:
             self.banner = self.ui.bannerBottom
         if old_banner != self.banner:
-            self.banner.show()
-            self.banner.setMaximumHeight(old_banner.height())
+            self.stop_banner_sliding()
+            self.banner_animation.setTargetObject(self.banner)
+            self.display_banner(old_banner.text())
             old_banner.setMaximumHeight(0)
             old_banner.hide()
 

@@ -52,7 +52,6 @@ helpers = {
     'items_show_mode': ['all-save', 'unread-save', 'all-nosave', 'unread-nosave'], 
     
     'info_banner_position': ['top', 'bottom', 'hide'], 
-    'info_banner_hide': ['never', 'slide', 'delay'], 
 
     'booleans': (
         'google.verified',
@@ -69,6 +68,8 @@ helpers = {
 
         'other.portrait_mode',
         'other.scroll_titles',
+        
+        'info.banner_hide', 
     ), 
 }
 
@@ -103,7 +104,7 @@ _default = {
     }, 
     'info': {
         'banner_position': 'bottom', 
-        'banner_hide': 'slide', 
+        'banner_hide': True, 
         'banner_hide_delay': 2000, 
     }, 
 }
