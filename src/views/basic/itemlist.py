@@ -340,7 +340,9 @@ class ItemListView(base_view_class):
         Called when we want to toggle the display between all items or only 
         unread ones
         """
-        self.action_show_unread_only.setChecked(not self.show_unread_only)
+        was_unread_only = self.show_unread_only
+        self.action_show_unread_only.setChecked(not was_unread_only)
+        self.action_show_all.setChecked(was_unread_only)
         
     def get_selected(self, item=None):
         """
