@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/maemo5/ui/settings.ui'
 #
-# Created: Thu Sep 30 02:40:28 2010
+# Created: Thu Sep 30 04:19:30 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -163,12 +163,28 @@ class Ui_Settings(object):
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.groupOther)
         self.verticalLayout_3.setContentsMargins(-1, 19, -1, -1)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.gridLayout_4 = QtGui.QGridLayout()
+        self.gridLayout_4.setObjectName("gridLayout_4")
         self.checkSettingsPortraitMode = QtGui.QCheckBox(self.groupOther)
         self.checkSettingsPortraitMode.setObjectName("checkSettingsPortraitMode")
-        self.verticalLayout_3.addWidget(self.checkSettingsPortraitMode)
+        self.gridLayout_4.addWidget(self.checkSettingsPortraitMode, 0, 0, 1, 2)
         self.checkSettingsScrollTitles = QtGui.QCheckBox(self.groupOther)
         self.checkSettingsScrollTitles.setObjectName("checkSettingsScrollTitles")
-        self.verticalLayout_3.addWidget(self.checkSettingsScrollTitles)
+        self.gridLayout_4.addWidget(self.checkSettingsScrollTitles, 1, 0, 1, 2)
+        self.labelSettingsItemsToFetch = QtGui.QLabel(self.groupOther)
+        self.labelSettingsItemsToFetch.setObjectName("labelSettingsItemsToFetch")
+        self.gridLayout_4.addWidget(self.labelSettingsItemsToFetch, 2, 0, 1, 1)
+        self.spinSettingsItemsToFetch = QtGui.QSpinBox(self.groupOther)
+        self.spinSettingsItemsToFetch.setMinimum(20)
+        self.spinSettingsItemsToFetch.setMaximum(2000)
+        self.spinSettingsItemsToFetch.setSingleStep(20)
+        self.spinSettingsItemsToFetch.setProperty("value", 100)
+        self.spinSettingsItemsToFetch.setObjectName("spinSettingsItemsToFetch")
+        self.gridLayout_4.addWidget(self.spinSettingsItemsToFetch, 2, 1, 1, 1)
+        self.label = QtGui.QLabel(self.groupOther)
+        self.label.setObjectName("label")
+        self.gridLayout_4.addWidget(self.label, 3, 0, 1, 2)
+        self.verticalLayout_3.addLayout(self.gridLayout_4)
         self.verticalLayout_4.addWidget(self.groupOther)
         self.groupBanner = QtGui.QGroupBox(self.scrollAreaWidgetContents)
         self.groupBanner.setObjectName("groupBanner")
@@ -209,6 +225,7 @@ class Ui_Settings(object):
         self.labelSettingsItemsShowMode.setBuddy(self.selectSettingsItemsShowMode)
         self.labelSettingsUserAgent.setBuddy(self.inputSettingsUserAgent)
         self.labelSettingsZoomFactor.setBuddy(self.spinSettingsZoomFactor)
+        self.labelSettingsItemsToFetch.setBuddy(self.spinSettingsItemsToFetch)
         self.labelSettingsBannerPosition.setBuddy(self.selectSettingsBannerPosition)
 
         self.retranslateUi(Settings)
@@ -228,7 +245,8 @@ class Ui_Settings(object):
         Settings.setTabOrder(self.inputSettingsUserAgent, self.spinSettingsZoomFactor)
         Settings.setTabOrder(self.spinSettingsZoomFactor, self.checkSettingsPortraitMode)
         Settings.setTabOrder(self.checkSettingsPortraitMode, self.checkSettingsScrollTitles)
-        Settings.setTabOrder(self.checkSettingsScrollTitles, self.selectSettingsBannerPosition)
+        Settings.setTabOrder(self.checkSettingsScrollTitles, self.spinSettingsItemsToFetch)
+        Settings.setTabOrder(self.spinSettingsItemsToFetch, self.selectSettingsBannerPosition)
         Settings.setTabOrder(self.selectSettingsBannerPosition, self.checkSettingsBannerHide)
         Settings.setTabOrder(self.checkSettingsBannerHide, self.spinSettingsBannerHideDelay)
         Settings.setTabOrder(self.spinSettingsBannerHideDelay, self.scrollArea)
@@ -265,6 +283,8 @@ class Ui_Settings(object):
         self.groupOther.setTitle(QtGui.QApplication.translate("Settings", "Other", None, QtGui.QApplication.UnicodeUTF8))
         self.checkSettingsPortraitMode.setText(QtGui.QApplication.translate("Settings", "Portrait mode by default", None, QtGui.QApplication.UnicodeUTF8))
         self.checkSettingsScrollTitles.setText(QtGui.QApplication.translate("Settings", "Scroll long feed names", None, QtGui.QApplication.UnicodeUTF8))
+        self.labelSettingsItemsToFetch.setText(QtGui.QApplication.translate("Settings", "Unread items to fetch by label", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("Settings", "(and for each feed without label, and for special feeds)", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBanner.setTitle(QtGui.QApplication.translate("Settings", "Informations banner", None, QtGui.QApplication.UnicodeUTF8))
         self.labelSettingsBannerPosition.setText(QtGui.QApplication.translate("Settings", "Position", None, QtGui.QApplication.UnicodeUTF8))
         self.selectSettingsBannerPosition.setItemText(0, QtGui.QApplication.translate("Settings", "Top", None, QtGui.QApplication.UnicodeUTF8))

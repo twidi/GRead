@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>442</width>
-    <height>606</height>
+    <width>455</width>
+    <height>534</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -32,9 +32,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
-        <width>438</width>
-        <height>602</height>
+        <y>-104</y>
+        <width>436</width>
+        <height>692</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -305,14 +305,14 @@
               <property name="minimum">
                <number>0</number>
               </property>
+              <property name="maximum">
+               <number>10000</number>
+              </property>
               <property name="singleStep">
                <number>5</number>
               </property>
               <property name="value">
                <number>100</number>
-              </property>
-              <property name="maximum">
-               <number>10000</number>
               </property>
              </widget>
             </item>
@@ -332,7 +332,7 @@
             <item row="0" column="0">
              <widget class="QLabel" name="labelSettingsItemsToFetch">
               <property name="text">
-               <string>Items to fetch by label</string>
+               <string>Unread items to fetch by label</string>
               </property>
               <property name="buddy">
                <cstring>spinSettingsItemsToFetch</cstring>
@@ -344,14 +344,21 @@
               <property name="minimum">
                <number>20</number>
               </property>
+              <property name="maximum">
+               <number>2000</number>
+              </property>
               <property name="singleStep">
                <number>20</number>
               </property>
               <property name="value">
-               <number>110</number>
+               <number>100</number>
               </property>
-              <property name="maximum">
-               <number>2000</number>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>(and for each feed without label, and for special feeds)</string>
               </property>
              </widget>
             </item>
@@ -449,6 +456,7 @@
   <tabstop>checkSettingsDisplayFeedsTitleItemView</tabstop>
   <tabstop>inputSettingsUserAgent</tabstop>
   <tabstop>spinSettingsZoomFactor</tabstop>
+  <tabstop>spinSettingsItemsToFetch</tabstop>
   <tabstop>selectSettingsBannerPosition</tabstop>
   <tabstop>checkSettingsBannerHide</tabstop>
   <tabstop>spinSettingsBannerHideDelay</tabstop>

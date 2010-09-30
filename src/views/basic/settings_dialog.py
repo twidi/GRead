@@ -59,6 +59,8 @@ class SettingsDialog(Dialog):
         self.ui.inputSettingsUserAgent.setText(settings.get('content', 'user_agent'))
         self.ui.spinSettingsZoomFactor.setValue(int(settings.get('content', 'zoom_factor')))
 
+        self.ui.spinSettingsItemsToFetch.setValue(int(settings.get('feeds', 'unread_number')))
+
         try:
             self.ui.selectSettingsBannerPosition.setCurrentIndex(settings.helpers['info_banner_position'].index(settings.get('info', 'banner_position')))
         except:
@@ -128,6 +130,8 @@ class SettingsDialog(Dialog):
         settings.set('content', 'feed_in_title', self.ui.checkSettingsDisplayFeedsTitleItemView.isChecked())
         settings.set('content', 'user_agent', self.ui.inputSettingsUserAgent.text())
         settings.set('content', 'zoom_factor', self.ui.spinSettingsZoomFactor.value())
+
+        settings.set('feeds', 'unread_number',  self.ui.spinSettingsItemsToFetch.value())
     
         try:
             settings.set('info', 'banner_position', settings.helpers['info_banner_position'][self.ui.selectSettingsBannerPosition.currentIndex()])
