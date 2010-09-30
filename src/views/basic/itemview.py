@@ -79,6 +79,7 @@ class ItemViewView(base_view_class):
         self.ui.webView.loadFinished.connect(self.trigger_web_view_loaded)
         self.default_zoom_factor = self.ui.webView.zoomFactor()
         self.ui.webView.setZoomFactor(self.default_zoom_factor*int(settings.get('content', 'zoom_factor'))/100)
+        self.ui.webView.setStyleSheet('background: white')
 
         self.init_toolbars()
 
