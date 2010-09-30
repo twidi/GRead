@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/basic/ui/settings.ui'
 #
-# Created: Thu Sep 30 00:33:51 2010
+# Created: Thu Sep 30 02:40:25 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_Settings(object):
     def setupUi(self, Settings):
         Settings.setObjectName("Settings")
-        Settings.resize(442, 508)
+        Settings.resize(442, 606)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -25,7 +25,7 @@ class Ui_Settings(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtGui.QWidget(self.scrollArea)
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 438, 504))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 438, 602))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.verticalLayout_4 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_4.setContentsMargins(9, -1, -1, -1)
@@ -125,6 +125,34 @@ class Ui_Settings(object):
         self.horizontalLayout_3.addWidget(self.selectSettingsItemsShowMode)
         self.verticalLayout_5.addLayout(self.horizontalLayout_3)
         self.verticalLayout_4.addWidget(self.groupItems)
+        self.groupContent = QtGui.QGroupBox(self.scrollAreaWidgetContents)
+        self.groupContent.setObjectName("groupContent")
+        self.verticalLayout_6 = QtGui.QVBoxLayout(self.groupContent)
+        self.verticalLayout_6.setObjectName("verticalLayout_6")
+        self.gridLayout_3 = QtGui.QGridLayout()
+        self.gridLayout_3.setObjectName("gridLayout_3")
+        self.checkSettingsDisplayFeedsTitleItemView = QtGui.QCheckBox(self.groupContent)
+        self.checkSettingsDisplayFeedsTitleItemView.setObjectName("checkSettingsDisplayFeedsTitleItemView")
+        self.gridLayout_3.addWidget(self.checkSettingsDisplayFeedsTitleItemView, 0, 0, 1, 2)
+        self.labelSettingsUserAgent = QtGui.QLabel(self.groupContent)
+        self.labelSettingsUserAgent.setObjectName("labelSettingsUserAgent")
+        self.gridLayout_3.addWidget(self.labelSettingsUserAgent, 1, 0, 1, 1)
+        self.inputSettingsUserAgent = QtGui.QLineEdit(self.groupContent)
+        self.inputSettingsUserAgent.setText("")
+        self.inputSettingsUserAgent.setObjectName("inputSettingsUserAgent")
+        self.gridLayout_3.addWidget(self.inputSettingsUserAgent, 1, 1, 1, 1)
+        self.labelSettingsZoomFactor = QtGui.QLabel(self.groupContent)
+        self.labelSettingsZoomFactor.setObjectName("labelSettingsZoomFactor")
+        self.gridLayout_3.addWidget(self.labelSettingsZoomFactor, 2, 0, 1, 1)
+        self.spinSettingsZoomFactor = QtGui.QSpinBox(self.groupContent)
+        self.spinSettingsZoomFactor.setMinimum(0)
+        self.spinSettingsZoomFactor.setSingleStep(5)
+        self.spinSettingsZoomFactor.setProperty("value", 100)
+        self.spinSettingsZoomFactor.setMaximum(10000)
+        self.spinSettingsZoomFactor.setObjectName("spinSettingsZoomFactor")
+        self.gridLayout_3.addWidget(self.spinSettingsZoomFactor, 2, 1, 1, 1)
+        self.verticalLayout_6.addLayout(self.gridLayout_3)
+        self.verticalLayout_4.addWidget(self.groupContent)
         self.groupBanner = QtGui.QGroupBox(self.scrollAreaWidgetContents)
         self.groupBanner.setObjectName("groupBanner")
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.groupBanner)
@@ -139,7 +167,7 @@ class Ui_Settings(object):
         self.selectSettingsBannerPosition.addItem("")
         self.selectSettingsBannerPosition.addItem("")
         self.selectSettingsBannerPosition.addItem("")
-        self.gridLayout_2.addWidget(self.selectSettingsBannerPosition, 0, 1, 1, 2)
+        self.gridLayout_2.addWidget(self.selectSettingsBannerPosition, 0, 1, 1, 1)
         self.checkSettingsBannerHide = QtGui.QCheckBox(self.groupBanner)
         self.checkSettingsBannerHide.setObjectName("checkSettingsBannerHide")
         self.gridLayout_2.addWidget(self.checkSettingsBannerHide, 1, 0, 1, 1)
@@ -150,9 +178,6 @@ class Ui_Settings(object):
         self.spinSettingsBannerHideDelay.setProperty("value", 2000)
         self.spinSettingsBannerHideDelay.setObjectName("spinSettingsBannerHideDelay")
         self.gridLayout_2.addWidget(self.spinSettingsBannerHideDelay, 1, 1, 1, 1)
-        self.labelSettingsBannerHideDelayMs = QtGui.QLabel(self.groupBanner)
-        self.labelSettingsBannerHideDelayMs.setObjectName("labelSettingsBannerHideDelayMs")
-        self.gridLayout_2.addWidget(self.labelSettingsBannerHideDelayMs, 1, 2, 1, 1)
         self.verticalLayout_3.addLayout(self.gridLayout_2)
         self.verticalLayout_4.addWidget(self.groupBanner)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
@@ -161,6 +186,8 @@ class Ui_Settings(object):
         self.labelSettingsPassword.setBuddy(self.inputSettingsPassword)
         self.labelSettingsHomeDefault.setBuddy(self.selectSettingsHomeDefault)
         self.labelSettingsItemsShowMode.setBuddy(self.selectSettingsItemsShowMode)
+        self.labelSettingsUserAgent.setBuddy(self.inputSettingsUserAgent)
+        self.labelSettingsZoomFactor.setBuddy(self.spinSettingsZoomFactor)
         self.labelSettingsBannerPosition.setBuddy(self.selectSettingsBannerPosition)
 
         self.retranslateUi(Settings)
@@ -175,7 +202,13 @@ class Ui_Settings(object):
         Settings.setTabOrder(self.checkSettingsShowAll, self.checkSettingsShowRead)
         Settings.setTabOrder(self.checkSettingsShowRead, self.checkSettingsShowFriends)
         Settings.setTabOrder(self.checkSettingsShowFriends, self.selectSettingsItemsShowMode)
-        Settings.setTabOrder(self.selectSettingsItemsShowMode, self.scrollArea)
+        Settings.setTabOrder(self.selectSettingsItemsShowMode, self.checkSettingsDisplayFeedsTitleItemView)
+        Settings.setTabOrder(self.checkSettingsDisplayFeedsTitleItemView, self.inputSettingsUserAgent)
+        Settings.setTabOrder(self.inputSettingsUserAgent, self.spinSettingsZoomFactor)
+        Settings.setTabOrder(self.spinSettingsZoomFactor, self.selectSettingsBannerPosition)
+        Settings.setTabOrder(self.selectSettingsBannerPosition, self.checkSettingsBannerHide)
+        Settings.setTabOrder(self.checkSettingsBannerHide, self.spinSettingsBannerHideDelay)
+        Settings.setTabOrder(self.spinSettingsBannerHideDelay, self.scrollArea)
 
     def retranslateUi(self, Settings):
         Settings.setWindowTitle(QtGui.QApplication.translate("Settings", "Settings", None, QtGui.QApplication.UnicodeUTF8))
@@ -201,13 +234,18 @@ class Ui_Settings(object):
         self.selectSettingsItemsShowMode.setItemText(1, QtGui.QApplication.translate("Settings", "Default unread, save each", None, QtGui.QApplication.UnicodeUTF8))
         self.selectSettingsItemsShowMode.setItemText(2, QtGui.QApplication.translate("Settings", "Default all, no save", None, QtGui.QApplication.UnicodeUTF8))
         self.selectSettingsItemsShowMode.setItemText(3, QtGui.QApplication.translate("Settings", "Default unread, no save", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupContent.setTitle(QtGui.QApplication.translate("Settings", "Item\'s view", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkSettingsDisplayFeedsTitleItemView.setText(QtGui.QApplication.translate("Settings", "display feed\'s title insead of item\'s one", None, QtGui.QApplication.UnicodeUTF8))
+        self.labelSettingsUserAgent.setText(QtGui.QApplication.translate("Settings", "User agent", None, QtGui.QApplication.UnicodeUTF8))
+        self.labelSettingsZoomFactor.setText(QtGui.QApplication.translate("Settings", "Zoom", None, QtGui.QApplication.UnicodeUTF8))
+        self.spinSettingsZoomFactor.setSuffix(QtGui.QApplication.translate("Settings", "%", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBanner.setTitle(QtGui.QApplication.translate("Settings", "Informations banner", None, QtGui.QApplication.UnicodeUTF8))
         self.labelSettingsBannerPosition.setText(QtGui.QApplication.translate("Settings", "Position", None, QtGui.QApplication.UnicodeUTF8))
         self.selectSettingsBannerPosition.setItemText(0, QtGui.QApplication.translate("Settings", "Top", None, QtGui.QApplication.UnicodeUTF8))
         self.selectSettingsBannerPosition.setItemText(1, QtGui.QApplication.translate("Settings", "Bottom", None, QtGui.QApplication.UnicodeUTF8))
         self.selectSettingsBannerPosition.setItemText(2, QtGui.QApplication.translate("Settings", "Never display", None, QtGui.QApplication.UnicodeUTF8))
         self.checkSettingsBannerHide.setText(QtGui.QApplication.translate("Settings", "Hide after", None, QtGui.QApplication.UnicodeUTF8))
-        self.labelSettingsBannerHideDelayMs.setText(QtGui.QApplication.translate("Settings", "ms", None, QtGui.QApplication.UnicodeUTF8))
+        self.spinSettingsBannerHideDelay.setSuffix(QtGui.QApplication.translate("Settings", "ms", None, QtGui.QApplication.UnicodeUTF8))
 
 
 if __name__ == "__main__":

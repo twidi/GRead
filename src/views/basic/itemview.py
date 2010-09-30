@@ -54,6 +54,16 @@ class ItemViewEventFilter(base_eventfilter_class):
             return True
         return QObject.eventFilter(self, obj, event)
 
+class WebPage(QWebPage):
+    def __init__(self, *args, **kwargs):
+        super(WebPage, self).__init__(*args, **kwargs)
+        self.user_agent = settings.get('content', 'user_agent')
+        
+    def userAgentForUrl(self, url):
+        if not self.user_agent:
+            self.user_agent = super(WebPage, self).userAgentForUrl(url)
+        return self.user_agent
+
 class ItemViewView(base_view_class):
     def __init__(self, controller):
         # item displayed
@@ -63,17 +73,14 @@ class ItemViewView(base_view_class):
         super(ItemViewView, self).__init__(controller, self.get_ui_class(), controller.itemlist_view.win)
         
         # web view
-        page = self.get_web_page()
-        if page:
-            self.ui.webView.setPage(page)
+        self.ui.webView.setPage(WebPage(parent=self.ui.webView))
         self.ui.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self.ui.webView.page().linkClicked.connect(self.link_clicked)
         self.ui.webView.loadFinished.connect(self.trigger_web_view_loaded)
+        self.default_zoom_factor = self.ui.webView.zoomFactor()
+        self.ui.webView.setZoomFactor(self.default_zoom_factor*int(settings.get('content', 'zoom_factor'))/100)
 
         self.init_toolbars()
-        
-    def get_web_page(self):
-        return None
 
     def get_ui_class(self):
         return Ui_winItemView
@@ -328,17 +335,32 @@ class ItemViewView(base_view_class):
         """
         title = ""
         if self.current_item:
-            title = self.current_item.title
+            if settings.get('content', 'feed_in_title'):
+                try:
+                    title = self.current_item.normal_feeds[0].title\
+                        or self.current_item.g_item.origin['title']\
+                        or self.current_item.g_item.origin['url']
+                except:
+                    pass
+            if not title:
+                title = self.current_item.title
         return title
 
+    def settings_updated(self):
+        """
+        Called when settings are updated
+        """
+        self.ui.webView.setZoomFactor(self.default_zoom_factor*int(settings.get('content', 'zoom_factor'))/100)
+        self.ui.webView.page().user_agent = settings.get('content', 'user_agent')
+        
     def zoom(self, zoom_in=True):
         """
-        Apply a 1.1 factor to the current zoom level if zoom_in is True, or
-        1/1.1 if it's False
+        Apply a 1.2 factor to the current zoom level if zoom_in is True, or
+        1/1.2 if it's False
         """
-        factor = 1.1
+        factor = 1.2
         if not zoom_in:
-            factor = 1/1.1
+            factor = 1/1.2
         self.ui.webView.setZoomFactor(self.ui.webView.zoomFactor()*factor)
 
     def trigger_web_view_loaded(self, ok):

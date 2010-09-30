@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>442</width>
-    <height>508</height>
+    <height>606</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -34,7 +34,7 @@
         <x>0</x>
         <y>0</y>
         <width>438</width>
-        <height>504</height>
+        <height>602</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -256,6 +256,72 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="groupContent">
+         <property name="title">
+          <string>Item's view</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <layout class="QGridLayout" name="gridLayout_3">
+            <item row="0" column="0" colspan="2">
+             <widget class="QCheckBox" name="checkSettingsDisplayFeedsTitleItemView">
+              <property name="text">
+               <string>display feed's title insead of item's one</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="labelSettingsUserAgent">
+              <property name="text">
+               <string>User agent</string>
+              </property>
+              <property name="buddy">
+               <cstring>inputSettingsUserAgent</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="inputSettingsUserAgent">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="labelSettingsZoomFactor">
+              <property name="text">
+               <string>Zoom</string>
+              </property>
+              <property name="buddy">
+               <cstring>spinSettingsZoomFactor</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QSpinBox" name="spinSettingsZoomFactor">
+              <property name="suffix">
+               <string>%</string>
+              </property>
+              <property name="minimum">
+               <number>0</number>
+              </property>
+              <property name="singleStep">
+               <number>5</number>
+              </property>
+              <property name="value">
+               <number>100</number>
+              </property>
+              <property name="maximum">
+               <number>10000</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="groupBanner">
          <property name="title">
           <string>Informations banner</string>
@@ -273,7 +339,7 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="1" colspan="2">
+            <item row="0" column="1">
              <widget class="QComboBox" name="selectSettingsBannerPosition">
               <item>
                <property name="text">
@@ -293,14 +359,17 @@
              </widget>
             </item>
             <item row="1" column="0">
-              <widget class="QCheckBox" name="checkSettingsBannerHide">
-               <property name="text">
-                <string>Hide after</string>
-               </property>
-              </widget>
+             <widget class="QCheckBox" name="checkSettingsBannerHide">
+              <property name="text">
+               <string>Hide after</string>
+              </property>
+             </widget>
             </item>
             <item row="1" column="1">
              <widget class="QSpinBox" name="spinSettingsBannerHideDelay">
+              <property name="suffix">
+               <string>ms</string>
+              </property>
               <property name="minimum">
                <number>500</number>
               </property>
@@ -312,13 +381,6 @@
               </property>
               <property name="value">
                <number>2000</number>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QLabel" name="labelSettingsBannerHideDelayMs">
-              <property name="text">
-               <string>ms</string>
               </property>
              </widget>
             </item>
@@ -345,6 +407,12 @@
   <tabstop>checkSettingsShowRead</tabstop>
   <tabstop>checkSettingsShowFriends</tabstop>
   <tabstop>selectSettingsItemsShowMode</tabstop>
+  <tabstop>checkSettingsDisplayFeedsTitleItemView</tabstop>
+  <tabstop>inputSettingsUserAgent</tabstop>
+  <tabstop>spinSettingsZoomFactor</tabstop>
+  <tabstop>selectSettingsBannerPosition</tabstop>
+  <tabstop>checkSettingsBannerHide</tabstop>
+  <tabstop>spinSettingsBannerHideDelay</tabstop>
   <tabstop>scrollArea</tabstop>
  </tabstops>
  <resources/>

@@ -93,7 +93,7 @@ class View(BasicView):
             self.title = QApplication.applicationName()
         operations_part = self.controller.get_title_operations_part()
         if operations_part:
-            self.title = "(%s) %s" % (operations_part, self.title)
+            self.title = "%s | %s" % (operations_part, self.title)
         self.win.setWindowTitle(self.title)
         
         self.title_start = 0

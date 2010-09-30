@@ -65,6 +65,8 @@ helpers = {
         'feeds.show_' + GoogleReader.KEPTUNREAD_LIST, 
 
         'feeds.unread_only',
+        
+        'content.feed_in_title', 
 
         'other.portrait_mode',
         'other.scroll_titles',
@@ -98,12 +100,17 @@ _default = {
     'items': {
         'show_mode': 'unread-save', # all-save, unread-save, all-nosave, unread-nosave
     }, 
+    'content': {
+        'feed_in_title': False, 
+        'user_agent': '',
+        'zoom_factor': 100, 
+    }, 
     'other': {
         'portrait_mode': False,
         'scroll_titles': True,
     }, 
     'info': {
-        'banner_position': 'bottom', 
+        'banner_position': 'bottom', # top, bottom, hide
         'banner_hide': True, 
         'banner_hide_delay': 2000, 
     }, 

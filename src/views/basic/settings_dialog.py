@@ -54,7 +54,11 @@ class SettingsDialog(Dialog):
         except:
             raise
             self.ui.selectSettingsItemsShowMode.setCurrentIndex(0)
-    
+
+        self.ui.checkSettingsDisplayFeedsTitleItemView.setChecked(settings.get('content', 'feed_in_title'))
+        self.ui.inputSettingsUserAgent.setText(settings.get('content', 'user_agent'))
+        self.ui.spinSettingsZoomFactor.setValue(int(settings.get('content', 'zoom_factor')))
+
         try:
             self.ui.selectSettingsBannerPosition.setCurrentIndex(settings.helpers['info_banner_position'].index(settings.get('info', 'banner_position')))
         except:
@@ -77,15 +81,12 @@ class SettingsDialog(Dialog):
         else:
             self.ui.checkSettingsBannerHide.setDisabled(True)
             self.ui.spinSettingsBannerHideDelay.setDisabled(True)
-            self.ui.labelSettingsBannerHideDelayMs.setDisabled(True)
         
     def update_banner_hide_mode(self):
         if self.ui.checkSettingsBannerHide.isChecked():
             self.ui.spinSettingsBannerHideDelay.setDisabled(False)
-            self.ui.labelSettingsBannerHideDelayMs.setDisabled(False)
         else:
             self.ui.spinSettingsBannerHideDelay.setDisabled(True)
-            self.ui.labelSettingsBannerHideDelayMs.setDisabled(True)            
             
     def read_inputs(self):
         self.google_credentials_changed = False
@@ -123,6 +124,10 @@ class SettingsDialog(Dialog):
             settings.set('items', 'show_mode', settings.helpers['items_show_mode'][self.ui.selectSettingsItemsShowMode.currentIndex()])
         except:
             pass
+            
+        settings.set('content', 'feed_in_title', self.ui.checkSettingsDisplayFeedsTitleItemView.isChecked())
+        settings.set('content', 'user_agent', self.ui.inputSettingsUserAgent.text())
+        settings.set('content', 'zoom_factor', self.ui.spinSettingsZoomFactor.value())
     
         try:
             settings.set('info', 'banner_position', settings.helpers['info_banner_position'][self.ui.selectSettingsBannerPosition.currentIndex()])
