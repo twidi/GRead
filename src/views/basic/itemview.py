@@ -79,6 +79,7 @@ class ItemViewView(base_view_class):
         self.ui.webView.loadFinished.connect(self.trigger_web_view_loaded)
         self.default_zoom_factor = self.ui.webView.zoomFactor()
         self.ui.webView.setZoomFactor(self.default_zoom_factor*int(settings.get('content', 'zoom_factor'))/100)
+        self.current_zoom_factor = self.ui.webView.zoomFactor()
         self.ui.webView.setStyleSheet('background: white')
 
         self.init_toolbars()
@@ -210,6 +211,7 @@ class ItemViewView(base_view_class):
         # display content
         self.current_page_is_content = True
         self.ui.webView.setHtml(item.content)
+        self.ui.webView.setZoomFactor(self.current_zoom_factor)
 
         self.ui.webView.setFocus(Qt.OtherFocusReason)
         
@@ -288,7 +290,7 @@ class ItemViewView(base_view_class):
         """
         Display the original item's url in the internal browser
         """
-        self.open_url(QUrl(self.current_item.url), force_in_gread=True, zoom_gread=1.0)
+        self.open_url(QUrl(self.current_item.url), force_in_gread=True)
 
     def trigger_view_original_browser(self):
         """
@@ -306,7 +308,7 @@ class ItemViewView(base_view_class):
         self.current_page_is_content = True
         self.ui.webView.setHtml(self.current_item.content)
 
-    def open_url(self, url, force_in_gread=False, zoom_gread=None):
+    def open_url(self, url, force_in_gread=False):
         """
         Ask for opening a url, in the internal browser if force_in_gread is
         True, else in the real browser. If the real browser cannot be opened,
@@ -317,8 +319,7 @@ class ItemViewView(base_view_class):
             self.ui.webView.setHtml("")
             self.start_loading()
             self.manage_actions()
-            if zoom_gread is not None:
-                self.ui.webView.setZoomFactor(zoom_gread)
+            self.ui.webView.setZoomFactor(self.current_zoom_factor)
             self.ui.webView.load(url)
             return False
         return True
@@ -352,6 +353,7 @@ class ItemViewView(base_view_class):
         Called when settings are updated
         """
         self.ui.webView.setZoomFactor(self.default_zoom_factor*int(settings.get('content', 'zoom_factor'))/100)
+        self.current_zoom_factor = self.ui.webView.zoomFactor()
         self.ui.webView.page().user_agent = settings.get('content', 'user_agent')
         
     def zoom(self, zoom_in=True):
