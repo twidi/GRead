@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 
+# Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/basic/ui/filter_feeds.ui'
+#
+# Created: Thu Sep 30 00:33:53 2010
+#      by: PyQt4 UI code generator 4.7.3
+#
+# WARNING! All changes made in this file will be lost!
+
 from PyQt4 import QtCore, QtGui
 
 class Ui_FilterFeeds(object):
@@ -19,3 +26,20 @@ class Ui_FilterFeeds(object):
         self.editFilter = QtGui.QLineEdit(FilterFeeds)
         self.editFilter.setObjectName("editFilter")
         self.verticalLayout.addWidget(self.editFilter)
+
+        self.retranslateUi(FilterFeeds)
+        QtCore.QMetaObject.connectSlotsByName(FilterFeeds)
+
+    def retranslateUi(self, FilterFeeds):
+        FilterFeeds.setWindowTitle(QtGui.QApplication.translate("FilterFeeds", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    FilterFeeds = QtGui.QDialog()
+    ui = Ui_FilterFeeds()
+    ui.setupUi(FilterFeeds)
+    FilterFeeds.show()
+    sys.exit(app.exec_())
+

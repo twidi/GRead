@@ -66,7 +66,7 @@
          <property name="title">
           <string>Google credentials</string>
          </property>
-         <layout class="QFormLayout" name="formLayout">
+         <layout class="QFormLayout" name="formLayout_groupGoogle">
           <item row="0" column="0">
            <widget class="QLabel" name="labelSettingsAccount">
             <property name="text">
@@ -112,7 +112,7 @@
          <property name="title">
           <string>Feeds list</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
+         <layout class="QVBoxLayout" name="verticalLayout_groupFeeds">
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
@@ -159,7 +159,7 @@
             <property name="title">
              <string>Show specials</string>
             </property>
-            <layout class="QGridLayout" name="gridLayout">
+            <layout class="QGridLayout" name="gridLayout_groupSpecials">
              <item row="0" column="0">
               <widget class="QCheckBox" name="checkSettingsShowStarred">
                <property name="text">
@@ -213,7 +213,7 @@
          <property name="title">
           <string>Items list</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_5">
+         <layout class="QVBoxLayout" name="verticalLayout_groupItems">
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
@@ -260,9 +260,9 @@
          <property name="title">
           <string>Item's view</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_6">
+         <layout class="QVBoxLayout" name="verticalLayout_groupContent">
           <item>
-           <layout class="QGridLayout" name="gridLayout_3">
+           <layout class="QGridLayout" name="gridLayout_groupContent">
             <item row="0" column="0" colspan="2">
              <widget class="QCheckBox" name="checkSettingsDisplayFeedsTitleItemView">
               <property name="text">
@@ -326,9 +326,9 @@
          <property name="title">
           <string>Other</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
+         <layout class="QVBoxLayout" name="verticalLayout_groupOther">
           <item>
-           <layout class="QGridLayout" name="gridLayout_4">
+           <layout class="QGridLayout" name="gridLayout_groupOther">
             <item row="0" column="0">
              <widget class="QLabel" name="labelSettingsItemsToFetch">
               <property name="text">
@@ -372,9 +372,9 @@
          <property name="title">
           <string>Informations banner</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
+         <layout class="QVBoxLayout" name="verticalLayout_groupBanner">
           <item>
-           <layout class="QGridLayout" name="gridLayout_2">
+           <layout class="QGridLayout" name="gridLayout_groupBanner">
             <item row="0" column="0">
              <widget class="QLabel" name="labelSettingsBannerPosition">
               <property name="text">

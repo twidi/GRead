@@ -3,7 +3,7 @@
 """
 GRead controller
 """
-from PyQt4.QtCore import QObject, Qt, QTimer, SIGNAL
+from PyQt4.QtCore import QObject, Qt, SIGNAL
 from PyQt4.QtGui import QApplication
 
 from engine.signals import SIGNALS
@@ -47,13 +47,31 @@ class Controller(QObject):
         """
         Create all the views used by the application
         """
-        # dialogs
-        self.settings_dialog     = SettingsDialog(controller=self)
-        self.filter_feeds_dialog = FilterFeedsDialog(controller=self)
-        # normal views
+        self.create_feedlist_view()
+        self.create_itemlist_view()
+        self.create_itemview_view()
+        
+    def create_feedlist_view(self):
         self.feedlist_view = FeedListView(controller=self)
+        
+    def create_itemlist_view(self):
         self.itemlist_view = ItemListView(controller=self)
+        
+    def create_itemview_view(self):
         self.itemview_view = ItemViewView(controller=self)
+        
+    def create_dialogs(self):
+        """
+        Create all the dialogs used by the application
+        """
+        self.create_settings_dialog()
+        self.create_filter_feeds_dialog()
+    
+    def create_settings_dialog(self):
+        self.settings_dialog     = SettingsDialog(controller=self)
+        
+    def create_filter_feeds_dialog(self):
+        self.filter_feeds_dialog = FilterFeedsDialog(controller=self)
         
     def run(self):
         """
@@ -66,8 +84,9 @@ class Controller(QObject):
         
         self.create_views()
         self.current_view = self.feedlist_view
-        
         self.current_view.show(app_just_launched=True)
+        
+        self.create_dialogs()
         
     def settings_updated(self, auth_unverified_changed=False):
         """
@@ -107,13 +126,6 @@ class Controller(QObject):
                 view.update_title()
             except:
                 pass
-            
-    def timeout_title_timer(self):
-        """
-        Called when the title timer delay is done
-        """
-        if self.current_view:
-            self.current_view.update_display_title()
 
     def set_current_view(self, view):
         """

@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 
+# Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/basic/ui/settings.ui'
+#
+# Created: Thu Sep 30 04:19:27 2010
+#      by: PyQt4 UI code generator 4.7.3
+#
+# WARNING! All changes made in this file will be lost!
+
 from PyQt4 import QtCore, QtGui
 
 class Ui_Settings(object):
     def setupUi(self, Settings):
-        self.addWidgets(Settings)
-        self.setTabOrder(Settings)
-        self.retranslateUi(Settings)
-        
-    def addWidgets(self, Settings):
         Settings.setObjectName("Settings")
         Settings.resize(455, 534)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
@@ -46,20 +48,14 @@ class Ui_Settings(object):
         self.labelSettingsAccount.setObjectName("labelSettingsAccount")
         self.formLayout_groupGoogle.setWidget(0, QtGui.QFormLayout.LabelRole, self.labelSettingsAccount)
         self.inputSettingsAccount = QtGui.QLineEdit(self.groupGoogle)
-        try:
-            self.inputSettingsAccount.setInputMethodHints(QtCore.Qt.ImhEmailCharactersOnly|QtCore.Qt.ImhNoAutoUppercase)
-        except:
-            pass
+        self.inputSettingsAccount.setInputMethodHints(QtCore.Qt.ImhEmailCharactersOnly|QtCore.Qt.ImhNoAutoUppercase)
         self.inputSettingsAccount.setObjectName("inputSettingsAccount")
         self.formLayout_groupGoogle.setWidget(0, QtGui.QFormLayout.FieldRole, self.inputSettingsAccount)
         self.labelSettingsPassword = QtGui.QLabel(self.groupGoogle)
         self.labelSettingsPassword.setObjectName("labelSettingsPassword")
         self.formLayout_groupGoogle.setWidget(1, QtGui.QFormLayout.LabelRole, self.labelSettingsPassword)
         self.inputSettingsPassword = QtGui.QLineEdit(self.groupGoogle)
-        try:
-            self.inputSettingsPassword.setInputMethodHints(QtCore.Qt.ImhNoAutoUppercase|QtCore.Qt.ImhNoPredictiveText)
-        except:
-            pass
+        self.inputSettingsPassword.setInputMethodHints(QtCore.Qt.ImhNoAutoUppercase|QtCore.Qt.ImhNoPredictiveText)
         self.inputSettingsPassword.setEchoMode(QtGui.QLineEdit.PasswordEchoOnEdit)
         self.inputSettingsPassword.setObjectName("inputSettingsPassword")
         self.formLayout_groupGoogle.setWidget(1, QtGui.QFormLayout.FieldRole, self.inputSettingsPassword)
@@ -89,7 +85,7 @@ class Ui_Settings(object):
         self.verticalLayout_groupFeeds.addLayout(self.horizontalLayout)
         self.groupSpecials = QtGui.QGroupBox(self.groupFeeds)
         self.groupSpecials.setObjectName("groupSpecials")
-        self.gridLayout_groupSpecials = QtGui.QGridLayout(self.groupSpecials)
+        self.gridLayout = QtGui.QGridLayout(self.groupSpecials)
         self.gridLayout_groupSpecials.setObjectName("gridLayout")
         self.checkSettingsShowStarred = QtGui.QCheckBox(self.groupSpecials)
         self.checkSettingsShowStarred.setObjectName("checkSettingsShowStarred")
@@ -159,8 +155,8 @@ class Ui_Settings(object):
         self.verticalLayout_4.addWidget(self.groupContent)
         self.groupOther = QtGui.QGroupBox(self.scrollAreaWidgetContents)
         self.groupOther.setObjectName("groupOther")
-        self.verticalLayout_groupFeeds = QtGui.QVBoxLayout(self.groupOther)
-        self.verticalLayout_groupFeeds.setObjectName("verticalLayout_groupFeeds")
+        self.verticalLayout_groupOther = QtGui.QVBoxLayout(self.groupOther)
+        self.verticalLayout_groupOther.setObjectName("verticalLayout_groupOther")
         self.gridLayout_groupOther = QtGui.QGridLayout()
         self.gridLayout_groupOther.setObjectName("gridLayout_groupOther")
         self.labelSettingsItemsToFetch = QtGui.QLabel(self.groupOther)
@@ -176,7 +172,7 @@ class Ui_Settings(object):
         self.label = QtGui.QLabel(self.groupOther)
         self.label.setObjectName("label")
         self.gridLayout_groupOther.addWidget(self.label, 1, 0, 1, 2)
-        self.verticalLayout_groupFeeds.addLayout(self.gridLayout_groupOther)
+        self.verticalLayout_groupOther.addLayout(self.gridLayout_groupOther)
         self.verticalLayout_4.addWidget(self.groupOther)
         self.groupBanner = QtGui.QGroupBox(self.scrollAreaWidgetContents)
         self.groupBanner.setObjectName("groupBanner")
@@ -216,7 +212,8 @@ class Ui_Settings(object):
         self.labelSettingsItemsToFetch.setBuddy(self.spinSettingsItemsToFetch)
         self.labelSettingsBannerPosition.setBuddy(self.selectSettingsBannerPosition)
 
-    def setTabOrder(self, Settings):
+        self.retranslateUi(Settings)
+        QtCore.QMetaObject.connectSlotsByName(Settings)
         Settings.setTabOrder(self.inputSettingsAccount, self.inputSettingsPassword)
         Settings.setTabOrder(self.inputSettingsPassword, self.selectSettingsHomeDefault)
         Settings.setTabOrder(self.selectSettingsHomeDefault, self.checkSettingsHomeShowUnread)
@@ -275,3 +272,14 @@ class Ui_Settings(object):
         self.selectSettingsBannerPosition.setItemText(2, QtGui.QApplication.translate("Settings", "Never display", None, QtGui.QApplication.UnicodeUTF8))
         self.checkSettingsBannerHide.setText(QtGui.QApplication.translate("Settings", "Hide after", None, QtGui.QApplication.UnicodeUTF8))
         self.spinSettingsBannerHideDelay.setSuffix(QtGui.QApplication.translate("Settings", "ms", None, QtGui.QApplication.UnicodeUTF8))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    Settings = QtGui.QDialog()
+    ui = Ui_Settings()
+    ui.setupUi(Settings)
+    Settings.show()
+    sys.exit(app.exec_())
+

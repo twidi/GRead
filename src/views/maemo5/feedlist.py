@@ -6,7 +6,6 @@ Feed list view
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-from ui.Ui_feedlist import Ui_winFeedList
 from ..basic.feedlist import FeedListDelegate as BasicFeedListDelegate,  \
                              FeedListView     as BasicFeedListView
 
@@ -22,9 +21,6 @@ class FeedListDelegate(BasicFeedListDelegate):
         return size
         
 class FeedListView(BasicFeedListView):
-    def get_ui_class(self):
-        return Ui_winFeedList
-
     def get_feedlist_delegate_class(self):
         return FeedListDelegate
 

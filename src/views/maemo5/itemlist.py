@@ -6,7 +6,6 @@ Item list view
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-from ui.Ui_itemlist import Ui_winItemList
 from ..basic.itemlist import ItemListDelegate as BasicItemListDelegate,  \
                              ItemListView     as BasicItemListView
 
@@ -22,9 +21,6 @@ class ItemListDelegate(BasicItemListDelegate):
         return size
         
 class ItemListView(BasicItemListView):
-
-    def get_ui_class(self):
-        return Ui_winItemList
 
     def get_itemlist_delegate_class(self):
         return ItemListDelegate

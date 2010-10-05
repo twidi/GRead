@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/maemo5/ui/itemlist.ui'
+# Form implementation generated from reading ui file '/home/twidi/Projets/gread/src/views/basic/ui/feedlist.ui'
 #
-# Created: Thu Sep 30 00:33:56 2010
+# Created: Thu Sep 30 00:33:48 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
 
-class Ui_winItemList(object):
-    def setupUi(self, winItemList):
-        winItemList.setObjectName("winItemList")
-        winItemList.resize(800, 480)
-        self.centralWidget = QtGui.QWidget(winItemList)
+class Ui_winFeedList(object):
+    def setupUi(self, winFeedList):
+        winFeedList.setObjectName("winFeedList")
+        winFeedList.resize(800, 480)
+        self.centralWidget = QtGui.QWidget(winFeedList)
         self.centralWidget.setObjectName("centralWidget")
         self.verticalLayout = QtGui.QVBoxLayout(self.centralWidget)
         self.verticalLayout.setSpacing(0)
@@ -31,14 +31,14 @@ class Ui_winItemList(object):
         self.bannerTop.setWordWrap(True)
         self.bannerTop.setObjectName("bannerTop")
         self.verticalLayout.addWidget(self.bannerTop)
-        self.listItemList = QtGui.QListView(self.centralWidget)
-        self.listItemList.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.listItemList.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.listItemList.setProperty("showDropIndicator", False)
-        self.listItemList.setUniformItemSizes(True)
-        self.listItemList.setWordWrap(True)
-        self.listItemList.setObjectName("listItemList")
-        self.verticalLayout.addWidget(self.listItemList)
+        self.listFeedList = QtGui.QListView(self.centralWidget)
+        self.listFeedList.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.listFeedList.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.listFeedList.setProperty("showDropIndicator", False)
+        self.listFeedList.setUniformItemSizes(True)
+        self.listFeedList.setWordWrap(True)
+        self.listFeedList.setObjectName("listFeedList")
+        self.verticalLayout.addWidget(self.listFeedList)
         self.bannerBottom = QtGui.QLabel(self.centralWidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
@@ -51,25 +51,25 @@ class Ui_winItemList(object):
         self.bannerBottom.setWordWrap(True)
         self.bannerBottom.setObjectName("bannerBottom")
         self.verticalLayout.addWidget(self.bannerBottom)
-        winItemList.setCentralWidget(self.centralWidget)
-        self.menuBar = QtGui.QMenuBar(winItemList)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 800, 37))
-        self.menuBar.setObjectName("menuBar")
-        winItemList.setMenuBar(self.menuBar)
+        winFeedList.setCentralWidget(self.centralWidget)
+        self.toolBar = QtGui.QToolBar(winFeedList)
+        self.toolBar.setObjectName("toolBar")
+        winFeedList.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.TopToolBarArea), self.toolBar)
 
-        self.retranslateUi(winItemList)
-        QtCore.QMetaObject.connectSlotsByName(winItemList)
+        self.retranslateUi(winFeedList)
+        QtCore.QMetaObject.connectSlotsByName(winFeedList)
 
-    def retranslateUi(self, winItemList):
-        winItemList.setWindowTitle(QtGui.QApplication.translate("winItemList", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
+    def retranslateUi(self, winFeedList):
+        winFeedList.setWindowTitle(QtGui.QApplication.translate("winFeedList", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolBar.setWindowTitle(QtGui.QApplication.translate("winFeedList", "toolBar", None, QtGui.QApplication.UnicodeUTF8))
 
 
 if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
-    winItemList = QtGui.QMainWindow()
-    ui = Ui_winItemList()
-    ui.setupUi(winItemList)
-    winItemList.show()
+    winFeedList = QtGui.QMainWindow()
+    ui = Ui_winFeedList()
+    ui.setupUi(winFeedList)
+    winFeedList.show()
     sys.exit(app.exec_())
 
