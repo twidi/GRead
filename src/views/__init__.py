@@ -9,7 +9,8 @@ def detect_view_mode():
     try:
         from PyQt4 import QtMaemo5
     except:
-        pass
+        if "Maemo5" in environ.values():
+            view_mode = 'mobile'
     else:
         view_mode = 'maemo5'
         
@@ -25,7 +26,7 @@ def detect_view_mode():
     return view_mode
 
 # detect default view mode
-view_mode = 'maemo4'#detect_view_mode()
+view_mode = detect_view_mode()
 
 # provide direct access to correct controller class
 _controller_module = __import__('.'.join(['views', view_mode, 'controller']), globals(), locals(), ['Controller'])
