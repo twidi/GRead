@@ -1,0 +1,12 @@
+Source: gread
+Section: user/network
+Priority: extra
+Maintainer: Stephane Angel aka Twidi <s.angel@twidi.com>
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.7.2
+
+Package: gread
+Architecture: all
+Depends: python2.5, python2.5-qt4-common, python2.5-qt4-gui, python2.5-qt4-webkit, python-simplejson
+Description: A Google Reader client with offline capabilities. Can work Offline (synchronize at startup). Works on all platforms where PyQt is available.
+XSBC-Bugtracker: http://bugs.maemo.org
