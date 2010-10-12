@@ -3,7 +3,7 @@ Format: 1.7
 Source: gread
 Version: 1.0.0-1
 Architecture: all
-Date: Tue, 12 Oct 2010 21:30:43 +0000
+Date: Tue, 12 Oct 2010 22:41:41 +0000
 Distribution: fremantle
 Urgency: low
 Description: 
@@ -12,6 +12,6 @@ Changes:
  First packaged version for Maemo5/Fremantle
 Changed-By: Stephane Angel aka Twidi <s.angel@twidi.com>
 Files:
- 54655148b1e796b302a47c106b9d9876 159541 user/network extras-devel gread_1.0.0-1.tar.gz
- f9a375db140ac2871f188935c1d72992 322 user/network extras-devel gread_1.0.0-1.dsc
+ 08dcf648b5fd3bbeecab9911f57c9be9 292463 user/network extras-devel gread_1.0.0-1.tar.gz
+ 8d769a31c73ffb4b7c488d6d7a97d075 322 user/network extras-devel gread_1.0.0-1.dsc
 

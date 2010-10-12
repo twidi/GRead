@@ -25,13 +25,13 @@ if __name__ == "__main__":
     # Edit this based on your import statements (for example, you probably will not need pygame)
     p.section="user/network"
     # When editing the .section, make sure to use [[Packaging#Sections|an allowed section]] - otherwise the autobuilder will give a warning.
-    p.icon = "/opt/dev/GRead/GRead.png"
+    p.icon = "/opt/dev/GRead-git/GRead.png"
     p.url = "http://github.com/twidi/GRead"
     p.arch="all"                #should be all for python, any for all arch
     p.urgency="low"             #not used in maemo onl for deb os
     p.distribution="fremantle"
     p.repository="extras-devel"
-    p.xsbc_bugtracker="http://bugs.maemo.org"
+    p.xsbc_bugtracker="s.angel@twidi.com"
     #  p.postinstall="""#!/bin/sh
     #  chmod +x /usr/bin/mclock.py""" #Set here your post install script
     #  p.postremove="""#!/bin/sh
