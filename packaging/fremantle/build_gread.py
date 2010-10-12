@@ -25,7 +25,7 @@ if __name__ == "__main__":
     # Edit this based on your import statements (for example, you probably will not need pygame)
     p.section="user/network"
     # When editing the .section, make sure to use [[Packaging#Sections|an allowed section]] - otherwise the autobuilder will give a warning.
-    p.icon = "/opt/dev/GRead-git/GRead.png"
+    p.icon = "/opt/dev/GRead-git/packaging/fremantle/src/usr/share/icons/hicolor/48x48/GRead.png"
     p.url = "http://github.com/twidi/GRead"
     p.arch="all"                #should be all for python, any for all arch
     p.urgency="low"             #not used in maemo onl for deb os
