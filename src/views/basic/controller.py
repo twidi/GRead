@@ -82,11 +82,11 @@ class Controller(QObject):
             return
         self.is_running = True
         
+        self.create_dialogs()
+        
         self.create_views()
         self.current_view = self.feedlist_view
         self.current_view.show(app_just_launched=True)
-        
-        self.create_dialogs()
         
     def settings_updated(self, auth_unverified_changed=False):
         """
