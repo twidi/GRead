@@ -18,3 +18,14 @@ to
 
 $ run-standalone.sh python2.5 ./build_gread.py
 
+4. Manage .so file..
+
+You must comment or remove the 'dh_strip' in the .py2deb_build_folder/debian/rules file
+
+And then call 
+
+$ python rebuild_after_deb2py_and_removing_dh_strip.py
+
+And finally move gread from .pydeb_build_folder to fremantle one
+
+Yes, it's ugly. I know.
