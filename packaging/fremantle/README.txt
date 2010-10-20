@@ -26,7 +26,7 @@ You must comment or remove the 'dh_strip' in the .py2deb_build_folder/gread/debi
 
 On the line "Build-Depends" in .py2deb_build_folder/gread/debian/control file add
 
-, libqtgui4 (>=4.6), libqt4-dev (>= 4.6), libx11-dev, x11proto-core-dev
+, libqt4-gui (>=4.6), libqt4-dev (>= 4.6), libx11-dev, x11proto-core-dev
 
 6. Finalize
 
