@@ -18,22 +18,16 @@ to
 
 $ run-standalone.sh python2.5 ./build_gread_step1.py
 
-4. Manage .so file..
+4. Update debian rules
 
-You must comment or remove the 'dh_strip' in the .py2deb_build_folder/gread/debian/rules file
+You must comment or remove the 'dh_strip and dh_shlibdeps' in the .py2deb_build_folder/gread/debian/rules file
 
-5. Add some build-depends
-
-On the line "Build-Depends" in .py2deb_build_folder/gread/debian/control file add
-
-, libqt4-gui (>=4.6), libqt4-dev (>= 4.6), libx11-dev, x11proto-core-dev
-
-6. Finalize
+5. Finalize
 
 $ run-standalone.sh python2.5 ./build_gread_step2.py
 
 And finally move gread from .pydeb_build_folder to fremantle one
 
-7. The end
+6. The end
 
-Yes, it's ugly. I know. Please help me to do it in a better way.
+Yes, maybe it's ugly. I know. Please help me to do it in a better way.
