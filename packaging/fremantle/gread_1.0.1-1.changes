@@ -1,0 +1,17 @@
+Maintainer: Stephane Angel aka Twidi <s.angel@twidi.com>
+Format: 1.7
+Source: gread
+Version: 1.0.1-1
+Architecture: all
+Date: Wed, 20 Oct 2010 16:24:09 +0000
+Distribution: fremantle
+Urgency: low
+Description: 
+ A Google Reader client with offline capabilities. Can work Offline (synchronize at startup). Works on all platforms where PyQt is available.
+Changes: 
+ Correct two bugs : choose correct view, and create dialog first
+Changed-By: Stephane Angel aka Twidi <s.angel@twidi.com>
+Files:
+ d62076a98327afbf7fb443d8e51ef022 163681 user/network extras-devel gread_1.0.1-1.tar.gz
+ 2b93d395a42d52c0a060de5dafc6080a 322 user/network extras-devel gread_1.0.1-1.dsc
+
