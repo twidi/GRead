@@ -1,5 +1,5 @@
-gread (1.0.0-4) stable; urgency=low
+gread (1.0.1-1) stable; urgency=low
 
-  First packaged version for Maemo5/Fremantle
+  Correct two bugs : choose correct view, and create dialog first
 
- -- Stephane Angel aka Twidi <s.angel@twidi.com>  Wed, 20 Oct 2010 16:49:35 +0000
+ -- Stephane Angel aka Twidi <s.angel@twidi.com>  Wed, 20 Oct 2010 18:22:54 +0000

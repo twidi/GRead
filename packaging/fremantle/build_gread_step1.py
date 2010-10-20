@@ -31,7 +31,7 @@ if __name__ == "__main__":
     p.urgency="low"             #not used in maemo onl for deb os
     p.distribution="fremantle"
     p.repository="extras-devel"
-    p.xsbc_bugtracker="s.angel@twidi.com"
+    p.xsbc_bugtracker="mailto:s.angel@twidi.com"
     #  p.postinstall="""#!/bin/sh
     #  chmod +x /usr/bin/mclock.py""" #Set here your post install script
     #  p.postremove="""#!/bin/sh
@@ -40,10 +40,10 @@ if __name__ == "__main__":
     #  chmod +x /usr/bin/mclock.py""" #Set here your pre install script
     #  p.preremove="""#!/bin/sh
     #  chmod +x /usr/bin/mclock.py""" #Set here your pre remove script
-    version = "1.0.0"           #Version of your software, for example "1.2.0" or "0.8.2"
-    build = "4"                 #Build number, for example "1" for the first build of this version of your software. Increment for later re-builds of the same version of your software.
+    version = "1.0.1"           #Version of your software, for example "1.2.0" or "0.8.2"
+    build = "1"                 #Build number, for example "1" for the first build of this version of your software. Increment for later re-builds of the same version of your software.
                                 #Text with changelog information to be displayed in the package "Details" tab of the Maemo Application Manager
-    changeloginformation = "First packaged version for Maemo5/Fremantle" 
+    changeloginformation = "Correct two bugs : choose correct view, and create dialog first" 
     dir_name = "src"            #Name of the subfolder containing your package source files (for example, usr\share\icons\hicolor\scalable\myappicon.svg, usr\lib\myapp\somelib.py). We suggest to leave it named src in all projects and will refer to that in the wiki article on maemo.org
     #Thanks to DareTheHair from talk.maemo.org for this snippet that recursively builds the file list.
     for root, dirs, files in os.walk(dir_name):

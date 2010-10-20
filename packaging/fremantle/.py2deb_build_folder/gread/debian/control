@@ -9,7 +9,8 @@ Package: gread
 Architecture: all
 Depends: python2.5, python2.5-qt4-common, python2.5-qt4-gui, python2.5-qt4-webkit, python-simplejson
 Description: A Google Reader client with offline capabilities. Can work Offline (synchronize at startup). Works on all platforms where PyQt is available.
-XSBC-Bugtracker: s.angel@twidi.com
+XSBC-Maemo-Display-Name: GRead
+XSBC-Bugtracker: mailto:s.angel@twidi.com
 XB-Maemo-Icon-26:
  iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz
  AAAOxAAADsQBlSsOGwAADYJJREFUaIHtmWmQXFd1x3/nvtc9PfsiaTQjWbI0kq19ZMvyKhuDVbGB
