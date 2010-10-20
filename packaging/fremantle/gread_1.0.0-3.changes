@@ -1,9 +1,9 @@
 Maintainer: Stephane Angel aka Twidi <s.angel@twidi.com>
 Format: 1.7
 Source: gread
-Version: 1.0.0-2
+Version: 1.0.0-3
 Architecture: all
-Date: Tue, 19 Oct 2010 23:08:49 +0000
+Date: Wed, 20 Oct 2010 00:31:01 +0000
 Distribution: fremantle
 Urgency: low
 Description: 
@@ -12,6 +12,6 @@ Changes:
  First packaged version for Maemo5/Fremantle
 Changed-By: Stephane Angel aka Twidi <s.angel@twidi.com>
 Files:
- fa63d7bcf31670daa26d58e8f10209df 163505 user/network extras-devel gread_1.0.0-2.tar.gz
- 0cee4a8f7774ec5530064c524e445ae9 322 user/network extras-devel gread_1.0.0-2.dsc
+ 20dbfeac3e043753ceaee3c1134baba4 163562 user/network extras-devel gread_1.0.0-3.tar.gz
+ cbd4f43baac6b07d5f243575525ada78 322 user/network extras-devel gread_1.0.0-3.dsc
 
