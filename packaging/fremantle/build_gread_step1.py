@@ -25,7 +25,7 @@ if __name__ == "__main__":
     # Edit this based on your import statements (for example, you probably will not need pygame)
     p.section="user/network"
     # When editing the .section, make sure to use [[Packaging#Sections|an allowed section]] - otherwise the autobuilder will give a warning.
-    p.icon = "/opt/dev/GRead-git/packaging/fremantle/src/usr/share/icons/hicolor/48x48/GRead.png"
+    p.icon = "/opt/dev/GRead-git/packaging/fremantle/src/usr/share/icons/hicolor/48x48/apps/GRead.png"
     p.url = "http://github.com/twidi/GRead"
     p.arch="all"                #should be all for python, any for all arch
     p.urgency="low"             #not used in maemo onl for deb os
@@ -41,9 +41,9 @@ if __name__ == "__main__":
     #  p.preremove="""#!/bin/sh
     #  chmod +x /usr/bin/mclock.py""" #Set here your pre remove script
     version = "1.0.1"           #Version of your software, for example "1.2.0" or "0.8.2"
-    build = "1"                 #Build number, for example "1" for the first build of this version of your software. Increment for later re-builds of the same version of your software.
+    build = "2"                 #Build number, for example "1" for the first build of this version of your software. Increment for later re-builds of the same version of your software.
                                 #Text with changelog information to be displayed in the package "Details" tab of the Maemo Application Manager
-    changeloginformation = "Correct two bugs : choose correct view, and create dialog first" 
+    changeloginformation = "Correct desktop file and images location" 
     dir_name = "src"            #Name of the subfolder containing your package source files (for example, usr\share\icons\hicolor\scalable\myappicon.svg, usr\lib\myapp\somelib.py). We suggest to leave it named src in all projects and will refer to that in the wiki article on maemo.org
     #Thanks to DareTheHair from talk.maemo.org for this snippet that recursively builds the file list.
     for root, dirs, files in os.walk(dir_name):

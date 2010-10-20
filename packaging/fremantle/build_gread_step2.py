@@ -6,8 +6,8 @@ author="Stephane Angel aka Twidi"
 mail="s.angel@twidi.com"
 
 version = '1.0.1'
-buildversion = 1
-changelog = "Correct two bugs : choose correct view, and create dialog first" 
+buildversion = 2
+changelog = "Correct desktop file and images location" 
 
 depends = "python2.5, python2.5-qt4-common, python2.5-qt4-gui, python2.5-qt4-webkit, python-simplejson"
  

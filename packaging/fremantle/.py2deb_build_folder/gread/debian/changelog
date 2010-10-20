@@ -1,5 +1,5 @@
-gread (1.0.1-1) stable; urgency=low
+gread (1.0.1-2) stable; urgency=low
 
-  Correct two bugs : choose correct view, and create dialog first
+  Correct desktop file and images location
 
- -- Stephane Angel aka Twidi <s.angel@twidi.com>  Wed, 20 Oct 2010 18:22:54 +0000
+ -- Stephane Angel aka Twidi <s.angel@twidi.com>  Wed, 20 Oct 2010 19:27:31 +0000
