@@ -1,0 +1,17 @@
+Maintainer: Stephane Angel aka Twidi <s.angel@twidi.com>
+Format: 1.7
+Source: gread
+Version: 1.0.0-4
+Architecture: all
+Date: Wed, 20 Oct 2010 14:51:09 +0000
+Distribution: fremantle
+Urgency: low
+Description: 
+ A Google Reader client with offline capabilities. Can work Offline (synchronize at startup). Works on all platforms where PyQt is available.
+Changes: 
+ First packaged version for Maemo5/Fremantle
+Changed-By: Stephane Angel aka Twidi <s.angel@twidi.com>
+Files:
+ 60ef01bf52fb5d6cf4d6dbeca94a18a7 163595 user/network extras-devel gread_1.0.0-4.tar.gz
+ 8661dbc48c02e4048211f3084b7aafc0 322 user/network extras-devel gread_1.0.0-4.dsc
+
