@@ -6,7 +6,7 @@ author="Stephane Angel aka Twidi"
 mail="s.angel@twidi.com"
 
 version = '1.0.0'
-buildversion = 3
+buildversion = 4
 changelog = "First packaged version for Maemo5/Fremantle" 
 
 depends = "python2.5, python2.5-qt4-common, python2.5-qt4-gui, python2.5-qt4-webkit, python-simplejson"
