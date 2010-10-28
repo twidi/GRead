@@ -251,7 +251,10 @@ class FeedListView(base_view_class):
         self.action_show_all.setDisabled(not auth_ready)
         self.action_show_unread_only.setDisabled(not auth_ready)
         self.action_show_unread_only.setChecked(self.unread_only)
-        self.action_settings.setDisabled(self.sync_running or not auth_ready)          
+        if not self.controller.account.is_authenticated:
+            self.action_settings.setDisabled(False)
+        else:
+            self.action_settings.setDisabled(self.sync_running or not auth_ready)          
         self.action_mark_selected_as_read.setDisabled(not self.can_mark_selected_as_read())
         
     def request_context_menu(self, pos):
@@ -462,7 +465,23 @@ class FeedListView(base_view_class):
         self.stop_loading()
         if not self.selected_category:
             self.select_row(row=0)
-                
+
+    def feeds_not_fetched(self):
+        """
+        Actions when feeds couldn't be fetched
+        """
+        self.sync_running = False
+        self.manage_actions()
+        self.display_message('Feeds fetching could not be done', level='critical')
+
+    def cannot_authenticate(self):
+        """
+        Called when the authentication cannot be done
+        """
+        self.manage_actions()
+        self.display_message('Authentication cannot be done', level='critical')
+        self.controller.trigger_settings()
+
     def select_row(self, row=None, entry=None):
         """
         Try to select an entry in the list, by a specific entry, or by a number
@@ -486,8 +505,8 @@ class FeedListView(base_view_class):
         """
         super(FeedListView, self).settings_updated()
         self.unread_only = not not settings.get('feeds', 'unread_only')
-        self.action_sync.setDisabled(not settings.auth_ready())
-        if settings.auth_ready():
+        self.manage_actions()
+        if not self.sync_running and settings.auth_ready():
             self.update_feed_list()
 
     def show(self, app_just_launched=False):
