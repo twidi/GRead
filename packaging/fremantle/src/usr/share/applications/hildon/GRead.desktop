@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0.0
+Encoding=UTF-8
+Name=GRead
+Comment=A Google Reader client with offline capabilities. Can work Offline (synchronize at startup). Works on all platforms where PyQt is available.
+Exec=/opt/GRead/gread.py
+Icon=GRead
+X-Window-Icon=GRead
+Type=Application
+X-Osso-Type=application/x-executable

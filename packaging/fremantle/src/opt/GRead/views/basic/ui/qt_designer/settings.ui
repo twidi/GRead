@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Settings</class>
+ <widget class="QDialog" name="Settings">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>455</width>
+    <height>534</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Settings</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>-104</y>
+        <width>436</width>
+        <height>692</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <property name="leftMargin">
+        <number>9</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="Trick">
+         <property name="text">
+          <string>Trick : press &quot;h&quot; in GRead to display help about keyboard shortcuts</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::PlainText</enum>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupGoogle">
+         <property name="title">
+          <string>Google credentials</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_groupGoogle">
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelSettingsAccount">
+            <property name="text">
+             <string>Account</string>
+            </property>
+            <property name="buddy">
+             <cstring>inputSettingsAccount</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="inputSettingsAccount">
+            <property name="inputMethodHints">
+             <set>Qt::ImhEmailCharactersOnly|Qt::ImhNoAutoUppercase</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="labelSettingsPassword">
+            <property name="text">
+             <string>Password</string>
+            </property>
+            <property name="buddy">
+             <cstring>inputSettingsPassword</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="inputSettingsPassword">
+            <property name="inputMethodHints">
+             <set>Qt::ImhNoAutoUppercase|Qt::ImhNoPredictiveText</set>
+            </property>
+            <property name="echoMode">
+             <enum>QLineEdit::PasswordEchoOnEdit</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupFeeds">
+         <property name="title">
+          <string>Feeds list</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_groupFeeds">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QLabel" name="labelSettingsHomeDefault">
+              <property name="text">
+               <string>Default</string>
+              </property>
+              <property name="buddy">
+               <cstring>selectSettingsHomeDefault</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="selectSettingsHomeDefault">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <item>
+               <property name="text">
+                <string>Feeds</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Labels</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkSettingsHomeShowUnread">
+              <property name="text">
+               <string>Show unread only</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupSpecials">
+            <property name="title">
+             <string>Show specials</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_groupSpecials">
+             <item row="0" column="0">
+              <widget class="QCheckBox" name="checkSettingsShowStarred">
+               <property name="text">
+                <string>Starred</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QCheckBox" name="checkSettingsShowShared">
+               <property name="text">
+                <string>Shared</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QCheckBox" name="checkSettingsShowNotes">
+               <property name="text">
+                <string>Notes</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QCheckBox" name="checkSettingsShowAll">
+               <property name="text">
+                <string>All</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QCheckBox" name="checkSettingsShowRead">
+               <property name="text">
+                <string>Read</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QCheckBox" name="checkSettingsShowFriends">
+               <property name="text">
+                <string>Friends</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupItems">
+         <property name="title">
+          <string>Items list</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_groupItems">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLabel" name="labelSettingsItemsShowMode">
+              <property name="text">
+               <string>Show</string>
+              </property>
+              <property name="buddy">
+               <cstring>selectSettingsItemsShowMode</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="selectSettingsItemsShowMode">
+              <item>
+               <property name="text">
+                <string>Default all, save each</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Default unread, save each</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Default all, no save</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Default unread, no save</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupContent">
+         <property name="title">
+          <string>Item's view</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_groupContent">
+          <item>
+           <layout class="QGridLayout" name="gridLayout_groupContent">
+            <item row="0" column="0" colspan="2">
+             <widget class="QCheckBox" name="checkSettingsDisplayFeedsTitleItemView">
+              <property name="text">
+               <string>display feed's title insead of item's one</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="labelSettingsUserAgent">
+              <property name="text">
+               <string>User agent</string>
+              </property>
+              <property name="buddy">
+               <cstring>inputSettingsUserAgent</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="inputSettingsUserAgent">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="labelSettingsZoomFactor">
+              <property name="text">
+               <string>Zoom</string>
+              </property>
+              <property name="buddy">
+               <cstring>spinSettingsZoomFactor</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QSpinBox" name="spinSettingsZoomFactor">
+              <property name="suffix">
+               <string>%</string>
+              </property>
+              <property name="minimum">
+               <number>0</number>
+              </property>
+              <property name="maximum">
+               <number>10000</number>
+              </property>
+              <property name="singleStep">
+               <number>5</number>
+              </property>
+              <property name="value">
+               <number>100</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupOther">
+         <property name="title">
+          <string>Other</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_groupOther">
+          <item>
+           <layout class="QGridLayout" name="gridLayout_groupOther">
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelSettingsItemsToFetch">
+              <property name="text">
+               <string>Unread items to fetch by label</string>
+              </property>
+              <property name="buddy">
+               <cstring>spinSettingsItemsToFetch</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="spinSettingsItemsToFetch">
+              <property name="minimum">
+               <number>20</number>
+              </property>
+              <property name="maximum">
+               <number>2000</number>
+              </property>
+              <property name="singleStep">
+               <number>20</number>
+              </property>
+              <property name="value">
+               <number>100</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>(and for each feed without label, and for special feeds)</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBanner">
+         <property name="title">
+          <string>Informations banner</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_groupBanner">
+          <item>
+           <layout class="QGridLayout" name="gridLayout_groupBanner">
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelSettingsBannerPosition">
+              <property name="text">
+               <string>Position</string>
+              </property>
+              <property name="buddy">
+               <cstring>selectSettingsBannerPosition</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="selectSettingsBannerPosition">
+              <item>
+               <property name="text">
+                <string>Top</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Bottom</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Never display</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QCheckBox" name="checkSettingsBannerHide">
+              <property name="text">
+               <string>Hide after</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QSpinBox" name="spinSettingsBannerHideDelay">
+              <property name="suffix">
+               <string>ms</string>
+              </property>
+              <property name="minimum">
+               <number>500</number>
+              </property>
+              <property name="maximum">
+               <number>60000</number>
+              </property>
+              <property name="singleStep">
+               <number>100</number>
+              </property>
+              <property name="value">
+               <number>2000</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>inputSettingsAccount</tabstop>
+  <tabstop>inputSettingsPassword</tabstop>
+  <tabstop>selectSettingsHomeDefault</tabstop>
+  <tabstop>checkSettingsHomeShowUnread</tabstop>
+  <tabstop>checkSettingsShowStarred</tabstop>
+  <tabstop>checkSettingsShowShared</tabstop>
+  <tabstop>checkSettingsShowNotes</tabstop>
+  <tabstop>checkSettingsShowAll</tabstop>
+  <tabstop>checkSettingsShowRead</tabstop>
+  <tabstop>checkSettingsShowFriends</tabstop>
+  <tabstop>selectSettingsItemsShowMode</tabstop>
+  <tabstop>checkSettingsDisplayFeedsTitleItemView</tabstop>
+  <tabstop>inputSettingsUserAgent</tabstop>
+  <tabstop>spinSettingsZoomFactor</tabstop>
+  <tabstop>spinSettingsItemsToFetch</tabstop>
+  <tabstop>selectSettingsBannerPosition</tabstop>
+  <tabstop>checkSettingsBannerHide</tabstop>
+  <tabstop>spinSettingsBannerHideDelay</tabstop>
+  <tabstop>scrollArea</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

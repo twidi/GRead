@@ -1,0 +1,5 @@
+gread (1.0.2-1) stable; urgency=low
+
+  manage bad authentication & try to display as many as feeds as we can for the opened category
+
+ -- Stephane Angel aka Twidi <s.angel@twidi.com>  Thu, 28 Oct 2010 03:04:51 +0000
