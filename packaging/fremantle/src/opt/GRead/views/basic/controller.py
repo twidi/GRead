@@ -36,8 +36,10 @@ class Controller(QObject):
         QObject.connect(self, SIGNALS["settings_updated"], self.settings_updated)
         QObject.connect(self.account.operations_manager, SIGNALS["operation_started"], self.update_titles, Qt.QueuedConnection)
         QObject.connect(self.account.operations_manager, SIGNALS["operation_ended"], self.update_titles, Qt.QueuedConnection)
+        QObject.connect(self.account.operations_manager, SIGNALS["authenticate_error"], self.cannot_authenticate, Qt.QueuedConnection)
         QObject.connect(self.account.operations_manager, SIGNALS["get_account_feeds_started"], self.feeds_fetching_started, Qt.QueuedConnection)
         QObject.connect(self.account.operations_manager, SIGNALS["get_account_feeds_done"], self.feeds_fetched, Qt.QueuedConnection)
+        QObject.connect(self.account.operations_manager, SIGNALS["get_account_feeds_error"], self.feeds_not_fetched, Qt.QueuedConnection)
         QObject.connect(self.account.operations_manager, SIGNALS["get_feed_content_started"], self.feed_content_fetching_started, Qt.QueuedConnection)
         QObject.connect(self.account.operations_manager, SIGNALS["get_more_feed_content_started"], self.feed_content_fetching_started, Qt.QueuedConnection)
         QObject.connect(self.account.operations_manager, SIGNALS["get_feed_content_done"], self.feed_content_fetched, Qt.QueuedConnection)
@@ -88,18 +90,21 @@ class Controller(QObject):
         self.current_view = self.feedlist_view
         self.current_view.show(app_just_launched=True)
         
-    def settings_updated(self, auth_unverified_changed=False):
+    def settings_updated(self, auth_changed=False):
         """
         When settings are updated, call same method for all views, and if 
-        the auth_unverified_changed parameter is true, ask for a resync
+        the auth_changed parameter is true, ask for a resync
         """
         for view in self.views:
             try:
                 view.settings_updated()
             except:
                 pass
-        if auth_unverified_changed:
-            self.account.fetch_feeds(fetch_unread_content=True)
+        if auth_changed:
+            if not self.account.is_authenticated:
+                self.account.authenticate()
+            elif not self.account.operations_manager.count_running():
+                self.account.fetch_feeds(fetch_unread_content=True)
         
     def add_view(self, view):
         """
@@ -187,6 +192,22 @@ class Controller(QObject):
         """
         if self.current_view:
             self.current_view.stop_loading()
+
+    def cannot_authenticate(self, operation_id):
+        """
+        Called when the authentication cannot be done
+        """
+        try:
+            account = Operation.get_by_id(operation_id).params['object']
+        except:
+            pass
+        else:
+            if account == self.account:
+                for view in self.views:
+                    try:
+                        view.cannot_authenticate()
+                    except:
+                        pass
             
     def feeds_fetching_started(self, operation_id):
         """
@@ -217,6 +238,22 @@ class Controller(QObject):
                 for view in self.views:
                     try:
                         view.feeds_fetched()
+                    except:
+                        pass
+
+    def feeds_not_fetched(self, operation_id):
+        """
+        Actions when feeds couldn't be fetched
+        """
+        try:
+            account = Operation.get_by_id(operation_id).params['object']
+        except:
+            pass
+        else:
+            if account == self.account:
+                for view in self.views:
+                    try:
+                        view.feeds_not_fetched()
                     except:
                         pass
         

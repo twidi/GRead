@@ -1,5 +1,5 @@
-gread (1.0.1-2) stable; urgency=low
+gread (1.0.2-1) stable; urgency=low
 
-  Correct desktop file and images location
+  manage bad authentication & try to display as many as feeds as we can for the opened category
 
- -- Stephane Angel aka Twidi <s.angel@twidi.com>  Wed, 20 Oct 2010 19:27:31 +0000
+ -- Stephane Angel aka Twidi <s.angel@twidi.com>  Thu, 28 Oct 2010 03:04:51 +0000

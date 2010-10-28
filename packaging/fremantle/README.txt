@@ -16,7 +16,7 @@ to
 
 3. Prepare build
 
-	a) copy src directory to packaging/fremantle/opt/GRead if needed (updates in GRead code)
+	a) copy src directory to packaging/fremantle/src/opt/GRead if needed (updates in GRead code)
 
 	b) Update infomations (version, build and changelog) in build_gread_step1.py and build_gread_step2.py (in the future it should be one in only one place)
 

@@ -14,7 +14,6 @@ from engine import settings
 class SettingsDialog(Dialog):
     def __init__(self, controller):
         super(SettingsDialog, self).__init__(controller)
-        self.google_was_verified = False
         self.google_credentials_changed = False
 
     def get_ui_class(self):
@@ -92,7 +91,6 @@ class SettingsDialog(Dialog):
             
     def read_inputs(self):
         self.google_credentials_changed = False
-        self.google_was_verified        = settings.get('google', 'verified')
         
         google_account  = self.ui.inputSettingsAccount.text()
         google_password = self.ui.inputSettingsPassword.text()
@@ -144,4 +142,4 @@ class SettingsDialog(Dialog):
 
     def save_settings(self):
         settings.save()
-        self.controller.emit(SIGNALS['settings_updated'], not self.google_was_verified and self.google_credentials_changed)
+        self.controller.emit(SIGNALS['settings_updated'], self.google_credentials_changed)
