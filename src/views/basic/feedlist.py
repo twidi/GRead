@@ -363,6 +363,20 @@ class FeedListView(base_view_class):
             self.current_category = category
         if settings.get('feeds', 'default') == 'labels':
             self.update_feed_list()
+            # display maximum of content for the category
+            if self.current_category:
+                feed_unread_only = self.unread_only and not isinstance(self.current_category, SpecialCategory)
+                feeds = self.current_category.get_feeds(unread_only=feed_unread_only)
+                try:
+                    # start with last
+                    max_index = self.ui.listFeedList.model().index_of(feeds[-1])
+                    self.ui.listFeedList.scrollTo(max_index)
+                    # then scroll again to category
+                    min_index = self.ui.listFeedList.model().index_of(self.current_category)
+                    self.ui.listFeedList.scrollTo(min_index)
+                except:
+                    pass
+                
 
     def verify_current_category(self):
         """
