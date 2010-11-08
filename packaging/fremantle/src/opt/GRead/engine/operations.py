@@ -17,21 +17,12 @@ __all__ = [
 ]
 
 from PyQt4.QtCore import Qt, QObject, QThread, QMutex
-import itertools, sys, urllib2, socket
+import itertools, urllib2, socket
 from collections import deque
 from engine.signals import SIGNALS
-from engine import network
+from engine import network, log
 
 class NotAuthenticatedError(Exception):pass
-
-
-DEBUG = False
-if DEBUG :
-    def log(string):
-        sys.stderr.write(string)
-else:
-    def log(string):
-        pass
 
 class Operation(object):
     """
@@ -194,7 +185,7 @@ class Operation(object):
         Add the error in the errors list and print it on stderr
         """
         self.errors.append(error)
-        log(self.str_error(error) + "\n")
+        log(self.str_error(error))
                 
     def __str__(self):
         """
@@ -818,7 +809,7 @@ class _OperationsSpool(QObject):
         """
         Forward the "operation_started" from the spool to the operations manager
         """
-        log("[op-start] %s\n" % Operation.get_by_id(operation_id))
+        log("[op-start] %s" % Operation.get_by_id(operation_id))
         operation = Operation.get_by_id(operation_id)
         self.parent().emit(SIGNALS['%s_started' % operation.name],  operation_id)
         self.parent().emit(SIGNALS['operation_started'], operation_id)
@@ -836,7 +827,7 @@ class _OperationsSpool(QObject):
         else:
             self.errors.append(operation)
         # alert that an operation has finished
-        log("[op-end] %s\n" % operation)
+        log("[op-end] %s" % operation)
         self.parent().emit(SIGNALS['operation_ended'], operation_id)        
         # then alert for this specific operation
         status = 'done'

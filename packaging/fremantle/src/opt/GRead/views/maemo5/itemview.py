@@ -4,14 +4,14 @@
 Item content view
 """
 from ..mobile.itemview import ItemViewView as MobileItemViewView
+from engine import log
 
 ZOOMKEYS_ACTIVATED = False
 try:
     from utils.zoomkeys import grab as grab_zoom_keys
     ZOOMKEYS_ACTIVATED = True
 except Exception, e:
-    import sys
-    sys.stderr.write("ZOOMKEYS ERROR : %s\n" % e)
+    log("ZOOMKEYS ERROR : %s" % e)
 
 class ItemViewView(MobileItemViewView):
     
