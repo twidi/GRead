@@ -5,9 +5,9 @@ description="A Google Reader client with offline capabilities. Can work Offline 
 author="Stephane Angel aka Twidi"
 mail="s.angel@twidi.com"
 
-version = '1.0.2'
+version = '1.0.3'
 buildversion = 1
-changelog = "manage bad authentication & try to display as many as feeds as we can for the opened category" 
+changelog = "add debug informations with --debug param on command line" 
 
 depends = "python2.5, python2.5-qt4-common, python2.5-qt4-gui, python2.5-qt4-webkit, python-simplejson"
  

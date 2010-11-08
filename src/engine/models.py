@@ -15,11 +15,19 @@ import sys, re, itertools, time
 from operator import attrgetter
 from locale import setlocale, strxfrm, LC_ALL
 from utils.libgreader import GoogleReader, ClientAuth, Category as gCategory, Feed as gFeed
-from engine import settings
+from engine import settings, log
 from engine.operations import *
 
-class ModelError(Exception):pass
-class AccountHasNoFeedsError(ModelError):pass
+class ModelError(Exception):
+    def __init__(self, message):
+        self.message = message
+    def __str__(self):
+        return repr(self.message)
+class AccountHasNoFeedsError(ModelError):
+    def __init__(self, message=None):
+        self.message = 'Account has no feeds'
+        if message:
+            self.message = '%s (%s)' % (self.message,  message)
 class DistError(ModelError):pass
 
 # regexp to remove html tags from items' title
@@ -111,9 +119,9 @@ class Account(object):
             # another token
             if self.g_auth and was_authenticated:
                 try:
-                    sys.stderr.write("AUTH: update token\n")
+                    log("AUTH: update token")
                     self.g_auth.token = self.g_auth._getToken()
-                    sys.stderr.write("AUTH: token=%s\n" % self.g_auth.token)
+                    log("AUTH: token=%s" % self.g_auth.token)
                     self.is_authenticated = True
                     settings.set('google', 'token', self.g_auth.token, save_all=True)
                 except:
@@ -121,7 +129,7 @@ class Account(object):
 
             # else, but if we already had tokens by the past, try with them
             elif settings.get('google', 'auth_token') and settings.get('google', 'token'):
-                sys.stderr.write("AUTH: load saved auth\n")
+                log("AUTH: load saved auth")
                 self.g_auth = SavedAuth(settings.get('google', 'account'), \
                                         settings.get('google', 'password'), \
                                         settings.get('google', 'auth_token'), \
@@ -138,7 +146,7 @@ class Account(object):
                     
             # here, we have not a valid token, so we do a full authentication
             if not self.is_authenticated:
-                sys.stderr.write("AUTH: full auth\n")
+                log("AUTH: full auth")
                 self.g_auth = ClientAuth(settings.get('google', 'account'), settings.get('google', 'password'))
                 self.is_authenticated = True
                 settings.set('google', 'verified', True)
@@ -156,9 +164,10 @@ class Account(object):
         # an exception was raised during the authentication. 
         # it is either a authentication failure, or a network failure
         # but let the caller manage this
-        except:
+        except Exception,  e:
             self.is_authenticated = False
-            raise
+            log('AUTH : failed ! (%s)' % e)
+            raise e
             
     def assert_authenticated(self):
         """
@@ -208,7 +217,7 @@ class Account(object):
         # if no content, there is a problem : raise
         g_feeds = self.g_object.getFeeds()
         if not g_feeds:
-            raise AccountHasNoFeedsError
+            raise AccountHasNoFeedsError()
         
         # add each category
         for g_category in self.g_object.getCategories():
