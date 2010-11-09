@@ -1,0 +1,17 @@
+Maintainer: Stephane Angel aka Twidi <s.angel@twidi.com>
+Format: 1.7
+Source: gread
+Version: 1.0.4-1
+Architecture: all
+Date: Tue, 09 Nov 2010 01:22:50 +0000
+Distribution: fremantle
+Urgency: low
+Description: 
+ A Google Reader client with offline capabilities. Can work Offline (synchronize at startup). Works on all platforms where PyQt is available.
+Changes: 
+ workaround for  a very annoying bug in qtwebkit, when long pressing a letter in the internal browser emit a 'press backspace' event and then return to the item list
+Changed-By: Stephane Angel aka Twidi <s.angel@twidi.com>
+Files:
+ a67d79ac2708a6261f5b4bc9621c6e41 160467 user/network extras-devel gread_1.0.4-1.tar.gz
+ d5771a70266d955841f04e51bbc94f26 322 user/network extras-devel gread_1.0.4-1.dsc
+

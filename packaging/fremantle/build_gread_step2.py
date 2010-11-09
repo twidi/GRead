@@ -5,9 +5,9 @@ description="A Google Reader client with offline capabilities. Can work Offline 
 author="Stephane Angel aka Twidi"
 mail="s.angel@twidi.com"
 
-version = '1.0.3'
+version = '1.0.4'
 buildversion = 1
-changelog = "add debug informations with --debug param on command line" 
+changelog = "workaround for  a very annoying bug in qtwebkit, when long pressing a letter in the internal browser emit a 'press backspace' event and then return to the item list" 
 
 depends = "python2.5, python2.5-qt4-common, python2.5-qt4-gui, python2.5-qt4-webkit, python-simplejson"
  
