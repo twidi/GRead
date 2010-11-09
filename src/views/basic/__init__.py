@@ -4,6 +4,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 from engine import settings
+import time
 
 class ListModel(QAbstractListModel):
     def __init__(self, data, view):
@@ -69,11 +70,6 @@ class WindowEventFilter(QObject):
         if event.type() == QEvent.ActivationChange:
             if self.parent().isActiveWindow():
                 self.parent().view.set_focused()
-        elif event.type() in (QEvent.KeyPress, QEvent.ShortcutOverride) \
-            and event.key() in (Qt.Key_Backspace, Qt.Key_Escape):
-            if self.parent().parent():
-                self.parent().hide()
-                return True
 
         return QObject.eventFilter(self, obj, event)
         
@@ -92,6 +88,12 @@ class BannerEventFilter(QObject):
 class ViewEventFilter(QObject):
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
+        # for a annoying bug in qtwebkit (at least for maemo) where long pressing a key in the browser generate left+backspace+right
+        self.parent()._debug_key = {
+            'pressed': None, 
+            'is_released': True, 
+            'time_pressed': None, 
+        }
         
     def isShift(self, event):
         return event.modifiers() & Qt.ShiftModifier
@@ -104,17 +106,30 @@ class ViewEventFilter(QObject):
     def preEventFilter(self, obj, event):
         if event.type() == QEvent.KeyPress:
             key = event.key()
+            if self.parent()._debug_key['is_released'] or time.time() - self.parent()._debug_key['time_pressed'] >= 2:
+                self.parent()._debug_key['key_pressed']  = key
+                self.parent()._debug_key['is_released']  = False
+                self.parent()._debug_key['time_pressed'] = time.time()
             if key == Qt.Key_Space and self.isShift(event):
                 self.emit(SIGNAL("trigger_filter_feeds"))
-                return False
+                return True
             elif key == Qt.Key_H:
                 self.emit(SIGNAL("trigger_help"))
-                return False
+                return True
             elif key == Qt.Key_I:
                 self.emit(SIGNAL("toggle_banner"))
-                return False
+                return True
         
     def postEventFilter(self, obj, event):
+        if event.type() == QEvent.KeyRelease:
+            key = event.key()
+            if key == self.parent()._debug_key['key_pressed']:
+                self.parent()._debug_key['is_released'] = True
+                self.parent()._debug_key['key_pressed'] = None
+            if key in (Qt.Key_Backspace, Qt.Key_Escape):
+                if self.parent()._debug_key['is_released']:
+                    self.emit(SIGNAL("trigger_back"))
+                    return True
         return False
 
 class View(object):
@@ -178,10 +193,15 @@ class View(object):
         QObject.connect(self.event_filter, SIGNAL("trigger_filter_feeds"), self.controller.trigger_filter_feeds)
         QObject.connect(self.event_filter, SIGNAL("trigger_help"), self.controller.trigger_help)
         QObject.connect(self.event_filter, SIGNAL("toggle_banner"), self.toggle_banner)
+        QObject.connect(self.event_filter, SIGNAL("trigger_back"), self.trigger_back)
         
     def add_event_filter(self, widget, event_filter_class):
         self.event_filter = event_filter_class(self.win)
         widget.installEventFilter(self.event_filter)
+        
+    def trigger_back(self):
+        if self.win.parent():
+            self.win.hide()
         
     def toggle_banner(self):
         if self.banner.isVisible():

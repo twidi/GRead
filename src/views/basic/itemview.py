@@ -13,7 +13,7 @@ from ui.Ui_itemview import Ui_winItemView
 from . import View, ViewEventFilter, base_view_class, base_eventfilter_class
 from utils.toolbar import ToolbarManager, Toolbar
 
-from engine import settings
+from engine import settings, log
 from engine.models import *
 
 
@@ -156,7 +156,7 @@ class ItemViewView(base_view_class):
         return ItemViewEventFilter
         
     def init_events(self):
-        self.add_event_filter(self.win, self.get_event_filter_class())
+        self.add_event_filter(self.ui.webView, self.get_event_filter_class())
         super(ItemViewView, self).init_events()
         QObject.connect(self.event_filter, SIGNAL("zoom"), self.zoom)
         QObject.connect(self.event_filter, SIGNAL("next"), self.show_next)
@@ -199,60 +199,68 @@ class ItemViewView(base_view_class):
         """
         Display the specified item it the view
         """
-        self.start_loading()
-
-        self.current_item = item
-        self.update_title()
-        
-        # mark the item as read
-        if item.unread:
-            self.trigger_read(True)
+        try:
+            self.start_loading()
+    
+            self.current_item = item
+            self.update_title()
+           
+            # mark the item as read
+            if item.unread:
+                self.trigger_read(True)
+                
+            # display content
+            self.current_page_is_content = True
+            self.ui.webView.stop()
+            self.ui.webView.setHtml("")
+            self.ui.webView.setHtml(item.content)
+            self.ui.webView.setZoomFactor(self.current_zoom_factor)
+    
+            self.ui.webView.setFocus(Qt.OtherFocusReason)
             
-        # display content
-        self.current_page_is_content = True
-        self.ui.webView.setHtml(item.content)
-        self.ui.webView.setZoomFactor(self.current_zoom_factor)
+            # toolbars
+            previous = self.controller.get_previous_item()
+            next     = self.controller.get_next_item()
+            if previous:
+                self.leftToolbar.set_tooltip(previous.title)
+                self.leftToolbar.enable()
+            else:
+                self.leftToolbar.disable()
+            if next:
+                self.rightToolbar.set_tooltip(next.title)
+                self.rightToolbar.enable()
+            else:
+                self.rightToolbar.disable()
+            self.toolbar_manager.display()
 
-        self.ui.webView.setFocus(Qt.OtherFocusReason)
-        
-        # toolbars
-        previous = self.controller.get_previous_item()
-        next     = self.controller.get_next_item()
-        if previous:
-            self.leftToolbar.set_tooltip(previous.title)
-            self.leftToolbar.enable()
-        else:
-            self.leftToolbar.disable()
-        if next:
-            self.rightToolbar.set_tooltip(next.title)
-            self.rightToolbar.enable()
-        else:
-            self.rightToolbar.disable()
-        self.toolbar_manager.display()
-
-        # menus
-        self.action_read.setChecked(not item.unread)
-        self.action_read.setDisabled(not item.can_unread)
-        self.action_shared.setChecked(item.shared)
-        self.action_starred.setChecked(item.starred)
-        
-        self.manage_actions()
-        
+            # menus
+            self.action_read.setChecked(not item.unread)
+            self.action_read.setDisabled(not item.can_unread)
+            self.action_shared.setChecked(item.shared)
+            self.action_starred.setChecked(item.starred)
             
-        str = "%s - " % item.title
-        statuses = []
-        if item.unread:
-            statuses.append('unread')
+            self.manage_actions()
+            
+
+            str = "%s - " % item.title
+            statuses = []
+            if item.unread:
+                statuses.append('unread')
+            else:
+                statuses.append('read')
+            if item.shared:
+                statuses.append('shared')
+            if item.starred:
+                statuses.append('starred')
+            self.display_banner("%s [%s]" % (item.title, ', '.join(statuses)))
+
+        
+        except Exception, e:
+            log("ERROR WHILE DISPLAYING ITEM : %s" % e)
+            return False
         else:
-            statuses.append('read')
-        if item.shared:
-            statuses.append('shared')
-        if item.starred:
-            statuses.append('starred')
-        self.display_banner("%s [%s]" % (item.title, ', '.join(statuses)))
-
-        return True
-
+            return True
+                
     def trigger_read(self, checked):
         """
         Mark the item as read (checked==True) or unread
@@ -315,6 +323,7 @@ class ItemViewView(base_view_class):
         the url is opened in the internal browser
         """
         if force_in_gread or not QDesktopServices.openUrl(url):
+            self.ui.webView.stop()
             self.current_page_is_content = False
             self.ui.webView.setHtml("")
             self.start_loading()

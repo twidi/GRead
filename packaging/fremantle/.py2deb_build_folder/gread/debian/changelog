@@ -1,5 +1,5 @@
-gread (1.0.3-1) stable; urgency=low
+gread (1.0.4-1) stable; urgency=low
 
-  add debug informations with --debug param on command line
+  workaround for  a very annoying bug in qtwebkit, when long pressing a letter in the internal browser emit a 'press backspace' event and then return to the item list
 
- -- Stephane Angel aka Twidi <s.angel@twidi.com>  Mon, 08 Nov 2010 21:28:54 +0000
+ -- Stephane Angel aka Twidi <s.angel@twidi.com>  Tue, 09 Nov 2010 02:21:43 +0000

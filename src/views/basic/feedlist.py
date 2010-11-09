@@ -132,9 +132,6 @@ class FeedListEventFilter(base_eventfilter_class):
             if key == Qt.Key_S and self.isShift(event):
                 self.emit(SIGNAL("trigger_sync"), True)
                 return True
-            elif key == Qt.Key_Backspace:
-                self.emit(SIGNAL("trigger_back"), True)
-                return True
             elif key == Qt.Key_O and not self.isShift(event):
                 self.emit(SIGNAL("trigger_open"), True)
                 return True
@@ -235,7 +232,6 @@ class FeedListView(base_view_class):
         self.add_event_filter(self.ui.listFeedList, self.get_event_filter_class())
         super(FeedListView, self).init_events()        
         QObject.connect(self.event_filter, SIGNAL("trigger_sync"), self.trigger_sync)
-        QObject.connect(self.event_filter, SIGNAL("trigger_back"), self.trigger_back)
         QObject.connect(self.event_filter, SIGNAL("trigger_open"), self.trigger_open)
         QObject.connect(self.event_filter, SIGNAL("toggle_unread_only"), self.toggle_unread_only)
         QObject.connect(self.event_filter, SIGNAL("mark_selected_all_read"), self.trigger_mark_selected_as_read)        
