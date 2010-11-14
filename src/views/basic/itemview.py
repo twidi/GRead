@@ -29,12 +29,6 @@ class ItemViewEventFilter(base_eventfilter_class):
             elif key == Qt.Key_F8:
                 self.emit(SIGNAL("zoom"), False)
                 return True
-            elif key in (Qt.Key_J, Qt.Key_N):
-                self.emit(SIGNAL("next"))
-                return True
-            elif key in (Qt.Key_K, Qt.Key_P):
-                self.emit(SIGNAL("previous"))
-                return True
             elif key == Qt.Key_M:
                 self.emit(SIGNAL("toggle_read"))
                 return True
@@ -49,6 +43,14 @@ class ItemViewEventFilter(base_eventfilter_class):
                     self.emit(SIGNAL("toggle_shared"))
                 else:
                     self.emit(SIGNAL("toggle_starred"))
+                return True
+        elif event.type() == QEvent.KeyRelease:
+            key = event.key()
+            if key in (Qt.Key_J, Qt.Key_N):
+                self.emit(SIGNAL("next"))
+                return True
+            elif key in (Qt.Key_K, Qt.Key_P):
+                self.emit(SIGNAL("previous"))
                 return True
         if self.postEventFilter(obj, event):
             return True
