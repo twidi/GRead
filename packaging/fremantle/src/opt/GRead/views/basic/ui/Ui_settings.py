@@ -261,7 +261,7 @@ class Ui_Settings(object):
         self.selectSettingsItemsShowMode.setItemText(2, QtGui.QApplication.translate("Settings", "Default all, no save", None, QtGui.QApplication.UnicodeUTF8))
         self.selectSettingsItemsShowMode.setItemText(3, QtGui.QApplication.translate("Settings", "Default unread, no save", None, QtGui.QApplication.UnicodeUTF8))
         self.groupContent.setTitle(QtGui.QApplication.translate("Settings", "Item\'s view", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkSettingsDisplayFeedsTitleItemView.setText(QtGui.QApplication.translate("Settings", "display feed\'s title insead of item\'s one", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkSettingsDisplayFeedsTitleItemView.setText(QtGui.QApplication.translate("Settings", "display feed\'s title instead of item\'s one", None, QtGui.QApplication.UnicodeUTF8))
         self.labelSettingsUserAgent.setText(QtGui.QApplication.translate("Settings", "User agent", None, QtGui.QApplication.UnicodeUTF8))
         self.labelSettingsZoomFactor.setText(QtGui.QApplication.translate("Settings", "Zoom", None, QtGui.QApplication.UnicodeUTF8))
         self.spinSettingsZoomFactor.setSuffix(QtGui.QApplication.translate("Settings", "%", None, QtGui.QApplication.UnicodeUTF8))

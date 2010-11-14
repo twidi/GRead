@@ -1,5 +1,5 @@
-gread (1.0.4-1) stable; urgency=low
+gread (1.0.5-1) stable; urgency=low
 
-  workaround for  a very annoying bug in qtwebkit, when long pressing a letter in the internal browser emit a 'press backspace' event and then return to the item list
+  resolve bug with utf-8 encoded categories, and better navigation with j/n & k/p keys in item view
 
- -- Stephane Angel aka Twidi <s.angel@twidi.com>  Tue, 09 Nov 2010 02:21:43 +0000
+ -- Stephane Angel aka Twidi <s.angel@twidi.com>  Sun, 14 Nov 2010 17:56:43 +0000
