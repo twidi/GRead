@@ -40,10 +40,10 @@ if __name__ == "__main__":
     #  chmod +x /usr/bin/mclock.py""" #Set here your pre install script
     #  p.preremove="""#!/bin/sh
     #  chmod +x /usr/bin/mclock.py""" #Set here your pre remove script
-    version = "1.0.4"           #Version of your software, for example "1.2.0" or "0.8.2"
+    version = "1.0.5"           #Version of your software, for example "1.2.0" or "0.8.2"
     build = "1"                 #Build number, for example "1" for the first build of this version of your software. Increment for later re-builds of the same version of your software.
                                 #Text with changelog information to be displayed in the package "Details" tab of the Maemo Application Manager
-    changeloginformation = "workaround for  a very annoying bug in qtwebkit, when long pressing a letter in the internal browser emit a 'press backspace' event and then return to the item list" 
+    changeloginformation = "resolve bug with utf-8 encoded categories, and better navigation with j/n & k/p keys in item view" 
     dir_name = "src"            #Name of the subfolder containing your package source files (for example, usr\share\icons\hicolor\scalable\myappicon.svg, usr\lib\myapp\somelib.py). We suggest to leave it named src in all projects and will refer to that in the wiki article on maemo.org
     #Thanks to DareTheHair from talk.maemo.org for this snippet that recursively builds the file list.
     for root, dirs, files in os.walk(dir_name):
