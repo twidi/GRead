@@ -90,7 +90,7 @@ class ViewEventFilter(QObject):
         QObject.__init__(self, parent)
         # for a annoying bug in qtwebkit (at least for maemo) where long pressing a key in the browser generate left+backspace+right
         self.parent()._debug_key = {
-            'pressed': None, 
+            'key_pressed': None, 
             'is_released': True, 
             'time_pressed': None, 
         }
