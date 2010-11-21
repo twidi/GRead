@@ -2,6 +2,7 @@
 
 from PyQt4 import QtCore, QtGui
 
+
 class Ui_Window(object):        
     def add_main_container(self):
         self.centralWidget = QtGui.QWidget(self.win)
@@ -53,3 +54,4 @@ class Ui_Window(object):
         pass
 
 base_ui_window_class = Ui_Window
+base_listview_class  = QtGui.QListView
