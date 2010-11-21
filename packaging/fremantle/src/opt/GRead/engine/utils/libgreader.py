@@ -153,7 +153,6 @@ class Category(ItemsContainer):
         
         self.feeds  = []
         
-        self.googleReader = googleReader
         self.fetchUrl = GoogleReader.CATEGORY_URL + urlquote(self.label)
         
     def _addFeed(self, feed):
