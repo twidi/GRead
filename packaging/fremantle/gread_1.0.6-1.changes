@@ -3,7 +3,7 @@ Format: 1.7
 Source: gread
 Version: 1.0.6-1
 Architecture: all
-Date: Sun, 21 Nov 2010 21:16:21 +0000
+Date: Sun, 21 Nov 2010 21:24:54 +0000
 Distribution: fremantle
 Urgency: low
 Description: 
@@ -12,6 +12,6 @@ Changes:
  on mobile views, click on the right on an item to display the context menu (you can always 'long press' (simulate right click), but it can be too long)
 Changed-By: Stephane Angel aka Twidi <s.angel@twidi.com>
 Files:
- 3a6a30e134aeb885949cf07dff23f427 294425 user/network extras-devel gread_1.0.6-1.tar.gz
- dfce32a76757472db6d831160ab4916d 322 user/network extras-devel gread_1.0.6-1.dsc
+ 35edcf6e9deef0aec8a13d1f175b7e3a 294463 user/network extras-devel gread_1.0.6-1.tar.gz
+ 806a34e019f20ff050b7d1a84c859991 322 user/network extras-devel gread_1.0.6-1.dsc
 
