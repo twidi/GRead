@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from PyQt4 import QtCore, QtGui
-from . import base_ui_window_class
+from . import base_ui_window_class, base_listview_class
 
 class Ui_winItemList(base_ui_window_class):
         
@@ -10,7 +10,7 @@ class Ui_winItemList(base_ui_window_class):
         self.win.move(0, int(QtGui.QApplication.desktop().availableGeometry().height() / 2))
 
     def add_widgets(self):
-        self.listItemList = QtGui.QListView(self.centralWidget)
+        self.listItemList = base_listview_class(self.centralWidget)
         self.listItemList.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.listItemList.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.listItemList.setProperty("showDropIndicator", False)

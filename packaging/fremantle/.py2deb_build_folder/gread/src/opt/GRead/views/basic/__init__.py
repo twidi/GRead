@@ -6,6 +6,7 @@ from PyQt4.QtCore import *
 from engine import settings
 import time
 
+
 class ListModel(QAbstractListModel):
     def __init__(self, data, view):
         QAbstractListModel.__init__(self, view.win)

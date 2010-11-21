@@ -6,7 +6,8 @@ from PyQt4.QtCore import *
 from ..basic import ViewEventFilter as BasicViewEventFilter,  \
                     View            as BasicView
 
-from .ui import Ui_Window # to load base_ui_window_class
+from .ui import RequestContextMenuSignal, \
+                Ui_Window # to load base_ui_window_class
                     
 from engine import settings
 
@@ -48,6 +49,10 @@ class View(BasicView):
             
     def get_max_title_length(self):
         return 25
+
+    def make_context_menu(self, widget):
+        super(View, self).make_context_menu(widget)
+        QObject.connect(widget, RequestContextMenuSignal, self.request_context_menu)
 
 
 from .. import basic
