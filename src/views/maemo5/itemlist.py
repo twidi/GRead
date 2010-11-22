@@ -6,8 +6,8 @@ Item list view
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-from ..basic.itemlist import ItemListDelegate as BasicItemListDelegate,  \
-                             ItemListView     as BasicItemListView
+from ..basic.itemlist import ItemListDelegate as BasicItemListDelegate
+from ..mobile.itemlist import ItemListView as BasicItemListView
 
 class ItemListDelegate(BasicItemListDelegate):
     
