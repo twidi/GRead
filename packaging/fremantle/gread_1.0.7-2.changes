@@ -1,17 +1,17 @@
 Maintainer: Stephane Angel aka Twidi <s.angel@twidi.com>
 Format: 1.7
 Source: gread
-Version: 1.0.7-1
+Version: 1.0.7-2
 Architecture: all
-Date: Mon, 22 Nov 2010 12:28:18 +0000
+Date: Mon, 22 Nov 2010 15:41:25 +0000
 Distribution: fremantle
 Urgency: low
 Description: 
  A Google Reader client with offline capabilities. Can work Offline (synchronize at startup). Works on all platforms where PyQt is available.
 Changes: 
- simple gestures in item list on mobile views : swipe to right to mark item as read, and to left to mark item as unread
+ remove pyo and pyc files
 Changed-By: Stephane Angel aka Twidi <s.angel@twidi.com>
 Files:
- 6395ecae1f96b409406d23bfba634b20 295838 user/network extras-devel gread_1.0.7-1.tar.gz
- 9989b4acd686b935c2f91ceb10d08f07 322 user/network extras-devel gread_1.0.7-1.dsc
+ e5ae87a91aa8e2c5e5411482409e12eb 168723 user/network extras-devel gread_1.0.7-2.tar.gz
+ a5e45cfd348a0c3a3550b7f0b0514bdf 322 user/network extras-devel gread_1.0.7-2.dsc
 
