@@ -1,5 +1,5 @@
-gread (1.0.7-1) stable; urgency=low
+gread (1.0.7-2) stable; urgency=low
 
-  simple gestures in item list on mobile views : swipe to right to mark item as read, and to left to mark item as unread
+  remove pyo and pyc files
 
- -- Stephane Angel aka Twidi <s.angel@twidi.com>  Mon, 22 Nov 2010 13:26:27 +0000
+ -- Stephane Angel aka Twidi <s.angel@twidi.com>  Mon, 22 Nov 2010 16:39:59 +0000

@@ -18,7 +18,9 @@ to
 
 	a) copy src directory to packaging/fremantle/src/opt/GRead if needed (updates in GRead code)
 
-	b) Update infomations (version, build and changelog) in build_gread_step1.py and build_gread_step2.py (in the future it should be one in only one place)
+	b) delete .pyo and .pyc files for f in `find ./ -name '*.py?'`; do rm $f; done
+
+	c) Update infomations (version, build and changelog) in build_gread_step1.py and build_gread_step2.py (in the future it should be one in only one place)
 
 4. Build the package
 
