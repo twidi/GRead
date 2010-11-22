@@ -51,12 +51,12 @@ class ItemViewView(BasicItemViewView):
     def get_toolbars(self):
         toolbars = super(ItemViewView, self).get_toolbars()
         toolbar_class = self.get_toolbar_class()
-        self.bottomToolbar = toolbar_class('+', 'Toolbar', self.plop, 0.5, 1, parent=self.win)
+        self.bottomToolbar = toolbar_class('+', 'Toolbar', self.bottom_toolbar_pressed, 0.5, 1, parent=self.win)
         self.bottomToolbar.enable()
         toolbars.append(self.bottomToolbar)
         return toolbars
 
-    def plop(self):
+    def bottom_toolbar_pressed(self):
         pos = self.bottomToolbar.toolbar.pos()
         self.request_context_menu(pos)
 
