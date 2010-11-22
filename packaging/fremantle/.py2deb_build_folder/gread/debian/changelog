@@ -1,5 +1,5 @@
-gread (1.0.6-1) stable; urgency=low
+gread (1.0.7-1) stable; urgency=low
 
-  on mobile views, click on the right on an item to display the context menu (you can always 'long press' (simulate right click), but it can be too long)
+  simple gestures in item list on mobile views : swipe to right to mark item as read, and to left to mark item as unread
 
- -- Stephane Angel aka Twidi <s.angel@twidi.com>  Sun, 21 Nov 2010 22:16:11 +0000
+ -- Stephane Angel aka Twidi <s.angel@twidi.com>  Mon, 22 Nov 2010 13:26:27 +0000

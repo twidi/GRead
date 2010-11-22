@@ -5,9 +5,9 @@ description="A Google Reader client with offline capabilities. Can work Offline 
 author="Stephane Angel aka Twidi"
 mail="s.angel@twidi.com"
 
-version = '1.0.6'
+version = '1.0.7'
 buildversion = 1
-changelog = "on mobile views, click on the right on an item to display the context menu (you can always 'long press' (simulate right click), but it can be too long)" 
+changelog = "simple gestures in item list on mobile views : swipe to right to mark item as read, and to left to mark item as unread" 
 
 depends = "python2.5, python2.5-qt4-common, python2.5-qt4-gui, python2.5-qt4-webkit, python-simplejson"
  
