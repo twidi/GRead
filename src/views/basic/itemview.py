@@ -89,11 +89,14 @@ class ItemViewView(base_view_class):
     def get_ui_class(self):
         return Ui_winItemView
 
-    def init_toolbars(self):
+    def get_toolbars(self):
         toolbar_class = self.get_toolbar_class()
         self.leftToolbar = toolbar_class('<', 'Previous item', self.show_previous, 0, 0.7, parent=self.win)
         self.rightToolbar = toolbar_class('>', 'Next item', self.show_next, 1, 0.7, parent=self.win)
-        self.toolbar_manager = self.get_toolbar_manager_class()([self.leftToolbar, self.rightToolbar], event_target=self.ui.webView.page(), parent=self.win)
+        return [self.leftToolbar, self.rightToolbar]
+
+    def init_toolbars(self):
+        self.toolbar_manager = self.get_toolbar_manager_class()(self.get_toolbars(), event_target=self.ui.webView.page(), parent=self.win)
         
     def get_toolbar_class(self):
         return Toolbar

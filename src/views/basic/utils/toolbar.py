@@ -114,13 +114,13 @@ class Toolbar(QObject):
                 background: transparent;
                 color: %(background_hover)s;
             }
-            QToolButton:hover {
+            QToolButton:pressed {
                 background: %(background_hover)s;
                 color: %(foreground_hover)s;
             }
             """ %
             {
-                'border_radius': int(self.button.height()/2),
+                'border_radius': int(self.button.height()/3),
                 'background_hover': palette.color(palette.Highlight).name(),
                 'foreground_hover': palette.color(palette.HighlightedText).name(),
             }
