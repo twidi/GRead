@@ -1,0 +1,17 @@
+Maintainer: Stephane Angel aka Twidi <s.angel@twidi.com>
+Format: 1.7
+Source: gread
+Version: 1.0.8-1
+Architecture: all
+Date: Tue, 23 Nov 2010 00:40:31 +0000
+Distribution: fremantle
+Urgency: low
+Description: 
+ A Google Reader client with offline capabilities. Can work Offline (synchronize at startup). Works on all platforms where PyQt is available.
+Changes: 
+ add a virtual toolbar in mobile views : in the item view, a +', centered at the bottom of the view, display the context menu (you can always long press)
+Changed-By: Stephane Angel aka Twidi <s.angel@twidi.com>
+Files:
+ 8a4e25abfc2cefab827e914b900cd4d1 168937 user/network extras-devel gread_1.0.8-1.tar.gz
+ d6fc3a33caf4d1cfde853d2298043ee1 322 user/network extras-devel gread_1.0.8-1.dsc
+
