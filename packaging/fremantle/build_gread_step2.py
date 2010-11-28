@@ -9,7 +9,7 @@ version = '1.0.7'
 buildversion = 2
 changelog = "remove pyo and pyc files" 
 
-depends = "python2.5, python2.5-qt4-common, python2.5-qt4-gui, python2.5-qt4-webkit, python-simplejson"
+depends = "python2.5, python2.5-qt4-common, python2.5-qt4-gui, python2.5-qt4-webkit, python-simplejson, python2.5-qt4-sql, libqt4-sql-sqlite"
  
 distribution="fremantle"
 arch="all"                #should be all for python, any for all arch

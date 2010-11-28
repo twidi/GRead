@@ -21,7 +21,7 @@ if __name__ == "__main__":
     p.description="A Google Reader client with offline capabilities. Can work Offline (synchronize at startup). Works on all platforms where PyQt is available."
     p.author="Stephane Angel aka Twidi"
     p.mail="s.angel@twidi.com"
-    p.depends = "python2.5, python2.5-qt4-common, python2.5-qt4-gui, python2.5-qt4-webkit, python-simplejson"
+    p.depends = "python2.5, python2.5-qt4-common, python2.5-qt4-gui, python2.5-qt4-webkit, python-simplejson, python2.5-qt4-sql, libqt4-sql-sqlite"
     # Edit this based on your import statements (for example, you probably will not need pygame)
     p.section="user/network"
     # When editing the .section, make sure to use [[Packaging#Sections|an allowed section]] - otherwise the autobuilder will give a warning.

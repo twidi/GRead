@@ -1,0 +1,152 @@
+class StorageError(Exception): pass
+class StorageImproperlyConfigured(StorageError): pass
+class StorageNotInitialized(StorageError): pass
+class StorageCannotBeInitialized(StorageError): pass
+class ObjectError(StorageError): pass
+class ObjectNotFound(ObjectError): pass
+class CannotAddObject(ObjectError): pass
+
+class BaseStorage(object):
+	"""
+	Base model for all storage backends.
+	"""
+	
+	def __init__(self):
+		self.conf = {}
+		self.configured  = False
+		self.initialized = False
+
+	def assert_ready(self):
+		"""
+		Check if the storage is configured and initialized
+		"""
+		if not self.configured:
+			raise StorageImproperlyConfigured
+		elif not self.initialized:
+			raise StorageNotInitialized
+
+	def configure(self, params):
+		"""
+		Configuration to be used by the backend
+		The storage must set self.configured to True
+		"""
+		self.conf = params
+
+	def init(self):
+		"""
+		Init the storage
+		The storage must set self.initialized to True
+		"""
+		if not self.configured:
+			raise StorageImproperlyConfigured
+
+	def end(self):
+		"""
+		Close the storage
+		"""
+		self.initialized = False
+
+	def __del__(self):
+		"""
+		Destructor : ask to close the storage
+		"""
+		if self.initialized:
+			self.end()
+
+	def update(self):
+		"""
+		Update the storage (new fields...)
+		"""
+		self.assert_ready()
+
+	def add_object(self, type, id, data):
+		"""
+		Add an object of a certain type, with an id and some data
+		Raise CannotAddObject if it fails
+		"""
+		self.assert_ready()
+
+	def read_object(self, type, id):
+		"""
+		Read the object of a certain type with the specified id
+		Raise ObjectNotFoundError if not found
+		"""
+		self.assert_ready()
+
+	def update_object(self, type, id, data):
+		"""
+		Update the object of a certain type with the specified id, with the given data (a dict field=>value)
+		Raise ObjectNotFoundError if not found
+		"""
+		self.assert_ready()
+
+	def delete_object(self, type, id):
+		"""
+		Delete the object of a certain type with the specified id
+		Raise ObjectNotFoundError if not object is not found
+		"""
+		self.assert_ready()
+
+	def add_objects(self, type, objects):
+		"""
+		Add many objects of the same type. 
+		"objects" is a dict with id as keys, and data (a dict) as values
+		"""
+		self.assert_ready()
+		for id, data in objects.iteritems():
+			self.add_object(id, data)
+
+	def read_objects(self, type, ids):
+		"""
+		Read many objects of the same type, with the given ids
+		"""
+		self.assert_ready()
+		objects = []
+		for id in ids:
+			objects.append(self.read_object(type, id))
+		return objects
+
+	def update_objects(self, type, ids, data):
+		"""
+		Update many objects of the same type by setting same data (see "update_object") for all ids.
+		"""
+		self.assert_ready()
+		for id in ids:
+			self.update_object(type, id, data)
+
+	def delete_objects(self, type, ids):
+		"""
+		Delete many objects of the same type
+		"""
+		self.assert_ready()
+		for id in ids:
+			self.delete_object(type, id)
+
+	def find_objects(self, type, query, operator='and'):
+		"""
+		Find all objects of a certain type regarding specified query.
+		Actually query is a dict with fields as keys and values to search for as values.
+		All fields are combined with an operator which can be either "and" (default) or "or"
+		Return a list (empty list if no object found)
+		"""
+		self.assert_ready()
+		return []
+
+	def find_and_update_objects(self, type, data, query, operator='and'):
+		"""
+		Find all objects of a certain type regarding specified query (see "find_objects") and update them with the specified data (see "update_objects")
+		"""
+		self.assert_ready()
+		objects = self.find_objects(self, type, query, operator)
+		ids = [obj['id'] for obj in objects]
+		self.update_objects(type, ids, data)
+
+	def find_and_delete_objects(self, type, query, operator='and'):
+		"""
+		Find all objects of a certain type regarding specified query (see "find_objects") and delete them)
+		"""
+		self.assert_ready()
+		objects = self.find_objects(self, type, query, operator)
+		ids = [obj['id'] for obj in objects]
+		self.delete_objects(type, ids)
+
