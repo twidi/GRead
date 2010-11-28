@@ -5,6 +5,9 @@ class StorageCannotBeInitialized(StorageError): pass
 class ObjectError(StorageError): pass
 class ObjectNotFound(ObjectError): pass
 class CannotAddObject(ObjectError): pass
+class CannotReadObject(ObjectError): pass
+class CannotUpdateObject(ObjectError): pass
+class CannotDeleteObject(ObjectError): pass
 
 class BaseStorage(object):
 	"""
@@ -53,15 +56,9 @@ class BaseStorage(object):
 		if self.initialized:
 			self.end()
 
-	def update(self):
+	def add_object(self, type, data):
 		"""
-		Update the storage (new fields...)
-		"""
-		self.assert_ready()
-
-	def add_object(self, type, id, data):
-		"""
-		Add an object of a certain type, with an id and some data
+		Add an object of a certain type, with some data
 		Raise CannotAddObject if it fails
 		"""
 		self.assert_ready()
@@ -69,32 +66,32 @@ class BaseStorage(object):
 	def read_object(self, type, id):
 		"""
 		Read the object of a certain type with the specified id
-		Raise ObjectNotFoundError if not found
+		Raise CannotReadObject if it fails and ObjectNotFound if not found
 		"""
 		self.assert_ready()
 
 	def update_object(self, type, id, data):
 		"""
 		Update the object of a certain type with the specified id, with the given data (a dict field=>value)
-		Raise ObjectNotFoundError if not found
+		Raise CannotUpdateObject if it fails and ObjectNotFound if not found
 		"""
 		self.assert_ready()
 
 	def delete_object(self, type, id):
 		"""
 		Delete the object of a certain type with the specified id
-		Raise ObjectNotFoundError if not object is not found
+		Raise CannotDeleteObject if it fails and ObjectNotFound if not object is not found
 		"""
 		self.assert_ready()
 
 	def add_objects(self, type, objects):
 		"""
 		Add many objects of the same type. 
-		"objects" is a dict with id as keys, and data (a dict) as values
+		"objects" is a list of dicts (one dict per object to add)
 		"""
 		self.assert_ready()
-		for id, data in objects.iteritems():
-			self.add_object(id, data)
+		for data in objects:
+			self.add_object(type, data)
 
 	def read_objects(self, type, ids):
 		"""

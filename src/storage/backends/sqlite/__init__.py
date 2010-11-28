@@ -10,6 +10,7 @@ import queries
 
 class DBUpgradeCannotBeDone(StorageError): pass
 
+
 class Storage(BaseStorage):
 	"""
 	Storage backend using a sqlite database.
@@ -18,6 +19,7 @@ class Storage(BaseStorage):
 	def __init__(self, *args, **kwargs):
 		super(Storage, self).__init__(*args, **kwargs)
 		self._db = None
+		self._models = {}
 
 	def configure(self, params):
 		"""
@@ -37,6 +39,7 @@ class Storage(BaseStorage):
 		self._db.setDatabaseName(self.conf['path'])
 		if self._db.open():
 			self.check_integrity()
+			self.bind_models()
 			self.initialized = True
 		else:
 			raise StorageCannotBeInitialized(self.db_error(self._db.lastError()))
@@ -52,6 +55,9 @@ class Storage(BaseStorage):
 		"""
 		Compose a string error from a sql error and a prefix
 		"""
+		if not error or not error.isValid():
+			return prefix or ''
+
 		str_db = "%d / %s / %s" % (error.number(), error.driverText(), error.databaseText())
 		if prefix:
 			return "%s [%s]" % (prefix, str_db)
@@ -75,9 +81,7 @@ class Storage(BaseStorage):
 			except Exception, e:
 				str_e = str(e)
 				try:
-					last_error = query.lastError()
-					if last_error and last_error.isValid():
-						str_e = self.db_error(last_error, str_e)
+					str_e = self.db_error(query.lastError(), str_e)
 				except:
 					pass
 				raise DBUpgradeCannotBeDone(str_e)
@@ -90,7 +94,10 @@ class Storage(BaseStorage):
 					name    = str(query.value(1).toString())
 					type    = str(query.value(2).toString())
 					null    = not query.value(3).toBool()
-					default = str(query.value(4).toString())
+					if query.value(4).isNull:
+						default = None
+					else:
+						default = str(query.value(4).toString())
 					db_fields[name] = (name, type, null, default)
 
 				fields_to_update = []
@@ -109,7 +116,7 @@ class Storage(BaseStorage):
 				if fields_to_update or fields_to_add or fields_to_remove:
 
 					if DEBUG:
-						log_str = 'Table "%s" is going to be updated :'
+						log_str = 'Table "%s" is going to be updated :' % table_name
 						if fields_to_add:
 							log_str += ' add(%s)' % (', '.join(fields_to_add))
 						if fields_to_remove:
@@ -176,10 +183,73 @@ class Storage(BaseStorage):
 			except Exception, e:
 				str_e = str(e)
 				try:
-					last_error = query.lastError()
-					if last_error and last_error.isValid():
-						str_e = self.db_error(last_error, str_e)
+					str_e = self.db_error(query.lastError(), str_e)
 				except:
 					pass
 				raise DBUpgradeCannotBeDone(str_e)
+
+	def bind_models(self):
+		"""
+		Bind tables to QSqlTableModel
+		"""
+		for table_name in queries.TABLES.keys():
+			self._models[table_name] = QSqlTableModel(db = self._db)
+			self._models[table_name].setTable(table_name)
+			self._models[table_name].setEditStrategy(QSqlTableModel.OnManualSubmit)
+
+	def record_to_dict(self, record, table):
+		"""
+		Convert a record from a sqlresult and return a dict. Use fields provided in the table parameter
+		"""
+		if record.isEmpty():
+			return {}
+
+		data = {}
+		for field in table['fields'].values():
+			name, type, _, _ = field
+			if not record.contains(name) or record.isNull(name):
+				value = None
+			else:
+				value = record.value(name)
+				if 'INT' in type:
+					value = value.toInt()[0]
+				else:
+					value = str(value.toString())
+			data[name] = value
+
+		return data
+
+	def add_object(self, type, data):
+		"""
+		Add an object of a certain type, with some data
+		Raise CannotAddObject if it fails
+		"""
+		self.assert_ready()
+		model = self._models[type]
+		record = model.record()
+		for key, value in data.iteritems():
+			record.setValue(key, value)
+		model.insertRecord(-1, record)
+		if not model.submitAll():
+			raise CannotAddObject(self.db_error(model.lastError(), 'Object of type "%s" cannot be added' % type))
+
+	def read_object(self, type, id):
+		"""
+		Read the object of a certain type with the specified id
+		Raise ObjectNotFound if not found
+		"""
+		self.assert_ready()
+		model = self._models[type]
+		table = queries.TABLES[type]
+
+		model.setFilter('id="%s"' % id)
+
+		if not model.select():
+			raise CannotReadObject(self.db_error(model.lastError(), 'Object "%s" of type "%s" cannot be read' % (id, type)))
+
+		if not model.rowCount():
+			raise ObjectNotFound('Object "%s" of type "%s" cannot be found' % (id, type))
+
+		record = model.record(1)
+		return self.record_to_dict(record, table)
 

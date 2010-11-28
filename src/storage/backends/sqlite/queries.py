@@ -1,15 +1,18 @@
 
 from PyQt4.QtSql import *
 from engine import DEBUG, log
+import copy
 
 TABLES = {
-	'engine': {
+	'account': {
 		'fields': {
-			'id':   ('CHAR(20)',    False, ''),
-			'name': ('VARCHAR(60)', False, ''),
-			'name2': ('VARCHAR(50)', True, ''),
+			'id':     ('INTEGER',     False, None),
+			'login':  ('VARCHAR(50)', False, None),
 		},
-		'pk': 'id',
+		'pk': {
+			'field':         'id',
+			'autoincrement': True,
+		},
 	},
 }
 
@@ -57,17 +60,32 @@ def create_field_query(field):
 	}
 
 def create_table_query(table):
-	fields = []
-	for field_name, field in table['fields'].iteritems():
-		fields.append("%s, " % create_field_query(field))
+	table_fields = table['fields']
 
-	pk = CREATE_TABLE_PK_PART % {
-		'pk': table['pk'],
-	}
+	pk = ''
+	if 'pk' in table:
+		if table['pk'].get('autoincrement', False):
+			table_fields = copy.copy(table_fields)
+			field_tuple = table_fields[table['pk']['field']]
+			field_tuple = (
+				field_tuple[0],
+				field_tuple[1] + ' PRIMARY KEY',
+				field_tuple[2],
+				field_tuple[3],
+			)
+			table_fields[table['pk']['field']] = field_tuple
+		else:
+			pk = CREATE_TABLE_PK_PART % {
+				'pk': ', %s' % table['pk']['field'],
+			}
+
+	fields = []
+	for field_name, field in table_fields.iteritems():
+		fields.append(create_field_query(field))
 
 	return CREATE_TABLE % {
 		'table_name': table['name'],
-		'fields':     ''.join(fields),
+		'fields':     ', '.join(fields),
 		'pk':         pk,
 	}
 	
