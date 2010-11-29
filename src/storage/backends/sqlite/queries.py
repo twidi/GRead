@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 from PyQt4.QtSql import *
 from engine import DEBUG, log

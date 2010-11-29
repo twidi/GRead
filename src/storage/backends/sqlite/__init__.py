@@ -1,12 +1,21 @@
+# -*- coding: utf-8 -*-
 
 from PyQt4.QtSql import *
 from PyQt4.QtCore import *
 
 from random import randint
+import os
 
-from engine import DEBUG, log
+from engine import DEBUG, log, settings
 from ..storage import *
 import queries
+
+# add default settings
+settings.add_defaults({
+	'storage_sqlite': {
+		'path': os.path.join(GREAD_DIR, 'gread.sqlite'),
+	},
+})
 
 class DBUpgradeCannotBeDone(StorageError): pass
 
@@ -18,12 +27,16 @@ class Storage(BaseStorage):
 
 	def __init__(self, *args, **kwargs):
 		super(Storage, self).__init__(*args, **kwargs)
+		self.name = 'sqlite'
 		self._db = None
 		self._prepared_queries = {}
 
-	def configure(self, params):
+	def configure(self, params=None):
 		"""
-		Check if these params are ok : path
+		Configuration to be used by the backend
+		The storage must set self.configured to True
+		If params is None, use settings
+		sqlite : Check if these params are ok : path
 		"""
 		super(Storage, self).configure(params)
 		if not self.conf.get('path'):
@@ -32,7 +45,9 @@ class Storage(BaseStorage):
 
 	def init(self):
 		"""
-		Initialize the connextion, open it and check integrity of the db
+		Init the storage
+		The storage must set self.initialized to True
+		sqlite : Initialize the connextion, open it and check integrity of the db
 		"""
 		super(Storage, self).init()
 		self._db = QSqlDatabase.addDatabase("QSQLITE")

@@ -75,8 +75,18 @@ helpers = {
     ), 
 }
 
+def add_helpers(new_helpers):
+    """
+    Allow a module to add helpers
+    """
+    for key in new_helpers:
+        if key == 'booleans':
+            helpers['booleans'] += new_helpers['booleans']
+        else:
+            helpers[key] = new_helpers[key]
+
 # all available settings and their default values
-_default = {
+_defaults = {
     'google': {
         'account': '',
         'password': '',
@@ -116,6 +126,18 @@ _default = {
     }, 
 }
 
+def add_defaults(new_defaults):
+	"""
+	Allow a module to add some new default values
+	"""
+	global _defaults
+	for key in new_defaults:
+		if key in _defaults:
+			_defaults[key].update(new_defaults[key])
+		else:
+			_defaults[key] = new_defaults[key]
+
+
 # list of all special feeds with their name
 special_feeds = {
     GoogleReader.STARRED_LIST:    { 'name': 'Starred',}, 
@@ -131,15 +153,15 @@ def load():
     """
     Load settings from file or whatever via QSettings
     """
-    global _qsettings, _settings, _default, helpers
+    global _qsettings, _settings, _defaults, helpers
     if not _qsettings:
         _qsettings = QSettings()
     new_settings = {}
-    for group in _default:
+    for group in _defaults:
         _qsettings.beginGroup(group)
         new_settings[group] = {}
-        for key in _default[group]:
-            value = _qsettings.value(key, _default[group][key])
+        for key in _defaults[group]:
+            value = _qsettings.value(key, _defaults[group][key])
             if '%s.%s' % (group, key) in helpers['booleans']:
                 new_settings[group][key] = value.toBool()
             else:
@@ -162,8 +184,23 @@ def get(group, key):
     """
     Return a value for the specified settings, or None
     """
-    global _default, _settings
-    return _settings.get(group, {}).get(key, _default.get(group, {}).get(key, None))
+    global _defaults, _settings
+    return _settings.get(group, {}).get(key, _defaults.get(group, {}).get(key, None))
+
+def get_group(group):
+	"""
+	Return all values for a group
+	"""
+	global defaults, _settings
+	return _settings.get(group, _defaults.get(group, {}))
+
+def is_default(group, key):
+	"""
+	Check if a value is the default one
+	"""
+	global _defaults
+	value = get(group, key)
+	return value == _defaults.get(group, {}).get(key, None)
 
 def set(group, key, value, save_all=False):
     """

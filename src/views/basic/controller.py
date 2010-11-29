@@ -28,6 +28,9 @@ class Controller(QObject):
         # the current Google Reader account
         self.account = Account()
 
+        # the storage
+        self.storage = None
+
         # views
         self.views = []
         self.current_view = None
@@ -44,6 +47,19 @@ class Controller(QObject):
         QObject.connect(self.account.operations_manager, SIGNALS["get_more_feed_content_started"], self.feed_content_fetching_started, Qt.QueuedConnection)
         QObject.connect(self.account.operations_manager, SIGNALS["get_feed_content_done"], self.feed_content_fetched, Qt.QueuedConnection)
         QObject.connect(self.account.operations_manager, SIGNALS["get_more_feed_content_done"], self.feed_content_fetched, Qt.QueuedConnection)
+
+    def init_storage(self, storage):
+        """
+        Create, configure and init the storage
+        Fail silently (no storage)
+        """
+        try:
+            self.storage = storage()
+            self.storage.configure()
+            self.storage.init()
+        except:
+            raise 
+            pass
         
     def create_views(self):
         """
