@@ -90,36 +90,60 @@ class BaseStorage(object):
 		"""
 		Add many objects of the same type. 
 		"objects" is a list of dicts (one dict per object to add)
+		Return a list with one entry for each object: the id if ok, and the exception if it fails
 		"""
 		self.assert_ready()
+		ids = []
 		for data in objects:
-			self.add_object(object_type, data)
+			try:
+				ids.append(self.add_object(object_type, data))
+			except Exception, e:
+				ids.append(e)
+		return ids
 
 	def read_objects(self, object_type, ids):
 		"""
 		Read many objects of the same type, with the given ids
+		Return a list with one entry for each id: the result if ok, and the exception if it fails
 		"""
 		self.assert_ready()
 		objects = []
 		for id in ids:
-			objects.append(self.read_object(object_type, id))
+			try:
+				objects.append(self.read_object(object_type, id))
+			except Exception, e:
+				objects.append(e)
 		return objects
 
 	def update_objects(self, object_type, ids, data):
 		"""
 		Update many objects of the same type by setting same data (see "update_object") for all ids.
+		Return a list with one entry for each id: None if ok, and the exception if it fails
 		"""
 		self.assert_ready()
+		results = []
 		for id in ids:
-			self.update_object(object_type, id, data)
+			try:
+				self.update_object(object_type, id, data)
+				results.append(None)
+			except Exception, e:
+				results.append(e)
+		return results
 
 	def delete_objects(self, object_type, ids):
 		"""
 		Delete many objects of the same type
+		Return a list with one entry for each id: None if ok, and the exception if it fails
 		"""
 		self.assert_ready()
+		results = []
 		for id in ids:
-			self.delete_object(object_type, id)
+			try:
+				self.delete_object(object_type, id)
+				results.append(None)
+			except Exception, e:
+				results.append(e)
+		return results
 
 	def find_objects(self, object_type, query, operator='and'):
 		"""
