@@ -19,7 +19,7 @@ class Storage(BaseStorage):
 	def __init__(self, *args, **kwargs):
 		super(Storage, self).__init__(*args, **kwargs)
 		self._db = None
-		self._models = {}
+		self._prepared_queries = {}
 
 	def configure(self, params):
 		"""
@@ -39,7 +39,7 @@ class Storage(BaseStorage):
 		self._db.setDatabaseName(self.conf['path'])
 		if self._db.open():
 			self.check_integrity()
-			self.bind_models()
+			self.prepare_queries()
 			self.initialized = True
 		else:
 			raise StorageCannotBeInitialized(self.db_error(self._db.lastError()))
@@ -91,14 +91,14 @@ class Storage(BaseStorage):
 				query = queries.query('pragma table_info(%s)' % table_name)
 				db_fields = {}
 				while query.next():
-					name    = str(query.value(1).toString())
-					type    = str(query.value(2).toString())
-					null    = not query.value(3).toBool()
+					name  = str(query.value(1).toString())
+					ftype = str(query.value(2).toString())
+					null  = not query.value(3).toBool()
 					if query.value(4).isNull:
 						default = None
 					else:
 						default = str(query.value(4).toString())
-					db_fields[name] = (name, type, null, default)
+					db_fields[name] = (name, ftype, null, default)
 
 				fields_to_update = []
 				fields_to_add    = []
@@ -188,68 +188,96 @@ class Storage(BaseStorage):
 					pass
 				raise DBUpgradeCannotBeDone(str_e)
 
-	def bind_models(self):
-		"""
-		Bind tables to QSqlTableModel
-		"""
-		for table_name in queries.TABLES.keys():
-			self._models[table_name] = QSqlTableModel(db = self._db)
-			self._models[table_name].setTable(table_name)
-			self._models[table_name].setEditStrategy(QSqlTableModel.OnManualSubmit)
+	def prepare_queries(self):
+		for table_name, table in queries.TABLES.iteritems():
+			self._prepared_queries[table_name] = {}
 
-	def record_to_dict(self, record, table):
+			# read one entry
+			read_object = QSqlQuery()
+			read_object.prepare(
+				queries.select_query(
+					table  = table,
+					where  = 'id=:id',
+				)
+			)
+			self._prepared_queries[table_name]['read_object'] = read_object
+
+			# add one entry
+			add_object = QSqlQuery()
+			add_object.prepare(
+				queries.insert_query(
+					table  = table,
+				)
+			)
+			self._prepared_queries[table_name]['add_object'] = add_object
+
+	def query_row_to_dict(self, query, table):
 		"""
 		Convert a record from a sqlresult and return a dict. Use fields provided in the table parameter
 		"""
-		if record.isEmpty():
-			return {}
-
 		data = {}
-		for field in table['fields'].values():
-			name, type, _, _ = field
-			if not record.contains(name) or record.isNull(name):
+		for i in range(len(table['ordered_fields'])):
+			field_name = table['ordered_fields'][i]
+			ftype = table['fields'][field_name][1]
+
+			if query.isNull(i):
 				value = None
 			else:
-				value = record.value(name)
-				if 'INT' in type:
+				value = query.value(i)
+				if 'INT' in ftype:
 					value = value.toInt()[0]
 				else:
 					value = str(value.toString())
-			data[name] = value
+			data[field_name] = value
 
 		return data
 
-	def add_object(self, type, data):
+	def add_object(self, object_type, data):
 		"""
-		Add an object of a certain type, with some data
+		Add an object of a certain type, with some data (a dict)
+		Return the pk of the new entry
 		Raise CannotAddObject if it fails
 		"""
 		self.assert_ready()
-		model = self._models[type]
-		record = model.record()
-		for key, value in data.iteritems():
-			record.setValue(key, value)
-		model.insertRecord(-1, record)
-		if not model.submitAll():
-			raise CannotAddObject(self.db_error(model.lastError(), 'Object of type "%s" cannot be added' % type))
+		table = queries.TABLES[object_type]
 
-	def read_object(self, type, id):
+		query = QSqlQuery(self._prepared_queries[object_type]['add_object'])
+		for field in table['ordered_fields']:
+			query.bindValue(':%s' % field, data.get(field, QVariant(None)))
+
+		if not query.exec_():
+			raise CannotAddObject(self.db_error(query.lastError(), 'Object of type "%s" cannot be added' % object_type))
+
+		# if the table has an autoincrement primary key, return the new pk
+		if table.get('pk', {}).get('autoincrement', False):
+			if not table['pk']['field'] in data:
+				return query.lastInsertId().toInt()[0]
+
+		# else return the pk from the data
+		if 'pk' in table and table['pk'] in data:
+			return data['pk']
+
+		# else, no pk, return None
+		return None
+
+	def read_object(self, object_type, id):
 		"""
 		Read the object of a certain type with the specified id
-		Raise ObjectNotFound if not found
+		Return a dict
+		Raise CannotReadObject if it fails and ObjectNotFound if not found
 		"""
 		self.assert_ready()
-		model = self._models[type]
-		table = queries.TABLES[type]
+		table = queries.TABLES[object_type]
 
-		model.setFilter('id="%s"' % id)
+		query = QSqlQuery(self._prepared_queries[object_type]['read_object'])
+		query.setForwardOnly(True)
+		query.bindValue(':id', id)
 
-		if not model.select():
-			raise CannotReadObject(self.db_error(model.lastError(), 'Object "%s" of type "%s" cannot be read' % (id, type)))
+		if not query.exec_():
+			raise CannotReadObject(self.db_error(query.lastError(), 'Object "%s" of type "%s" cannot be read' % (id, object_type)))
 
-		if not model.rowCount():
-			raise ObjectNotFound('Object "%s" of type "%s" cannot be found' % (id, type))
+		if not query.next():
+			raise ObjectNotFound('Object "%s" of type "%s" cannot be found' % (id, object_type))
 
-		record = model.record(1)
-		return self.record_to_dict(record, table)
+		return self.query_row_to_dict(query, table)
 

@@ -56,70 +56,72 @@ class BaseStorage(object):
 		if self.initialized:
 			self.end()
 
-	def add_object(self, type, data):
+	def add_object(self, object_type, data):
 		"""
-		Add an object of a certain type, with some data
+		Add an object of a certain type, with some data (a dict)
+		Return the pk of the new entry
 		Raise CannotAddObject if it fails
 		"""
 		self.assert_ready()
 
-	def read_object(self, type, id):
+	def read_object(self, object_type, id):
 		"""
 		Read the object of a certain type with the specified id
+		Return a dict
 		Raise CannotReadObject if it fails and ObjectNotFound if not found
 		"""
 		self.assert_ready()
 
-	def update_object(self, type, id, data):
+	def update_object(self, object_type, id, data):
 		"""
 		Update the object of a certain type with the specified id, with the given data (a dict field=>value)
 		Raise CannotUpdateObject if it fails and ObjectNotFound if not found
 		"""
 		self.assert_ready()
 
-	def delete_object(self, type, id):
+	def delete_object(self, object_type, id):
 		"""
 		Delete the object of a certain type with the specified id
 		Raise CannotDeleteObject if it fails and ObjectNotFound if not object is not found
 		"""
 		self.assert_ready()
 
-	def add_objects(self, type, objects):
+	def add_objects(self, object_type, objects):
 		"""
 		Add many objects of the same type. 
 		"objects" is a list of dicts (one dict per object to add)
 		"""
 		self.assert_ready()
 		for data in objects:
-			self.add_object(type, data)
+			self.add_object(object_type, data)
 
-	def read_objects(self, type, ids):
+	def read_objects(self, object_type, ids):
 		"""
 		Read many objects of the same type, with the given ids
 		"""
 		self.assert_ready()
 		objects = []
 		for id in ids:
-			objects.append(self.read_object(type, id))
+			objects.append(self.read_object(object_type, id))
 		return objects
 
-	def update_objects(self, type, ids, data):
+	def update_objects(self, object_type, ids, data):
 		"""
 		Update many objects of the same type by setting same data (see "update_object") for all ids.
 		"""
 		self.assert_ready()
 		for id in ids:
-			self.update_object(type, id, data)
+			self.update_object(object_type, id, data)
 
-	def delete_objects(self, type, ids):
+	def delete_objects(self, object_type, ids):
 		"""
 		Delete many objects of the same type
 		"""
 		self.assert_ready()
 		for id in ids:
-			self.delete_object(type, id)
+			self.delete_object(object_type, id)
 
-	def find_objects(self, type, query, operator='and'):
+	def find_objects(self, object_type, query, operator='and'):
 		"""
 		Find all objects of a certain type regarding specified query.
 		Actually query is a dict with fields as keys and values to search for as values.
@@ -129,21 +131,21 @@ class BaseStorage(object):
 		self.assert_ready()
 		return []
 
-	def find_and_update_objects(self, type, data, query, operator='and'):
+	def find_and_update_objects(self, object_type, data, query, operator='and'):
 		"""
 		Find all objects of a certain type regarding specified query (see "find_objects") and update them with the specified data (see "update_objects")
 		"""
 		self.assert_ready()
-		objects = self.find_objects(self, type, query, operator)
+		objects = self.find_objects(self, object_type, query, operator)
 		ids = [obj['id'] for obj in objects]
-		self.update_objects(type, ids, data)
+		self.update_objects(object_type, ids, data)
 
-	def find_and_delete_objects(self, type, query, operator='and'):
+	def find_and_delete_objects(self, object_type, query, operator='and'):
 		"""
 		Find all objects of a certain type regarding specified query (see "find_objects") and delete them)
 		"""
 		self.assert_ready()
-		objects = self.find_objects(self, type, query, operator)
+		objects = self.find_objects(self, object_type, query, operator)
 		ids = [obj['id'] for obj in objects]
-		self.delete_objects(type, ids)
+		self.delete_objects(object_type, ids)
 

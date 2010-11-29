@@ -21,6 +21,7 @@ for table_name, table in TABLES.iteritems():
 	table['name'] = table_name
 	for field_name in table['fields']:
 		table['fields'][field_name] = (field_name,) + table['fields'][field_name]
+	table['ordered_fields'] = table['fields'].keys()
 
 
 CREATE_TABLE = "CREATE TABLE IF NOT EXISTS %(table_name)s (%(fields)s %(pk)s)"
@@ -37,7 +38,17 @@ ALTER_TABLE_RENAME_TABLE_PART = "RENAME TO %(new_table_name)s"
 
 INSERT = "INSERT INTO %(table_name)s %(values)s"
 
-SELECT = "SELECT %(fields)s FROM %(table_name)s %(where)s"
+INSERT_VALUES_PART = "(%(fields)s) VALUES (%(values)s)"
+
+SELECT = "SELECT %(fields)s FROM %(table_name)s %(where)s %(order)s %(limit)s"
+
+SELECT_WHERE_PART = "WHERE %(filters)s"
+
+SELECT_ORDER_PART = "ORDER BY %(fields)s"
+
+SELECT_ORDER_FIELD_PART = "%(field)s %(sort)s"
+
+SELECT_LIMIT_PART = "LIMIT %(limit)s, %(offset)s"
 
 DROP_TABLE = "DROP TABLE %(table_name)s"
 
@@ -49,12 +60,12 @@ def query(query, debug=None):
 	return QSqlQuery(query)
 
 def create_field_query(field):
-	name, type, null, default = field
+	name, ftype, null, default = field
 	null = 'NULL' if null else 'NOT NULL'
 	default = default if default is not None else ''
 	return CREATE_TABLE_FIELD_PART % {
 		'name':    name,
-		'type':    type,
+		'type':    ftype,
 		'null':    null,
 		'default': default,
 	}
@@ -111,15 +122,82 @@ def rename_table_query(table, new_table_name):
 		'alter': alter,
 	}
 
-def insert_into_select_query(src_table, dest_table, fields):
-	select = SELECT % {
-		'table_name': src_table['name'],
+def select_query(table, fields=None, where=None, order=None, limit=None, offset=None):
+
+	# fields
+	if fields is None:
+		fields = table['ordered_fields']
+
+	# where
+	if where:
+		where = SELECT_WHERE_PART % {
+			'filters': where
+		}
+	else:
+		where = ''
+
+	# order by
+	if order:
+		if type(order) == dict:
+			order = (order,)
+		orders = []
+		for o in order:
+			sort  = ''
+			if o not in (list, tuple):
+				field = o
+			else:
+				field = o[0]
+				if o[1] in ('ASC', 'DESC',):
+					sort ='ASC' if o[1] else 'DESC'
+			orders.append(
+				SELECT_ORDER_FIELD_PART % {
+					'field': o[0],
+					'sort':  sort,
+				}
+			)
+		order = SELECT_ORDER_PART % {
+			'fields': order
+		}
+	else:
+		order = ''
+
+	# limit
+	if limit:
+		if not offset:
+			offset = 0
+		limit = SELECT_LIMIT_PART % {
+			'limit': limit,
+			'offset': offset,
+		}
+	else:
+		limit = ''
+
+	# final query
+	return SELECT % {
+		'table_name': table['name'],
 		'fields': ', '.join(fields),
-		'where': '',
+		'where': where,
+		'order': order,
+		'limit': limit,
 	}
+
+def insert_into_select_query(src_table, dest_table, fields):
+	select = select_query(src_table, fields)
 	return INSERT % {
 		'values': select,
 		'table_name': dest_table['name'],
+	}
+
+def insert_query(table, fields=None):
+	if not fields:
+		fields = table['ordered_fields']
+	values = INSERT_VALUES_PART % {
+		'fields': ', '.join(fields),
+		'values': ', '.join([":%s" % field for field in fields]),
+	}
+	return INSERT % {
+		'table_name': table['name'],
+		'values':     values
 	}
 
 def drop_table_query(table):
