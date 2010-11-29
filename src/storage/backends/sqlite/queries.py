@@ -56,6 +56,8 @@ UPDATE = "UPDATE %(table_name)s SET %(sets)s %(where)s"
 
 UPDATE_SET_PART = "%(field)s = %(value)s"
 
+DELETE = "DELETE FROM %(table_name)s %(where)s"
+
 def query(query, debug=None):
 	if debug is None:
 		debug = DEBUG
@@ -232,9 +234,19 @@ def update_query(table, fields=None, where=None):
 	]
 
 	# final query
-
 	return UPDATE % {
 		'table_name': table['name'],
 		'sets':       ', '.join(sets),
+		'where':      where,
+	}
+
+def delete_query(table, where=None):
+
+	# where
+	where = where_part(where)
+	
+	# final query
+	return DELETE % {
+		'table_name': table['name'],
 		'where':      where,
 	}

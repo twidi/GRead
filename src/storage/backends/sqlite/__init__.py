@@ -211,6 +211,16 @@ class Storage(BaseStorage):
 			)
 			self._prepared_queries[table_name]['add_object'] = add_object
 
+			# delete one entry
+			delete_object = QSqlQuery()
+			delete_object.prepare(
+				queries.delete_query(
+					table  = table,
+					where  = 'id=:id',
+				)
+			)
+			self._prepared_queries[table_name]['delete_object'] = delete_object
+
 	def query_row_to_dict(self, query, table):
 		"""
 		Convert a record from a sqlresult and return a dict. Use fields provided in the table parameter
@@ -301,8 +311,24 @@ class Storage(BaseStorage):
 			query.bindValue(':%s' % field, value)
 
 		if not query.exec_():
-			raise CannotReadObject(self.db_error(query.lastError(), 'Object "%s" of type "%s" cannot be updated' % (id, object_type)))
+			raise CannotUpdateObject(self.db_error(query.lastError(), 'Object "%s" of type "%s" cannot be updated' % (id, object_type)))
 
 		if not query.numRowsAffected():
 			raise ObjectNotFound('Object "%s" of type "%s" cannot be found' % (id, object_type))
-			
+
+	def delete_object(self, object_type, id):
+		"""
+		Delete the object of a certain type with the specified id
+		Raise CannotDeleteObject if it fails and ObjectNotFound if not object is not found
+		"""
+		self.assert_ready()
+		table = queries.TABLES[object_type]
+
+		query = QSqlQuery(self._prepared_queries[object_type]['delete_object'])
+		query.bindValue(':id', id)
+
+		if not query.exec_():
+			raise CannotDeleteObject(self.db_error(query.lastError(), 'Object "%s" of type "%s" cannot be deleted' % (id, object_type)))
+
+		if not query.numRowsAffected():
+			raise ObjectNotFound('Object "%s" of type "%s" cannot be found' % (id, object_type))
