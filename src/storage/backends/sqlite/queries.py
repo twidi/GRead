@@ -42,7 +42,7 @@ INSERT_VALUES_PART = "(%(fields)s) VALUES (%(values)s)"
 
 SELECT = "SELECT %(fields)s FROM %(table_name)s %(where)s %(order)s %(limit)s"
 
-SELECT_WHERE_PART = "WHERE %(filters)s"
+WHERE_PART = "WHERE %(filters)s"
 
 SELECT_ORDER_PART = "ORDER BY %(fields)s"
 
@@ -51,6 +51,10 @@ SELECT_ORDER_FIELD_PART = "%(field)s %(sort)s"
 SELECT_LIMIT_PART = "LIMIT %(limit)s, %(offset)s"
 
 DROP_TABLE = "DROP TABLE %(table_name)s"
+
+UPDATE = "UPDATE %(table_name)s SET %(sets)s %(where)s"
+
+UPDATE_SET_PART = "%(field)s = %(value)s"
 
 def query(query, debug=None):
 	if debug is None:
@@ -122,6 +126,15 @@ def rename_table_query(table, new_table_name):
 		'alter': alter,
 	}
 
+
+def where_part(where):
+	if where:
+		return WHERE_PART % {
+			'filters': where
+		}
+	else:
+		return ''
+
 def select_query(table, fields=None, where=None, order=None, limit=None, offset=None):
 
 	# fields
@@ -129,12 +142,7 @@ def select_query(table, fields=None, where=None, order=None, limit=None, offset=
 		fields = table['ordered_fields']
 
 	# where
-	if where:
-		where = SELECT_WHERE_PART % {
-			'filters': where
-		}
-	else:
-		where = ''
+	where = where_part(where)
 
 	# order by
 	if order:
@@ -203,4 +211,30 @@ def insert_query(table, fields=None):
 def drop_table_query(table):
 	return DROP_TABLE % {
 		'table_name': table['name'],
+	}
+
+def update_query(table, fields=None, where=None):
+
+	# fields
+	if fields is None:
+		fields = table['ordered_fields']
+
+	# where
+	where = where_part(where)
+
+	# sets
+	sets = [
+		UPDATE_SET_PART % {
+			'field': field,
+			'value': ":%s" % field,
+		}
+		for field in fields
+	]
+
+	# final query
+
+	return UPDATE % {
+		'table_name': table['name'],
+		'sets':       ', '.join(sets),
+		'where':      where,
 	}

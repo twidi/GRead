@@ -281,3 +281,28 @@ class Storage(BaseStorage):
 
 		return self.query_row_to_dict(query, table)
 
+	def update_object(self, object_type, id, data):
+		"""
+		Update the object of a certain type with the specified id, with the given data (a dict field=>value)
+		Raise CannotUpdateObject if it fails and ObjectNotFound if not found
+		"""
+		self.assert_ready()
+		table = queries.TABLES[object_type]
+
+		fields = data.keys()
+		query = QSqlQuery()
+		query.prepare(queries.update_query(
+			table  = table,
+			fields = fields,
+			where  = 'id=:id',
+		))
+		query.bindValue(':id', id)
+		for field, value in data.iteritems():
+			query.bindValue(':%s' % field, value)
+
+		if not query.exec_():
+			raise CannotReadObject(self.db_error(query.lastError(), 'Object "%s" of type "%s" cannot be updated' % (id, object_type)))
+
+		if not query.numRowsAffected():
+			raise ObjectNotFound('Object "%s" of type "%s" cannot be found' % (id, object_type))
+			
