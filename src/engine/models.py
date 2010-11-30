@@ -64,9 +64,8 @@ class Account(object):
     libgreader and a list of categories.
     The id is the login
     """
-    _current = None
     
-    def __init__(self, id=None, password=None):
+    def __init__(self, id=None):
         """
         Instantiate a new Account
         """
@@ -94,13 +93,6 @@ class Account(object):
         
         # total unread count
         self.unread = 0
-    
-    @classmethod
-    def get_current(cls):
-        """
-        A class method returning the current account
-        """
-        return cls._current
         
     def authenticate(self):
         """
@@ -130,10 +122,12 @@ class Account(object):
             # else, but if we already had tokens by the past, try with them
             elif settings.get('google', 'auth_token') and settings.get('google', 'token'):
                 log("AUTH: load saved auth")
-                self.g_auth = SavedAuth(settings.get('google', 'account'), \
-                                        settings.get('google', 'password'), \
-                                        settings.get('google', 'auth_token'), \
-                                        settings.get('google', 'token'))
+                self.g_auth = SavedAuth(
+                    settings.get('google', 'account'),
+                    settings.uncrypt(settings.get('google', 'password')),
+                    settings.get('google', 'auth_token'),
+                    settings.get('google', 'token')
+                )
                 try:
                     # test if the token is still valid
                     self.g_auth.token = self.g_auth._getToken()
@@ -147,7 +141,10 @@ class Account(object):
             # here, we have not a valid token, so we do a full authentication
             if not self.is_authenticated:
                 log("AUTH: full auth")
-                self.g_auth = ClientAuth(settings.get('google', 'account'), settings.get('google', 'password'))
+                self.g_auth = ClientAuth(
+                    settings.get('google', 'account'),
+                    settings.uncrypt(settings.get('google', 'password'))
+                )
                 self.is_authenticated = True
                 settings.set('google', 'verified', True)
                 settings.set('google', 'auth_token', self.g_auth.auth_token)

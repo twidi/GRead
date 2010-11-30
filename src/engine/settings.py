@@ -14,6 +14,8 @@ settings.save()
 from PyQt4.QtCore import QSettings
 from PyQt4.QtGui import QApplication
 from utils.libgreader import GoogleReader
+import os
+from base64 import b64encode as be, b64decode as bd
 
 __ALL__ = ('load', 'save', 'get', 'set', 'auth_ready', 'special_feeds')
 
@@ -127,15 +129,15 @@ _defaults = {
 }
 
 def add_defaults(new_defaults):
-	"""
-	Allow a module to add some new default values
-	"""
-	global _defaults
-	for key in new_defaults:
-		if key in _defaults:
-			_defaults[key].update(new_defaults[key])
-		else:
-			_defaults[key] = new_defaults[key]
+    """
+    Allow a module to add some new default values
+    """
+    global _defaults
+    for key in new_defaults:
+        if key in _defaults:
+            _defaults[key].update(new_defaults[key])
+        else:
+            _defaults[key] = new_defaults[key]
 
 
 # list of all special feeds with their name
@@ -188,19 +190,19 @@ def get(group, key):
     return _settings.get(group, {}).get(key, _defaults.get(group, {}).get(key, None))
 
 def get_group(group):
-	"""
-	Return all values for a group
-	"""
-	global defaults, _settings
-	return _settings.get(group, _defaults.get(group, {}))
+    """
+    Return all values for a group
+    """
+    global defaults, _settings
+    return _settings.get(group, _defaults.get(group, {}))
 
 def is_default(group, key):
-	"""
-	Check if a value is the default one
-	"""
-	global _defaults
-	value = get(group, key)
-	return value == _defaults.get(group, {}).get(key, None)
+    """
+    Check if a value is the default one
+    """
+    global _defaults
+    value = get(group, key)
+    return value == _defaults.get(group, {}).get(key, None)
 
 def set(group, key, value, save_all=False):
     """
@@ -211,7 +213,38 @@ def set(group, key, value, save_all=False):
     _settings.setdefault(group, {})[key] = value
     if save_all:
         save()
-        
+
+_salt = None
+def get_salt():
+    """
+    Generate a salt to use for crypt/uncrypt password
+    """
+    global _salt
+    if _salt is None:
+        try:
+            device_id = os.uname()[1]
+        except:
+            device_id = 'unknown'
+        _salt = be(legal['application']['name'] + device_id).rstrip('=')
+    return _salt
+
+def crypt(string):
+    """
+    Simply crypt a string in a reversible way
+    """
+    salt = get_salt()
+    r = lambda x:x.rstrip(u'=')
+    return r(be(u'%s%s'%(salt,r(be(u'%s%s'%(salt,string))))))
+
+def uncrypt(crypted):
+    """
+    Decrypt a string crypted by crypt
+    """
+    eq = lambda x:x+u'='*((divmod(len(x),4)[0]+1)*4-len(x))
+    salt = get_salt()
+    l = len(u'%s'%salt)
+    return bd(eq(bd(eq(crypted))[l:]))[l:]
+
 def auth_ready():
     """
     Return True if either google account and password are filled

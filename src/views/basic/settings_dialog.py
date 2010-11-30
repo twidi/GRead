@@ -32,8 +32,8 @@ class SettingsDialog(Dialog):
         self.save_settings()
         
     def update_inputs(self):
-        self.ui.inputSettingsAccount.setText( settings.get('google', 'account'))
-        self.ui.inputSettingsPassword.setText(settings.get('google', 'password'))
+        self.ui.inputSettingsAccount.setText(settings.get('google', 'account'))
+        self.ui.inputSettingsPassword.setText('')
         try:
             self.ui.selectSettingsHomeDefault.setCurrentIndex(settings.helpers['feeds_default'].index(settings.get('feeds', 'default')))
         except:
@@ -93,7 +93,7 @@ class SettingsDialog(Dialog):
         self.google_credentials_changed = False
         
         google_account  = self.ui.inputSettingsAccount.text()
-        google_password = self.ui.inputSettingsPassword.text()
+        google_password = settings.crypt(self.ui.inputSettingsPassword.text())
 
         if settings.get('google', 'account') != google_account \
         or settings.get('google', 'password') != google_password:
