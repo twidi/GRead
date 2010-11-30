@@ -16,6 +16,7 @@ from PyQt4.QtGui import QApplication
 from utils.libgreader import GoogleReader
 import os
 from base64 import b64encode as be, b64decode as bd
+from bz2 import compress as bzc, decompress as bzd
 
 __ALL__ = ('load', 'save', 'get', 'set', 'auth_ready', 'special_feeds')
 
@@ -234,7 +235,7 @@ def crypt(string):
     """
     salt = get_salt()
     r = lambda x:x.rstrip(u'=')
-    return r(be(u'%s%s'%(salt,r(be(u'%s%s'%(salt,string))))))
+    return r(be(bzc(r(be(u'%s%s'%(r(be(u'%s%s'%(string,salt))),salt))))[10:]))
 
 def uncrypt(crypted):
     """
@@ -243,7 +244,7 @@ def uncrypt(crypted):
     eq = lambda x:x+u'='*((divmod(len(x),4)[0]+1)*4-len(x))
     salt = get_salt()
     l = len(u'%s'%salt)
-    return bd(eq(bd(eq(crypted))[l:]))[l:]
+    return bd(eq(bd(eq(bzd(bzc(salt)[:10]+bd(eq(crypted)))))[:-l]))[:-l]
 
 def auth_ready():
     """
