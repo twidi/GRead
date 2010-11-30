@@ -251,4 +251,4 @@ def auth_ready():
     Return True if either google account and password are filled
     """
     global _settings
-    return (_settings['google']['account'].replace(' ', '') != '' and _settings['google']['password'].replace(' ', '') != '')
+    return (_settings['google']['account'].replace(' ', '') != '' and uncrypt(_settings['google']['password']).replace(' ', '') != '')
