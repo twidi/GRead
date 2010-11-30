@@ -115,7 +115,7 @@ class Account(object):
                     self.g_auth.token = self.g_auth._getToken()
                     log("AUTH: token=%s" % self.g_auth.token)
                     self.is_authenticated = True
-                    settings.set('google', 'token', self.g_auth.token, save_all=True)
+                    settings.set('google', 'token', self.crypt(self.g_auth.token), save_all=True)
                 except:
                     pass
 
@@ -125,8 +125,8 @@ class Account(object):
                 self.g_auth = SavedAuth(
                     settings.get('google', 'account'),
                     settings.uncrypt(settings.get('google', 'password')),
-                    settings.get('google', 'auth_token'),
-                    settings.get('google', 'token')
+                    settings.uncrypt(settings.get('google', 'auth_token')),
+                    settings.uncrypt(settings.get('google', 'token'))
                 )
                 try:
                     # test if the token is still valid
@@ -135,7 +135,7 @@ class Account(object):
                     pass
                 else:
                     # it's valid so we are authenticated
-                    settings.set('google', 'token', self.g_auth.token, save_all=True)
+                    settings.set('google', 'token', settings.crypt(self.g_auth.token), save_all=True)
                     self.is_authenticated = True
                     
             # here, we have not a valid token, so we do a full authentication
@@ -147,8 +147,8 @@ class Account(object):
                 )
                 self.is_authenticated = True
                 settings.set('google', 'verified', True)
-                settings.set('google', 'auth_token', self.g_auth.auth_token)
-                settings.set('google', 'token', self.g_auth.token, save_all=True)
+                settings.set('google', 'auth_token', settings.crypt(self.g_auth.auth_token))
+                settings.set('google', 'token', settings.crypt(self.g_auth.token), save_all=True)
 
             # finally if we are authenticated, update, or create, a new 
             # GoogleReadr object
