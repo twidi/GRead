@@ -58,7 +58,6 @@ class Controller(QObject):
             self.storage.configure()
             self.storage.init()
         except:
-            raise 
             pass
         
     def create_views(self):
