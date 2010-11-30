@@ -143,9 +143,10 @@ class Storage(BaseStorage):
                     # add columns
                     if fields_to_add:
                         fields = [table['fields'][field_name] for field_name in fields_to_add]
-                        query = queries.query(queries.alter_table_add_fields_query(table, fields))
-                        if not query.isActive():
-                            raise Exception('Table "%s" cannot be updated' % table_name)
+                        for field in fields:
+                            query = queries.query(queries.alter_table_add_field_query(table, field))
+                            if not query.isActive():
+                                raise Exception('Table "%s" cannot be updated' % table_name)
 
                     # remove or update columns by creating a new table
                     if fields_to_remove or fields_to_update:

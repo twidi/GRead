@@ -109,15 +109,11 @@ def create_table_query(table):
         'fields':     ', '.join(fields),
         'pk':         pk,
     }
-    
-def alter_table_add_fields_query(table, fields):
-    alter = ', '.join(
-        [
-            ALTER_TABLE_ADD_COLUMN_PART % {
-                'field': create_field_query(field),
-            } for field in fields
-        ]
-    )
+
+def alter_table_add_field_query(table, field):
+    alter = ALTER_TABLE_ADD_COLUMN_PART % {
+        'field': create_field_query(field),
+    }
     return ALTER_TABLE % {
         'table_name': table['name'],
         'alter':      alter,
