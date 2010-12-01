@@ -63,7 +63,10 @@ class Storage(BaseStorage):
         """
         Enf of connection : we need to close sthe qlite connection
         """
-        self._db.close()
+        if self.initialized:
+            self._db.close()
+            del self._db
+            QSqlDatabase.removeDatabase('')
         super(Storage, self).end()
 
     def db_error(self, error, prefix=None):

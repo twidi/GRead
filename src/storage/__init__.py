@@ -8,6 +8,8 @@ from views import view_mode
 from PyQt4.QtCore import QThread
 
 
+# Global storage variable
+Storage = None
 STORAGE_ENABLED = True
 
 homedir = os.path.expanduser("~")
@@ -47,14 +49,12 @@ class CannotReadObject(ObjectError): pass
 class CannotUpdateObject(ObjectError): pass
 class CannotDeleteObject(ObjectError): pass
 
-class BaseStorage(QThread):
+class BaseStorage(object):
     """
     Base model for all storage backends.
     """
     
-    def __init__(self, parent=None):
-        super(BaseStorage, self).__init__(parent)
-
+    def __init__(self):
         if settings.get('storage', 'enabled') != STORAGE_ENABLED:
             settings.set('storage', 'enabled', STORAGE_ENABLED)
         self.name = 'base'
@@ -93,20 +93,12 @@ class BaseStorage(QThread):
         """
         if not self.configured:
             raise StorageImproperlyConfigured
-        self.start()
 
     def end(self):
         """
         Close the storage
         """
         self.initialized = False
-
-    def __del__(self):
-        """
-        Destructor : ask to close the storage
-        """
-        if self.initialized:
-            self.end()
 
     def add_object(self, object_type, data):
         """
@@ -224,3 +216,4 @@ class BaseStorage(QThread):
         objects = self.find_objects(self, object_type, query, operator)
         ids = [obj['id'] for obj in objects]
         self.delete_objects(object_type, ids)
+

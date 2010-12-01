@@ -9,6 +9,9 @@ from PyQt4.QtGui import QApplication
 from engine.signals import SIGNALS
 from engine.models import *
 from engine.operations import Operation
+import storage
+from storage.backends.sqlite import Storage
+
 from feedlist import FeedListView
 from itemlist import ItemListView
 from itemview import ItemViewView
@@ -28,12 +31,12 @@ class Controller(QObject):
         # the current Google Reader account
         self.account = Account()
 
-        # the storage
-        self.storage = None
-
         # views
         self.views = []
         self.current_view = None
+
+        # storage
+        self.init_storage(Storage)
 
         # connect signals
         QObject.connect(self, SIGNALS["settings_updated"], self.settings_updated)
@@ -48,18 +51,32 @@ class Controller(QObject):
         QObject.connect(self.account.operations_manager, SIGNALS["get_feed_content_done"], self.feed_content_fetched, Qt.QueuedConnection)
         QObject.connect(self.account.operations_manager, SIGNALS["get_more_feed_content_done"], self.feed_content_fetched, Qt.QueuedConnection)
 
-    def init_storage(self, storage):
+    def init_storage(self, backend):
         """
         Create, configure and init the storage
         Fail silently (no storage)
         """
         try:
-            self.storage = storage()
-            self.storage.configure()
-            self.storage.init()
+            storage.Storage = backend()
+            storage.Storage.configure()
+            storage.Storage.init()
         except:
             pass
-        
+
+    def end_storage(self):
+        """
+        End the storage
+        """
+        if storage.Storage:
+            storage.Storage.end()
+
+    def end(self):
+        """
+        Called juste before the application exit to close
+        what needs to be closed
+        """
+        self.end_storage()
+
     def create_views(self):
         """
         Create all the views used by the application
