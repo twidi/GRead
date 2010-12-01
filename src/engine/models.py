@@ -57,7 +57,13 @@ class SavedAuth(ClientAuth):
         self.auth_token = auth_token
         self.token      = token
 
-class Account(object):
+class StorableObject(object):
+    def __init__(self, type_object, id=None):
+        self.type_object = type_object
+        self.id = id
+        self.storage = None
+
+class Account(StorableObject):
     """
     A Google Reader account.
     We store it's login, it's password, and a ClientAuth object from 
@@ -71,7 +77,8 @@ class Account(object):
         """
         if not id:
             id = str(settings.get('google', 'account'))
-        self.id               = id
+        super(Account, self).__init__('account', id)
+
         self.categories       = []
         self.categories_by_id = {}
         self.is_authenticated = False
@@ -389,18 +396,18 @@ class Account(object):
                 max_fetch   = operation.params['max_fetch'], 
             )
 
-class _BaseModelForAccount(object):
+class _BaseModelForAccount(StorableObject):
     """
     A base model class for all models.
     Manage retrieving of objects by id.
     """
     # "_objects_by_id = {}" must be defined in subclasses
     
-    def __init__(self, id, account):
+    def __init__(self, type_object, id, account):
         """
         Save the id for this object and add in the _objects_by_id dict
         """
-        self.id = id
+        super(_BaseModelForAccount, self).__init__(type_object, id)
         self.account = account
         self.__class__.set_by_id(self, account)
     
@@ -441,7 +448,7 @@ class Category(_BaseModelForAccount):
         """
         Instantiate a new Category
         """
-        super(Category, self).__init__(id, account)
+        super(Category, self).__init__('label', id, account)
         
         # also save by strict_id
         self.strict_id = self.account.RE_ID_USER_PART.sub("", id)
@@ -690,7 +697,7 @@ class Feed(_BaseModelForAccount):
         """
         Instantiate a new Feed
         """
-        super(Feed, self).__init__(id, account)
+        super(Feed, self).__init__('list', id, account)
         self.g_feed      = g_feed
         self.categories  = []
         self.items       = []
@@ -1155,7 +1162,7 @@ class Item(_BaseModelForAccount):
         """
         Instantiate a new item
         """
-        super(Item, self).__init__(id, account)
+        super(Item, self).__init__('entry', id, account)
         self.feeds  = []
         
         # default values
