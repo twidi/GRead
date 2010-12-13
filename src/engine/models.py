@@ -17,6 +17,7 @@ from locale import setlocale, strxfrm, LC_ALL
 from utils.libgreader import GoogleReader, ClientAuth, Category as gCategory, Feed as gFeed
 from engine import settings, log
 from engine.operations import *
+import storage
 
 class ModelError(Exception):
     def __init__(self, message):
@@ -61,7 +62,7 @@ class StorableObject(object):
     def __init__(self, type_object, id=None):
         self.type_object = type_object
         self.id = id
-        self.storage = None
+        self.storage = storage.Storage
 
 class Account(StorableObject):
     """
@@ -122,7 +123,7 @@ class Account(StorableObject):
                     self.g_auth.token = self.g_auth._getToken()
                     log("AUTH: token=%s" % self.g_auth.token)
                     self.is_authenticated = True
-                    settings.set('google', 'token', self.crypt(self.g_auth.token), save_all=True)
+                    self.save({'token': settings.crypt(self.g_auth.token)})
                 except:
                     pass
 
@@ -142,7 +143,7 @@ class Account(StorableObject):
                     pass
                 else:
                     # it's valid so we are authenticated
-                    settings.set('google', 'token', settings.crypt(self.g_auth.token), save_all=True)
+                    self.save({'token': settings.crypt(self.g_auth.token)})
                     self.is_authenticated = True
                     
             # here, we have not a valid token, so we do a full authentication
@@ -153,9 +154,11 @@ class Account(StorableObject):
                     settings.uncrypt(settings.get('google', 'password'))
                 )
                 self.is_authenticated = True
-                settings.set('google', 'verified', True)
-                settings.set('google', 'auth_token', settings.crypt(self.g_auth.auth_token))
-                settings.set('google', 'token', settings.crypt(self.g_auth.token), save_all=True)
+                self.save({
+                    'verified':   True,
+                    'auth_token': settings.crypt(self.g_auth.auth_token),
+                    'token':      settings.crypt(self.g_auth.token),
+                })
 
             # finally if we are authenticated, update, or create, a new 
             # GoogleReadr object
@@ -172,7 +175,12 @@ class Account(StorableObject):
             self.is_authenticated = False
             log('AUTH : failed ! (%s)' % e)
             raise e
-            
+
+    def save(self, data):
+        for name, value in data.iteritems():
+            settings.set('google', 'name', value)
+        settings.save()
+
     def assert_authenticated(self):
         """
         Raise an exception if the account is not authenticated
