@@ -52,7 +52,7 @@ SELECT_ORDER_PART = "ORDER BY %(fields)s"
 
 SELECT_ORDER_FIELD_PART = "%(field)s %(sort)s"
 
-SELECT_LIMIT_PART = "LIMIT %(limit)s, %(offset)s"
+SELECT_LIMIT_PART = "LIMIT %(limit)d, %(offset)d"
 
 DROP_TABLE = "DROP TABLE %(table_name)s"
 
