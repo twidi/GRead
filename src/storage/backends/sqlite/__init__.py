@@ -7,7 +7,9 @@ from random import randint
 import os
 
 from engine import DEBUG, log, settings
-from ..storage import *
+from storage import GREAD_DIR
+from storage.exceptions import *
+from storage.base import BaseStorage
 import queries
 
 # add default settings
@@ -50,14 +52,33 @@ class Storage(BaseStorage):
         sqlite : Initialize the connextion, open it and check integrity of the db
         """
         super(Storage, self).init()
-        self._db = QSqlDatabase.addDatabase("QSQLITE")
-        self._db.setDatabaseName(self.conf['path'])
-        if self._db.open():
+        if self.reconnect():
             self.check_integrity()
             self.prepare_queries()
             self.initialized = True
         else:
             raise StorageCannotBeInitialized(self.db_error(self._db.lastError()))
+
+    def reconnect(self):
+        """
+        Connect/Reconnect the DB
+        """
+        self._db = QSqlDatabase.addDatabase("QSQLITE")
+        self._db.setDatabaseName(self.conf['path'])
+        return self._db.open()
+
+    def manage_unavailability(self):
+        """
+        Try to reconnect the DB
+        """
+        nb_tries = 0
+        while nb_tries < 5:
+            nb_tries += 1
+            if self.reconnect():
+                break
+            self.msleep(500)
+        if nb_tries >= 5:
+            self.msleep(2000)
 
     def end(self):
         """
@@ -275,6 +296,9 @@ class Storage(BaseStorage):
             query.bindValue(':%s' % field, data.get(field, QVariant(None)))
 
         if not query.exec_():
+            lastDBError = self._db.lastError()
+            if lastDBError.type():
+                raise StorageTemporarilyNotAvailable(lastDBError.text())
             raise CannotAddObject(self.db_error(query.lastError(), 'Object of type "%s" cannot be added' % object_type))
 
         # if the table has an autoincrement primary key, return the new pk
@@ -283,8 +307,8 @@ class Storage(BaseStorage):
                 return query.lastInsertId().toInt()[0]
 
         # else return the pk from the data
-        if 'pk' in table and table['pk'] in data:
-            return data['pk']
+        if 'pk' in table and table['pk']['field'] in data:
+            return data[table['pk']['field']]
 
         # else, no pk, return None
         return None
@@ -303,6 +327,9 @@ class Storage(BaseStorage):
         query.bindValue(':id', id)
 
         if not query.exec_():
+            lastDBError = self._db.lastError()
+            if lastDBError.type():
+                raise StorageTemporarilyNotAvailable(lastDBError.text())
             raise CannotReadObject(self.db_error(query.lastError(), 'Object "%s" of type "%s" cannot be read' % (id, object_type)))
 
         if not query.next():
@@ -330,6 +357,9 @@ class Storage(BaseStorage):
             query.bindValue(':%s' % field, value)
 
         if not query.exec_():
+            lastDBError = self._db.lastError()
+            if lastDBError.type():
+                raise StorageTemporarilyNotAvailable(lastDBError.text())
             raise CannotUpdateObject(self.db_error(query.lastError(), 'Object "%s" of type "%s" cannot be updated' % (id, object_type)))
 
         if not query.numRowsAffected():
@@ -347,6 +377,9 @@ class Storage(BaseStorage):
         query.bindValue(':id', id)
 
         if not query.exec_():
+            lastDBError = self._db.lastError()
+            if lastDBError.type():
+                raise StorageTemporarilyNotAvailable(lastDBError.text())
             raise CannotDeleteObject(self.db_error(query.lastError(), 'Object "%s" of type "%s" cannot be deleted' % (id, object_type)))
 
         if not query.numRowsAffected():

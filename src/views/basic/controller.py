@@ -10,7 +10,6 @@ from engine.signals import SIGNALS
 from engine.models import *
 from engine.operations import Operation
 import storage
-from storage.backends.sqlite import Storage
 
 from feedlist import FeedListView
 from itemlist import ItemListView
@@ -27,6 +26,10 @@ class Controller(QObject):
         super(Controller, self).__init__(parent=None)
         
         self.is_running = False
+
+        # storage
+        from storage.backends.sqlite import Storage
+        self.start_storage(Storage)
         
         # the current Google Reader account
         self.account = Account()
@@ -34,9 +37,6 @@ class Controller(QObject):
         # views
         self.views = []
         self.current_view = None
-
-        # storage
-        self.init_storage(Storage)
 
         # connect signals
         QObject.connect(self, SIGNALS["settings_updated"], self.settings_updated)
@@ -51,15 +51,15 @@ class Controller(QObject):
         QObject.connect(self.account.operations_manager, SIGNALS["get_feed_content_done"], self.feed_content_fetched, Qt.QueuedConnection)
         QObject.connect(self.account.operations_manager, SIGNALS["get_more_feed_content_done"], self.feed_content_fetched, Qt.QueuedConnection)
 
-    def init_storage(self, backend):
+    def start_storage(self, backend):
         """
-        Create, configure and init the storage
+        Create, configure and start the storage thread
         Fail silently (no storage)
         """
         try:
             storage.Storage = backend()
             storage.Storage.configure()
-            storage.Storage.init()
+            storage.Storage.start()
         except:
             pass
 
