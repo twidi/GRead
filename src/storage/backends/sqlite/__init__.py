@@ -384,3 +384,42 @@ class Storage(BaseStorage):
 
         if not query.numRowsAffected():
             raise ObjectNotFound('Object "%s" of type "%s" cannot be found' % (id, object_type))
+
+    def find_objects(self, object_type, filter, operator='and', limit=None, offset=None):
+        """
+        Find all objects of a certain type regarding specified query.
+        Actually fiter is a dict with fields as keys and values to search for as values.
+        All fields are combined with an operator which can be either "and" (default) or "or"
+        Return a list (empty list if no object found)
+        """
+        self.assert_ready()
+        table = queries.TABLES[object_type]
+
+        keys = filter.keys()
+
+        sql_where = (' %s' % operator).join(['%(key)s=:%(key)s' % { 'key': key } for key in keys])
+
+        query = QSqlQuery()
+        query.prepare(
+            queries.select_query(
+                table  = table,
+                where  = sql_where,
+                limit  = limit,
+                offset = offset,
+            )
+        )
+
+        for key in keys:
+            query.bindValue(':%s' % key, filter[key])
+
+        if not query.exec_():
+            lastDBError = self._db.lastError()
+            if lastDBError.type():
+                raise StorageTemporarilyNotAvailable(lastDBError.text())
+            raise CannotDeleteObject(self.db_error(query.lastError(), 'Objects "%s" of type "%s" cannot be found' % (id, object_type)))
+
+        results = []
+        while query.next():
+            results.append(self.query_row_to_dict(query, table))
+
+        return results
